@@ -9,6 +9,7 @@ function Footer() {
                     <p>HOME</p>
                     <p>ABOUT</p>
                 </div>
+                
                 <div>
                     <p>Contact Us</p>
                     <p>+251985187059</p>
