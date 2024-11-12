@@ -1,0 +1,31 @@
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: #f0f8ff;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 25px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #2E4053;
+    font-weight: bold;
+    margin-right: 25px;
+}
+
+.nav-link.active {
+    color: #007acc; /* Change color when link is active */
+}
