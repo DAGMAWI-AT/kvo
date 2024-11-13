@@ -54,6 +54,7 @@ function Main() {
         background: "#fbf5df",
         border: "2px solid #ddd",
         margin: "4px",
+        marginTop:"100px"
       }}
     >
       <section style={{ marginBottom: "20px" }}>
@@ -65,10 +66,11 @@ function Main() {
             alignItems: "center",
             border: "1px solid #ddd",
             padding: "10px",
-            background: "#f5ebfa",
-            width: "100%", // Set fixed width
+            background: "#f0f8ff",
+            // width: "95%", // Set fixed width
             height: "300px", // Set fixed height for the container
-            overflow: "hidden", // Prevent content from overflowing the container
+            overflow: "hidden", 
+            marginRight:'10px'// Prevent content from overflowing the container
           }}
         >
           <button onClick={handlePrev}>{"<"}</button>
@@ -113,7 +115,7 @@ function Main() {
         </div>
       </section>
 
-      <section style={{ marginBottom: "20px" }}>
+      <section style={{ marginBottom: "20px",background:'#f0f8ff', padding:'20px' }}>
         <h2>Meeting Schedule</h2>
         <p>Monday 10PM for this reason</p>
       </section>
