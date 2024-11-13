@@ -1,0 +1,21 @@
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px;
+  background: #2e4156;
+
+  color: #fff;
+  /* width: 100%; */
+  position: relative;
+}
+
+.right {
+  font-size: 10px ;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  background: #1a2d42;
+  color: #c0c8ca;
+  border: 0.5px solid #ddd;
+  margin: 0px;
+  padding: 2px;
+}

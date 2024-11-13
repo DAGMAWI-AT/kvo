@@ -1,22 +1,23 @@
-// Footer.jsx
 import React from 'react';
-
+import './Footer.css'
 function Footer() {
     return (
         <>
-            <footer style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', background: '#333', color: '#fff' }}>
-                <div>
-                    <p>HOME</p>
-                    <p>ABOUT</p>
-                </div>
-                
-                <div>
-                    <p>Contact Us</p>
-                    <p>+251985187059</p>
-                    <p>example@gmail.com</p>
-                </div>
-            </footer>
-            <p style={{ textAlign: 'center', width: '100%', height: '50%', background: '#333' }}>@ All rights reserved</p>
+        <footer >
+            <div>
+                <p>HOME</p>
+                <p>ABOUT</p>
+            </div>
+            <div>
+                <p>Contact Us</p>
+                <p>+251985187059</p>
+                <p>example@gmail.com</p>
+            </div>
+           
+        </footer>
+        <p className="right">
+                @ All rights reserved
+            </p>
         </>
     );
 }

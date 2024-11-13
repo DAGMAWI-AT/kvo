@@ -6,18 +6,15 @@ import Footer from '../common/Footer';
 
 function Pages() {
     return (
-        <>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Nav />
-            <Routes>
-                <Route path="/" element={<Home />} />
-            </Routes>
-
+            <div style={{ flex: 1 }}> {/* Main content flex area */}
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                </Routes>
+            </div>
+            <Footer />
         </div>
-        {/* <Information /> */}
-         <Footer />
-         </>
-        
     );
 }
 
