@@ -7,13 +7,13 @@ export const news = [
     id: 1,
     news: "The Korean Volunteer Organization (KVO) in Ethiopia was founded with the mission to empower communities through sustainable development initiatives focused on education, health, and community service.",
     date: "1/2/2025",
-    // img:'/kvo.png'
+    img:'/kvo.png'
   },
   {
     id: 2,
     news: "The Ethiopian Youth Empowerment Program (EYEP) promotes education, employment, and social skills development among young people in Ethiopia.",
     date: "1/15/2025",
-    img: "/logo192.png",
+    // img: "/logo192.png",
   },
   // Additional news items as needed
 ];

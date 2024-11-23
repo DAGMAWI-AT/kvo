@@ -1,21 +1,52 @@
+/* Footer container styling */
 footer {
+  /* display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  padding: 40px 70px; 
+  background: #2e4156;
+  color: #fff;
+  position: relative; */
   display: flex;
   justify-content: space-between;
-  padding: 50px;
+  padding: 70px;
   background: #2e4156;
-
   color: #fff;
-  /* width: 100%; */
   position: relative;
 }
 
+/* Footer content sections */
+footer > div {
+  flex: 1; 
+  display: flex;
+  flex-direction: column; 
+  gap: 10px; 
+}
+
+/* Footer headings */
+footer h3 {
+  margin-bottom: 15px; 
+  font-size: 1.2em;
+  color: #ffdd57; 
+}
+
+/* Footer links and icons */
+footer p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #c0c8ca; 
+  display: flex;
+  align-items: center;
+  gap: 8px; 
+}
+
 .right {
-  font-size: 10px ;
+  font-size: 10px;
   text-align: center;
   font-family: 'Times New Roman', Times, serif;
   background: #1a2d42;
   color: #c0c8ca;
-  border: 0.5px solid #ddd;
-  margin: 0px;
-  padding: 2px;
+  border-top: 0.5px solid #ddd;
+  padding: 5px;
+  margin-top: 0; 
 }

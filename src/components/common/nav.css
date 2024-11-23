@@ -5,110 +5,108 @@
     padding: 10px;
     background: #f0f8ff;
     border-bottom: 1px solid #ddd;
-
-}
-
-.nav-logo {
+  }
+  
+  .nav-logo {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-left: 25px;
-}
-
-.nav-links {
+  }
+  
+  .nav-links {
     display: flex;
     gap: 15px;
     margin-right: 40px;
-}
-
-.nav-link {
+  }
+  
+  .nav-link {
     text-decoration: none;
-    color: #2E4053;
+    color: #2e4053;
     font-weight: bold;
     margin-right: 25px;
-}
-
-.nav-link.active {
-    color: #007acc; /* Change color when link is active */
-}
-
-/* Hamburger icon styles */
-.hamburger {
-    display: none; /* Hide the hamburger icon by default */
+  }
+  
+  .nav-link.active {
+    color: #007acc; /* Highlight active link */
+  }
+  
+  /* Hamburger icon styles */
+  .hamburger {
+    display: none; /* Hidden by default for larger screens */
     cursor: pointer;
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
     height: 25px;
-}
-
-.bar {
+  }
+  
+  .bar {
     width: 30px;
     height: 4px;
     background-color: #333;
     border-radius: 10px;
-}
-
-/* When the hamburger is clicked, show the "X" */
-.close-icon {
+    transition: background-color 0.3s ease;
+  }
+  
+  .hamburger:hover .bar {
+    background-color: #007bff;
+  }
+  
+  /* Close icon */
+  .close-icon {
     display: flex;
-    flex-direction: column;
     justify-content: space-between;
+    align-items: center;
     width: 20px;
     height: 20px;
-}
-
-.close-icon .bar {
-    background-color: #333;
-    height: 4px;
-    border-radius: 10px;
-}
-
-/* Overlay when menu is open */
-.overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9;
-}
-
-/* For small screens (mobile) */
-@media (max-width: 768px) {
-    .nav-link {
-        text-decoration: none;
-        color: #2E4053;
-        font-weight: bold;
-        margin-left: 15px;
-    }
+  }
+  
+  /* Overlay */
+  
+  /* Responsive styles for small screens */
+  @media (max-width: 768px) {
     .nav-links {
-        display: none; /* Hide links by default */
-        flex-direction: column;
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      right: 0;
+      background-color: #aab7b7e5; /* Menu background */
+      width: 60%; /* Menu width */
+      height: 80vh;
+      padding: 50px 20px; /* Adjust padding */
+      z-index: 10;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease-in-out;
+      transform: translateX(100%); /* Slide out by default */
+      margin-right: 5px;
+
+    }
+  
+    .nav-links.show {
+      transform: translateX(0); /* Slide in */
+      display: flex; /* Ensure flex layout */
+    }
+  
+    .nav-link {
+      margin-bottom: 15px; /* Space between links */
+      font-size: 1.2em; /* Larger text for mobile */
+    }
+  
+    .hamburger {
+      display: flex; /* Show hamburger for mobile */
+      z-index: 15;
+    }
+    .overlay {
         position: fixed;
         top: 0;
+        left: 0;
         right: 0;
-        background-color: #aab7b7; /* Blue background */
-        width: 60%; /* Width of the menu */
-        height: 80vh; /* Full screen height */
-        padding: 20px 10px;
-        z-index: 10;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding-top: 50px;
-    }
-
-    .nav-links.show {
-        display: flex; /* Show links when the menu is toggled */
-    }
-
-    .hamburger {
-        display: flex;
-        z-index: 11; /* Show the hamburger icon on small screens */
-    }
-}
-
-/* Optional: Add smooth transitions to the hamburger icon */
-.hamburger:hover .bar {
-    background-color: #007bff;
-}
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.288);
+        z-index: 9;
+      }
+      
+  }
+  
