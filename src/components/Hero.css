@@ -9,18 +9,9 @@
     background-color: #f4f4f4;
   }
   
-  .hero-section {
-    position: relative;
+  .hero {
     background-image: url('/public/Ethiopia.jpg');
-    background-size: cover;
-    background-position: center;
-    color: white;
-    padding: 100px 20px;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    height: 500px;
+    
   }
   
   .live-indicator {

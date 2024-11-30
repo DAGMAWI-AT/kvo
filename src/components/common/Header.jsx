@@ -10,7 +10,7 @@ export const navLinks = [
   { text: "All CSAs", path: "/csas" },
   { text: "Terms and Policy", path: "/terms" },
   { text: "FAQ", path: "/faq" },
-  { text: "Login", path: "/login" },
+  { text: "Login", path: "/user/login" },
 ];
 
 function Header() {
