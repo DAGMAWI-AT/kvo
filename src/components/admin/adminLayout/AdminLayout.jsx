@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { Outlet } from 'react-router';
+import Sidebar from '../sidebar/Sidebar';
+import Navbar from '../navbar/Navbar';
 
 const AdminLayout = () => {
     const [darkMode, setDarkMode] = useState(false); // Dark mode state

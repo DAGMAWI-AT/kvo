@@ -10,6 +10,15 @@ import WorkReport from '../user/dashboard/reports/WorkReport';
 import ViewWorkReport from '../user/dashboard/reports/ViewWorkReport';
 import UploadReports from '../user/dashboard/reports/UploadReports';
 import UpdateReports from '../user/dashboard/reports/UpdateReports';
+//admin
+import AdminLayout from '../admin/adminLayout/AdminLayout';
+import AdminDashboard from '../admin/adminDashboard/AdminDashboard';
+import Reports from '../admin/reportCategory/Reports';
+import ExpireDate from '../admin/expireDate/ExpireDate';
+import Csos from '../admin/cso/Csos';
+import EachCso from '../admin/cso/each/EachCso';
+import YearlyReport from '../admin/reports/yearly/YearlyReport';
+
 
 const Routers = createBrowserRouter([
     {
@@ -49,6 +58,39 @@ const Routers = createBrowserRouter([
                 path: "/user/dashboard/update_report/:id",
                 element: <UpdateReports />,
             },
+        ]
+    },
+    {
+        path: "/admin",
+        element: (
+            <AdminLayout />
+        ),
+        children: [
+            {
+                path: "/admin/dashboard",
+                element: <AdminDashboard />,
+            },
+            {
+                path: "/admin/report_category",
+                element: <Reports />,
+            },
+            {
+                path: "/admin/expire_date",
+                element: <ExpireDate />,
+            },
+            {
+                path: "/admin/all_cso",
+                element: <Csos />,
+            },
+            {
+                path: "/admin/each_cso/:id",
+                element: <EachCso />,
+            },
+            {
+                path: "/admin/yearlyReport/:id",
+                element: <YearlyReport />,
+            },
+           
         ]
     },
     //login rout
