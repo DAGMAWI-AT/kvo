@@ -1,81 +1,83 @@
 import React, { useState } from 'react';
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const Reports = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([
-    { id: 1, item: "Quarterly", date:"12/2/2024" },
-    { id: 2, item: "Yearly",date:"12/2/2024" },
+    { id: 1, item: "Quarterly", date: "12/2/2024" },
+    { id: 2, item: "Yearly", date: "12/2/2024" },
   ]);
 
   const handleEdit = (id) => {
-    const newItem = prompt('Enter new Report Category:');
-    if (newItem) {
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.id === id ? { ...item, item: newItem } : item
-        )
-      );
-    }
+    navigate("/admin/report_category/edit_category");
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this record?')) {
-      setData((prevData) => prevData.filter((item) => item.id !== id));
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setData((prevData) => prevData.filter((item) => item.id !== id));
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'The report category has been deleted.',
+          confirmButtonColor: '#3085d6',
+        });
+      }
+    });
   };
 
   const handleAddReportCategory = () => {
-    const newItem = prompt('Enter new Report Category:');
-    if (newItem) {
-      setData((prevData) => [
-        ...prevData,
-        {
-          id: prevData.length + 1,
-          item: newItem,
-        },
-      ]);
-    }
+    navigate("/admin/report_category/category");
   };
 
   return (
     <div className="p-8 mx-auto max-w-7xl">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Reports</h2>
+        <h2 className="text-2xl font-bold font-serif text-gray-400">Report Category</h2>
         <button
           className="px-6 py-3 text-base text-white bg-green-600 rounded hover:bg-green-700"
           onClick={handleAddReportCategory}
         >
-          Add Report Category
+          + Upload
         </button>
       </div>
-      <table className="w-full border-collapse border border-gray-300 text-left shadow-2xl shadow-blue-gray-900">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border border-gray-400 px-6 py-4">ID</th>
-            <th className="border border-gray-400 px-6 py-4">Report Category</th>
-            <th className="border border-gray-400 px-6 py-4">Data</th>
-            <th className="border border-gray-400 px-6 py-4">Actions</th>
+      <table className="min-w-full bg-white border shadow-2xl border-gray-300">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="px-4 py-2 border-b">ID</th>
+            <th className="px-4 py-2 border-b">Report Category</th>
+            <th className="px-4 py-2 border-b">Date</th>
+            <th className="px-4 py-2 border-b">Actions</th>
           </tr>
         </thead>
         <tbody>
           {data.map((row) => (
             <tr key={row.id} className="hover:bg-gray-50">
-              <td className="border border-gray-400 px-6 py-4">{row.id}</td>
-              <td className="border border-gray-400 px-6 py-4">{row.item}</td>
-              <td className="border border-gray-400 px-6 py-4">
-                 {row.date}
-              </td>
-              <td className="border border-gray-400 px-6 py-4">
+              <td className="px-4 py-2 border-b text-center">{row.id}</td>
+              <td className="px-4 py-2 border-b text-center">{row.item}</td>
+              <td className="px-4 py-2 border-b text-center">{row.date}</td>
+              <td className="px-4 py-2 border-b text-center">
                 <button
                   className="mr-4 px-4 py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
                   onClick={() => handleEdit(row.id)}
                 >
-                  Edit
+                  <FaEdit className="mr-1" /> 
                 </button>
                 <button
                   className="px-4 py-2 text-sm text-white bg-red-500 rounded hover:bg-red-600"
                   onClick={() => handleDelete(row.id)}
                 >
-                  Delete
+                  <FaTrashAlt className="mr-1"/>
                 </button>
               </td>
             </tr>

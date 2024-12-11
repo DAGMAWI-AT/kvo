@@ -12,8 +12,8 @@ import "./Navbar.css"; // Custom CSS file for styling
 const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
 
   return (
-    // <nav className={`navbar ${darkMode ? "dark" : "light"}`}>
-    <nav className="navbar">
+    <nav className={`navbar ${darkMode ? "dark" : "light"}`}>
+    {/* <nav className="navbar"> */}
       <div className="navbar-left">
         {/* Hamburger Menu */}
         <button className="menu-toggle" onClick={toggleSidebar}>

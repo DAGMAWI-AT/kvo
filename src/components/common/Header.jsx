@@ -1,38 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./nav.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import { FaMoon, FaSun } from "react-icons/fa";
 
 export const navLinks = [
   { text: "Home", path: "/" },
   { text: "About", path: "/about" },
   { text: "Services", path: "/" },
+  { text: "News", path: "/news" },
+
   { text: "All CSAs", path: "/csas" },
-  { text: "Terms and Policy", path: "/terms" },
-  { text: "FAQ", path: "/faq" },
   { text: "Login", path: "/user/login" },
 ];
 
 function Header() {
+  const [darkMode, setDarkMode] = useState(
+    () => localStorage.getItem("theme") === "dark"
+  );
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Apply theme changes and store the preference
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
+  // Handle scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+        const header = document.querySelector(".nav-bar");
+        if (window.scrollY > 100) {
+            header.classList.add("header_scroll");
+        } else {
+            header.classList.remove("header_scroll");
+        }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
 
   // Toggle the menu visibility
   const toggleMenu = () => {
     setIsMenuOpen((prevState) => !prevState);
   };
 
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
   return (
-    <nav className="nav-bar">
-      <div className="nav-logo">
+    <nav
+      className={`nav-bar ${isScrolled ? "scrolled" : "transparent"} ${
+        darkMode ? "dark" : "light"
+      }`}
+    >
+      <div className="nav-logo mt-4">
         <img
           src="/kvo.png"
           alt="Logo"
           className="logo"
           style={{ width: "40px", height: "40px" }}
         />
-        <h2>KVO</h2>
+        <h2 className="font-bold font-serif mb-4">Bissoftu Finance Office</h2>
       </div>
-      <div className="hamburger" onClick={toggleMenu}>
+      <div className="menu-icon" onClick={toggleMenu}>
         {isMenuOpen ? (
           <i
             className="fa fa-times"
@@ -59,6 +100,11 @@ function Header() {
             {link.text}
           </Link>
         ))}
+        <div className="mode">
+          <button onClick={toggleDarkMode}>
+            {darkMode ? <FaSun /> : <FaMoon />}
+          </button>
+        </div>
       </div>
     </nav>
   );

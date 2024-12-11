@@ -1,6 +1,6 @@
 import React from 'react'
 import { createBrowserRouter } from "react-router-dom";
-import Home from '../Home';
+import Home from '../home/Home';
 import App from '../../App';
 import UserLayout from '../user/userLayout/UserLayout';
 import Dashboard from '../user/dashboard/Dashboard';
@@ -18,6 +18,19 @@ import ExpireDate from '../admin/expireDate/ExpireDate';
 import Csos from '../admin/cso/Csos';
 import EachCso from '../admin/cso/each/EachCso';
 import YearlyReport from '../admin/reports/yearly/YearlyReport';
+import Users from '../admin/users/Users';
+import Category from '../admin/reportCategory/Category';
+import EditCategory from '../admin/reportCategory/EditCategory';
+import AllCsoReports from '../admin/cso/allCsoReports/AllCsoReports';
+import EditProfile from '../admin/profile/EditProfile';
+import ViewProfile from '../admin/profile/ViewProfile';
+import ChangePassowrd from '../admin/changePassword/ChangePassowrd';
+import HeroContent from '../admin/webContent/heroContent/HeroContent';
+import UpdateHeroContent from '../admin/webContent/heroContent/UpdateHeroContent';
+import ViewHeroContent from '../admin/webContent/heroContent/ViewHeroContent';
+import AddHeroContent from '../admin/webContent/heroContent/AddHeroContent';
+import News from '../news/News';
+import Abouts from '../about/Abouts';
 
 
 const Routers = createBrowserRouter([
@@ -28,6 +41,14 @@ const Routers = createBrowserRouter([
             {
                 path: "/",
                 element: <Home />,
+            },
+            {
+                path: "/news",
+                element: <News />,
+            },
+            {
+                path: "/about",
+                element: <Abouts />,
             },
         ]
     },
@@ -87,10 +108,58 @@ const Routers = createBrowserRouter([
                 element: <EachCso />,
             },
             {
-                path: "/admin/yearlyReport/:id",
+                path: "/admin/yearly_Report/:id",
                 element: <YearlyReport />,
             },
-           
+            {
+                path: "/admin/quarterly_report/:id",
+                element: <YearlyReport />,
+            },
+            {
+                path: "/admin/users",
+                element: <Users />,
+            },
+            {
+                path: "/admin/report_category/category",
+                element: <Category />,
+            },
+            {
+                path: "/admin/report_category/edit_category",
+                element: <EditCategory />,
+            },
+            {
+                path: "/admin/report_category/all_cso_reports",
+                element: <AllCsoReports />,
+            },
+            {
+                path: "/admin/edit_profile",
+                element: <EditProfile />,
+            },
+            {
+                path: "/admin/view_profile",
+                element: <ViewProfile />,
+            },
+            {
+                path: "/admin/update_password",
+                element: <ChangePassowrd />,
+            },
+            {
+                path: "/admin/web_content/hero_content",
+                element: <HeroContent />,
+            },
+            {
+                path: "/admin/web_content/update_hero_content",
+                element: <UpdateHeroContent />,
+            },
+            {
+                path: "/admin/web_content/view_hero_content",
+                element: <ViewHeroContent />,
+            },
+            {
+                path: "/admin/web_content/add_hero_content",
+                element: <AddHeroContent />,
+            },
+            
         ]
     },
     //login rout

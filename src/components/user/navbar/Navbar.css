@@ -57,7 +57,9 @@
     /* border-radius: 20px; */
     width: 300px;
   }
-  
+  .navbar.dark .search-bar{
+    background-color: #333;
+  }
   .search-bar:hover {
     background: #ccc;
   }
@@ -70,9 +72,12 @@
   .search-input {
     border: none;
     outline: none;
-    background: none;
+    background: black;
     width: 100%;
     /* color: inherit; */
+  }
+  .navbar.dark .search-input{
+    background: #666;
   }
   @media screen and (max-width:768px) {
     .search-input {

@@ -1,77 +1,77 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaSortAlphaDown, FaSortAlphaUp, FaThLarge, FaList } from "react-icons/fa";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 export  const allcsos=[
   {
     id: 1,
-    name: "Green Earth Initiative",
+    name: "Korea international volunteer organization (KVO)",
     date: "2022-05-15",
     notifications: 1,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 2,
     name: "Youth for Change",
     date: "2021-11-20",
     notifications: 2,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 3,
     name: "Health and Wellness Foundation",
     date: "2023-01-10",
     notifications: 0,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 4,
     name: "Community Builders Network",
     date: "2020-06-25",
     notifications: 1,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 5,
     name: "Educators United",
     date: "2023-07-05",
     notifications: 3,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 6,
     name: "Green Earth Initiative",
     date: "2022-05-15",
     notifications: 1,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 7,
     name: "Youth for Change",
     date: "2021-11-20",
     notifications: 2,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 8,
     name: "Health and Wellness Foundation",
     date: "2023-01-10",
     notifications: 0,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 9,
     name: "Community Builders Network",
     date: "2020-06-25",
     notifications: 1,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
   {
     id: 10,
     name: "Educators United",
     date: "2023-07-05",
     notifications: 3,
-    imageUrl: "https://via.placeholder.com/100",
+    imageUrl: "../kvo.png",
   },
 ];
 const Csos = () => {
@@ -84,6 +84,11 @@ const Csos = () => {
   const [displayMode, setDisplayMode] = useState("gallery");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const location= useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+  
   const handleClick = (id) => {
     navigate(`/admin/each_cso/${id}`);
   };
@@ -140,12 +145,12 @@ const Csos = () => {
 
   return (
     <div className="p-8 mx-auto max-w-6xl bg-white rounded-xl shadow-lg">
-      <h2 className="text-4xl font-bold text-gray-800 mb-6 text-center">
+      <h2 className="text-4xl p-4 font-thin text-gray-600 mb-6 text-center">
         Civic Society Organizations
       </h2>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+      <div className="flex border-2 p-8 flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-4">
           <label className="text-gray-600 font-semibold">
             Sort By:
@@ -256,8 +261,11 @@ const Csos = () => {
         <button
           onClick={goToPreviousPage}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-        >
+          className={`px-4 py-2 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-700"
+          }`}        >
           Previous
         </button>
         <span className="text-gray-700">
@@ -266,8 +274,11 @@ const Csos = () => {
         <button
           onClick={goToNextPage}
           disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-        >
+          className={`px-4 py-2 rounded ${
+            currentPage === totalPages
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-700"
+          }`}        >
           Next
         </button>
       </div>

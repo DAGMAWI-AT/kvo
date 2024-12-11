@@ -13,8 +13,8 @@ const UserLayout = () => {
   const toggleSidebar = () => setSidebarCollapsed((prevState) => !prevState);
 
   return (
-    // <div className={`user-layout ${darkMode ? "dark" : "light"}`}>
-    <div className='user-layout' >
+    <div className={`user-layout ${darkMode ? "dark" : "light"}`}>
+    {/* <div className='user-layout' > */}
  
     {/* Sidebar */}
       <Sidebar darkMode={darkMode} collapsed={sidebarCollapsed} />
@@ -27,7 +27,7 @@ const UserLayout = () => {
           toggleSidebar={toggleSidebar} // Pass toggleSidebar to Navbar
         />
         <main className="main-content">
-          <Outlet />
+          <Outlet context={{ darkMode }} />
         </main>
         {/* <Footer/> */}
 
