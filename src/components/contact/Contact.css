@@ -3,10 +3,11 @@
     position: relative;
     z-index: 1;
     background: transparent url(/public/banner-bg1.jpg) 100% 0 no-repeat;
-    padding-top: 190px;
-    padding-bottom: 100px;
+    padding-top: 80px;
+    padding-bottom: 40px;
     text-align: center;
 }
+
 @media (max-width: 768px){
     .contact_area {
       background-position: 50%;
@@ -50,10 +51,10 @@
     }
 }
 .pt-80, .ptb-80 {
-    padding-top: 80px;
+    padding-top: 20px;
 }
 .ptb-80 {
-    padding-bottom: 80px;
+    padding-bottom: 60px;
 }
 
 /*  */
