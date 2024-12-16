@@ -7,6 +7,7 @@
     padding-bottom: 40px;
     text-align: center;
 }
+
 @media (max-width: 768px){
     .contact_area {
       background-position: 50%;
