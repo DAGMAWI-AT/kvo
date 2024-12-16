@@ -31,10 +31,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
       </div>
       <div className="navbar-center">
         <div className="search-bar p-7 flex items-center border rounded-full px-1 py-1 w-full max-w-md border-gray-300 focus-within:border-blue-500">
-          {/* Search Icon */}
           <FaSearch className="text-gray-400 text-lg m-2 " />
 
-          {/* Input Field */}
           <input
             type="text"
             placeholder="Search"

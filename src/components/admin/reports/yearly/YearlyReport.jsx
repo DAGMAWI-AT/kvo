@@ -4,19 +4,23 @@ import { allreport } from "../../cso/each/EachCso"; // Adjust the path if needed
 
 const YearlyReport = () => {
   const location = useLocation();
-  const { id } = useParams(); // Get ID from URL
-  const [comments, setComments] = useState(""); // Initialize with existing comments
-  const [newComment, setNewComment] = useState(""); // State for the new comment
+  const { id } = useParams();
+  const [comments, setComments] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [status, setStatus] = useState("");
+  const [updatePermission, setUpdatePermission] = useState("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  const yearly_report = allreport.find((report) => report.id === parseInt(id)); // Find the matching report
+  const yearly_report = allreport.find((report) => report.id === parseInt(id));
 
   useEffect(() => {
     if (yearly_report) {
-      setComments(yearly_report.comment); // Initialize with existing comments
+      setComments(yearly_report.comment || "");
+      setStatus(yearly_report.status || "pending");
+      setUpdatePermission(yearly_report.updatePermission || "inactive");
     }
   }, [yearly_report]);
 
@@ -36,27 +40,33 @@ const YearlyReport = () => {
     );
   }
 
-  // Construct the file URLs
+  const handleAddComment = () => {
+    if (newComment.trim() === "") return;
+    const updatedComments = comments
+      ? `${comments}, ${newComment.trim()}`
+      : newComment.trim();
+    setComments(updatedComments);
+    setNewComment("");
+  };
+
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+  };
+
+  const handlePermissionChange = (e) => {
+    setUpdatePermission(e.target.value);
+  };
+
   const viewUrl = `https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
     `https://yourserver.com/reports/${yearly_report.reportFile}`
   )}`;
   const downloadUrl = `https://yourserver.com/reports/${yearly_report.reportFile}`;
 
-  // Handle comment submission
-  const handleAddComment = () => {
-    if (newComment.trim() === "") return; // Prevent empty comments
-    const updatedComments = comments
-      ? `${comments}, ${newComment.trim()}`
-      : newComment.trim(); // Append the new comment
-    setComments(updatedComments); // Update the state
-    setNewComment(""); // Clear the input field
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <div className="ml-4">
-          <h1 className="text-3xl font-bold font-serif text-gray-400 mb-4">
+    <div className="min-h-screen bg-gray-100 p-2 md:p-4 lg:p-6">
+      <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
+        <div className="ml-4 font-serif">
+          <h1 className="text-xl lg:text-3xl font-bold font-serif text-gray-400 mb-4">
             Yearly Report Details
           </h1>
           <p className="text-gray-600">
@@ -75,7 +85,7 @@ const YearlyReport = () => {
             Additional details can be displayed here, like:
           </p>
           <p className="text-gray-600 mt-2">
-            <b>Status :</b> {yearly_report.status}
+            <b>Status:</b> {status}
           </p>
           <p className="text-gray-600 mt-2">
             <b>Comments:</b> {comments || "No comments yet."}
@@ -99,7 +109,6 @@ const YearlyReport = () => {
           </div>
         </div>
 
-        {/* Comments Section */}
         <div className="mt-6 border-t pt-4">
           <h2 className="text-2xl font-bold text-gray-500">Add a Comment</h2>
           <div className="mt-4">
@@ -115,6 +124,41 @@ const YearlyReport = () => {
             >
               Submit Comment
             </button>
+          </div>
+
+          <div className="flex justify-start gap-8 lg:gap-20 flex-wrap">
+            <div className="mb-4 mt-4">
+              <label htmlFor="status" className="block text-gray-700">
+                Status
+              </label>
+              <select
+                id="status"
+                value={status}
+                onChange={handleStatusChange}
+                className="w-32 lg:w-40 px-3 py-2 border rounded"
+              >
+                <option value="approve">Approve</option>
+                <option value="pending">Pending</option>
+                <option value="commented">Commented</option>
+                <option value="reject">Reject</option>
+              </select>
+            </div>
+            <div className="mb-4 mt-4">
+              <label htmlFor="update_permission" className="block text-gray-700">
+                Update Permission
+              </label>
+              <select
+                id="update_permission"
+                value={updatePermission}
+                onChange={handlePermissionChange}
+                className="w-32 lg:w-40 px-3 py-2 border rounded"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="expire">Expire</option>
+                <option value="denied">Denied to Update</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>

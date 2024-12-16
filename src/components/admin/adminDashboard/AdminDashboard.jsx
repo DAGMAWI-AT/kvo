@@ -1,9 +1,10 @@
 import React from 'react'
+import CircleBar from './CircleBar'
 
 const Dashboard = () => {
   return (
     <div>
-      admin Dashboard
+      <CircleBar/>
     </div>
   )
 }

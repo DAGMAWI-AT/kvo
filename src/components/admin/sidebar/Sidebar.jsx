@@ -139,15 +139,15 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               </li>
               <li
                 className={`submenu-item ${
-                  isActive("/admin/web_content/pages") ? "active" : ""
+                  isActive("/admin/web_content/meeting_content") ? "active" : ""
                 }`}
               >
                 <Link
-                  to="/admin/web_content/pages"
+                  to="/admin/web_content/meeting_content"
                   className="flex items-center"
                 >
                   <FaTags />
-                  Pages
+                  Meeting Content
                 </Link>
               </li>
               <li

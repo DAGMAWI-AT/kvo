@@ -31,6 +31,12 @@ import ViewHeroContent from '../admin/webContent/heroContent/ViewHeroContent';
 import AddHeroContent from '../admin/webContent/heroContent/AddHeroContent';
 import News from '../news/News';
 import Abouts from '../about/Abouts';
+import Meeting from '../admin/webContent/meeting/Meeting';
+import AddMeeting from '../admin/webContent/meeting/AddMeeting';
+import QuarterlyReport from '../admin/reports/quarterly/QuarterlyReport';
+import EditMeeting from '../admin/webContent/meeting/EditMeeting';
+import ViewMeeting from '../admin/webContent/meeting/ViewMeeting';
+import Contact from '../contact/Contact';
 
 
 const Routers = createBrowserRouter([
@@ -49,6 +55,10 @@ const Routers = createBrowserRouter([
             {
                 path: "/about",
                 element: <Abouts />,
+            },
+            {
+                path: "/contact",
+                element: <Contact />,
             },
         ]
     },
@@ -113,7 +123,7 @@ const Routers = createBrowserRouter([
             },
             {
                 path: "/admin/quarterly_report/:id",
-                element: <YearlyReport />,
+                element: <QuarterlyReport />,
             },
             {
                 path: "/admin/users",
@@ -158,6 +168,22 @@ const Routers = createBrowserRouter([
             {
                 path: "/admin/web_content/add_hero_content",
                 element: <AddHeroContent />,
+            },
+            {
+                path: "/admin/web_content/meeting_content",
+                element: <Meeting />,
+            },
+            {
+                path: "/admin/web_content/add_meeting_content",
+                element: <AddMeeting />,
+            },
+            {
+                path: "/admin/web_content/update_meeting_content",
+                element: <EditMeeting />,
+            },
+            {
+                path: "/admin/web_content/view_meeting_content",
+                element: <ViewMeeting />,
             },
             
         ]

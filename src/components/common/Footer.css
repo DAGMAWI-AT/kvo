@@ -10,8 +10,8 @@ footer {
   display: flex;
   justify-content: space-between;
   padding: 70px;
-  background: #2e4156;
-  color: #fff;
+  background: transparent;
+  color: #ffffff00;
   position: relative;
 }
 

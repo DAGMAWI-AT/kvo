@@ -107,9 +107,9 @@ const AllCsoReports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold font-serif text-gray-400 mb-4">All CSO Reports</h2>
+    <div className="min-h-screen bg-gray-100 p-2 lg:p-6 md:p-4 font-serif">
+      <div className="bg-white p-3 lg:p-6 md:p-4 rounded-lg shadow-lg">
+        <h2 className="text-xl lg:text-2xl font-bold font-serif text-gray-400 mb-4">All CSO Reports</h2>
 
         {/* Search Filter */}
         <input
@@ -121,6 +121,8 @@ const AllCsoReports = () => {
         />
 
         {/* Reports Table */}
+        <div className="overflow-x-auto">
+
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-200">
@@ -136,12 +138,12 @@ const AllCsoReports = () => {
             {currentReports.length > 0 ? (
               currentReports.map((report) => (
                 <tr key={report.id} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 px-4 py-2">{report.csoName}</td>
-                  <td className="border border-gray-300 px-4 py-2">{report.name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{report.type}</td>
-                  <td className="border border-gray-300 px-4 py-2">{report.date}</td>
-                  <td className="border border-gray-300 px-4 py-2">{report.status}</td>
-                  <td className="border border-gray-300 px-4 py-2">
+                  <td className="border-b border-gray-300 px-4 py-2">{report.csoName}</td>
+                  <td className="border-b border-gray-300 px-4 py-2">{report.name}</td>
+                  <td className="border-b border-gray-300 px-4 py-2">{report.type}</td>
+                  <td className="border-b border-gray-300 px-4 py-2">{report.date}</td>
+                  <td className="border-b border-gray-300 px-4 py-2">{report.status}</td>
+                  <td className="border-b border-gray-300 px-4 py-2">
                     <button
                       onClick={() => handleView(report)} // Pass the specific report to the handleView function
                       className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
@@ -163,13 +165,13 @@ const AllCsoReports = () => {
             )}
           </tbody>
         </table>
-
+ </div>
         {/* Pagination Buttons */}
         <div className="mt-4 flex justify-between items-center">
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded ${
+            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
               currentPage === 1
                 ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-700"
@@ -178,12 +180,12 @@ const AllCsoReports = () => {
             Previous
           </button>
           <span>
-            Page {currentPage} of {totalPages}
+             {currentPage} of {totalPages}
           </span>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded ${
+            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-700"

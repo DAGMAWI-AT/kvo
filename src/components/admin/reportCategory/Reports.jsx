@@ -41,16 +41,18 @@ const Reports = () => {
   };
 
   return (
-    <div className="p-8 mx-auto max-w-7xl">
+    <div className="p-2 lg:p-8 mx-auto max-w-7xl font-serif">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold font-serif text-gray-400">Report Category</h2>
+        <h2 className=" text-xl lg:text-2xl font-bold font-serif text-gray-400">Report Category</h2>
         <button
-          className="px-6 py-3 text-base text-white bg-green-600 rounded hover:bg-green-700"
+          className="px-4 py-2 lg:px-6 lg:py-3 text-base text-white bg-green-600 rounded hover:bg-green-700"
           onClick={handleAddReportCategory}
         >
           + Upload
         </button>
       </div>
+      <div className="overflow-x-auto">
+
       <table className="min-w-full bg-white border shadow-2xl border-gray-300">
         <thead className="bg-gray-100">
           <tr>
@@ -66,15 +68,15 @@ const Reports = () => {
               <td className="px-4 py-2 border-b text-center">{row.id}</td>
               <td className="px-4 py-2 border-b text-center">{row.item}</td>
               <td className="px-4 py-2 border-b text-center">{row.date}</td>
-              <td className="px-4 py-2 border-b text-center">
+              <td className="px-4 py-2 border-b text-center flex">
                 <button
-                  className="mr-4 px-4 py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+                  className="mr-4 px-1 py-1 lg:px-4 lg:py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
                   onClick={() => handleEdit(row.id)}
                 >
                   <FaEdit className="mr-1" /> 
                 </button>
                 <button
-                  className="px-4 py-2 text-sm text-white bg-red-500 rounded hover:bg-red-600"
+                  className="px-1 py-1 lg:px-4 lg:py-2 text-sm text-white bg-red-500 rounded hover:bg-red-600"
                   onClick={() => handleDelete(row.id)}
                 >
                   <FaTrashAlt className="mr-1"/>
@@ -84,6 +86,7 @@ const Reports = () => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

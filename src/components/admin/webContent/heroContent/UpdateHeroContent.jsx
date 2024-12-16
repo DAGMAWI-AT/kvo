@@ -57,8 +57,8 @@ const UpdateHeroContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+    <div className="min-h-screen bg-gray-100 p-2 md:p-4 lg:p-6 font-serif">
+      <div className="bg-white p-3 md:p-4 lg:p-6 rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold text-gray-400 mb-6">
           Update Hero Content
         </h1>

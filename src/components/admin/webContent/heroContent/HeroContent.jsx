@@ -70,17 +70,17 @@ const HeroContentManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
+    <div className="min-h-screen bg-gray-100 p-2 lg:p-6 font-serif">
+      <div className="bg-white p-3 lg:p-6 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold font-serif text-gray-400">
-            Hero Content Management
+          <h1 className="text-xl lg:text-2xl font-bold font-serif text-gray-400">
+            Hero Content
           </h1>
           <button
             onClick={addHeroContent}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ml-auto"
+            className="bg-green-500 text-white px-2 py-1 lg:px-4 lg:py-2 rounded hover:bg-green-600 ml-auto"
           >
-            Add Hero Content
+            Add Hero
           </button>
         </div>
 
@@ -114,7 +114,7 @@ const HeroContentManagement = () => {
                   <td className="border-b border-gray-300 px-4 py-2">
                     {content.description}
                   </td>
-                  <td className="border-b border-gray-300 px-4 py-2 space-x-2">
+                  <td className=" flex  border-gray-300 px-4 py-2 space-x-2">
                     <button
                       onClick={() => viewHeroContent(content.id)}
                       className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
@@ -145,7 +145,7 @@ const HeroContentManagement = () => {
           <button
             onClick={previousPage}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded ${
+            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
               currentPage === 1
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-600"
@@ -154,12 +154,12 @@ const HeroContentManagement = () => {
             Previous
           </button>
           <p className="text-gray-700">
-            Page {currentPage} of {totalPages}
+             {currentPage} of {totalPages}
           </p>
           <button
             onClick={nextPage}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded ${
+            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-500 text-white hover:bg-blue-600"

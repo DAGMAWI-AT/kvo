@@ -8,8 +8,9 @@ export const allreport = [
     name: "bishofftu high school",
     type: "yearly",
     date: "2025-10-10",
-    status: "active",  // Active status
+    status: "pending",  
     reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
     comment: "",
   },
   {
@@ -17,8 +18,9 @@ export const allreport = [
     name: "bishofftu high school",
     type: "quarterly",
     date: "2025-10-20",
-    status: "inactive",  // Inactive status
+    status: "commented",  
     reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
     comment: "",
   },
   {
@@ -26,8 +28,9 @@ export const allreport = [
     name: "bishofftu health care",
     type: "proposal",
     date: "2025-10-20",
-    status: "active",  // Active status
+    status: "approve",  // Active status
     reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
     comment: "",
   },
   // Add more reports as needed
@@ -114,19 +117,19 @@ const EachCso = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-gray-800">{cso.name}</h2>
+    <div className="bg-gray-100 p-2 lg:p-6 md:p-4">
+      <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
+        <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">{cso.name}</h2>
         <p className="text-gray-600 mb-4">ID: {cso.id}</p>
 
         {/* Filter Buttons */}
-        <div className="grid border-2 p-4 grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className=" flex flex-wrap md:grid lg:gird border-2 p-2 grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           {["all", "yearly", "quarterly", "proposal", "projects", "other"].map(
             (type) => (
               <button
                 key={type}
                 onClick={() => setFilter(type)}
-                className={`w-full py-2 px-4 rounded ${
+                className={`w-40 lg:w-full md:w-full py-2 px-4 rounded ${
                   filter === type
                     ? "bg-blue-600 text-white"
                     : "bg-gray-300 text-gray-800 hover:bg-gray-400"
@@ -139,7 +142,8 @@ const EachCso = () => {
         </div>
 
         {/* Search and Date Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mb-4">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-1 mb-4"> */}
+        <div className="flex space-x-10 mb-4  lg:justify-evenly">
           <input
             type="text"
             placeholder="Search by Name"
@@ -156,68 +160,71 @@ const EachCso = () => {
         </div>
 
         {/* Reports Table */}
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Name</th>
-              <th className="border border-gray-300 px-4 py-2">Type</th>
-              <th className="border border-gray-300 px-4 py-2">Date</th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentReports.length > 0 ? (
-              currentReports.map((allreport, index) => (
-                <tr key={index} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 px-4 py-2">
-                    {allreport.name}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {allreport.type}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {allreport.date}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {allreport.status}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleView(allreport)}
-                        className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
-                      >
-                        View
-                      </button>
-                      <button
-                        onClick={() => handleStatusToggle(allreport)}
-                        className="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
-                      >
-                        Toggle Status
-                      </button>
-                      <button
-                        onClick={() => handleComment(allreport)}
-                        className="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600"
-                      >
-                        Comment
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="5"
-                  className="text-center border border-gray-300 px-4 py-2"
+      {/* Reports Table */}
+<div className="overflow-x-auto">
+  <table className="w-full border-collapse border border-gray-300">
+    <thead>
+      <tr className="bg-gray-200">
+        <th className="border border-gray-300 px-4 py-2">Name</th>
+        <th className="border border-gray-300 px-4 py-2">Type</th>
+        <th className="border border-gray-300 px-4 py-2">Date</th>
+        <th className="border border-gray-300 px-4 py-2">Status</th>
+        <th className="border border-gray-300 px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {currentReports.length > 0 ? (
+        currentReports.map((allreport, index) => (
+          <tr key={index} className="hover:bg-gray-100">
+            <td className="border border-gray-300 px-4 py-2">
+              {allreport.name}
+            </td>
+            <td className="border border-gray-300 px-4 py-2">
+              {allreport.type}
+            </td>
+            <td className="border border-gray-300 px-4 py-2">
+              {allreport.date}
+            </td>
+            <td className="border border-gray-300 px-4 py-2">
+              {allreport.status}
+            </td>
+            <td className="border border-gray-300 px-4 py-2">
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleView(allreport)}
+                  className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
                 >
-                  No reports found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  View
+                </button>
+                {/* <button
+                  onClick={() => handleStatusToggle(allreport)}
+                  className="bg-green-500 text-white py-1 px-2 rounded hover:bg-green-600"
+                >
+                  Toggle Status
+                </button>
+                <button
+                  onClick={() => handleComment(allreport)}
+                  className="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600"
+                >
+                  Comment
+                </button> */}
+              </div>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td
+            colSpan="5"
+            className="text-center border border-gray-300 px-4 py-2"
+          >
+            No reports found.
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
 
         {/* Pagination Buttons */}
         <div className="flex justify-between mt-4">

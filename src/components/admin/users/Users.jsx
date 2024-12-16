@@ -68,9 +68,9 @@ const Users = () => {
   );
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-2 lg:p-4 font-serif">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">User Management</h1>
+        <h1 className="text-xl lg:text-2xl font-bold">User Management</h1>
         <button
           onClick={() => setShowAddUserForm(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
@@ -82,8 +82,8 @@ const Users = () => {
       {/* Add User Modal */}
       {showAddUserForm && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">Register New User</h2>
+          <div className="bg-white p-3 rounded-lg shadow-lg w-96 lg:w-1/3">
+            <h2 className="text-lg lg:text-xl font-bold mb-4 text-gray-500">Register New User</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -172,10 +172,10 @@ const Users = () => {
         </div>
       )}
 
-{showEditUserForm && selectedUser && (
+      {showEditUserForm && selectedUser && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">Edit User Details</h2>
+          <div className="bg-white p-4 rounded-lg shadow-lg w-96 lg:w-1/3">
+            <h2 className="text-xl font-bold mb-4 text-gray-500">Edit User Details</h2>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -267,8 +267,8 @@ const Users = () => {
       {/* View User Modal */}
       {showViewUserForm && selectedUser && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h2 className="text-xl font-bold mb-4">User Details</h2>
+          <div className="bg-white p-4 rounded-lg shadow-lg w-96 lg:w-1/3">
+            <h2 className="text-xl font-bold mb-4 text-gray-500">User Details</h2>
             <div className="mb-4">
               <p>
                 <strong>User ID:</strong> {selectedUser.id}
@@ -321,14 +321,13 @@ const Users = () => {
                 <td className="px-4 py-2 border-b text-center">{user.email}</td>
                 <td className="px-4 py-2 border-b text-center">{user.password}</td>
                 <td
-                  className={`px-4 py-2 border-b text-center ${
-                    user.status === 'Active' ? 'text-green-600' : 'text-red-600'
-                  }`}
+                  className={`px-4 py-2 border-b text-center ${user.status === 'Active' ? 'text-green-600' : 'text-red-600'
+                    }`}
                 >
                   {user.status}
                 </td>
                 <td className="px-4 py-2 border-b text-center">{user.role}</td>
-                <td className="px-4 py-2 border-b text-center">
+                <td className="px-4 py-2 text-center flex">
                   <button
                     onClick={() => handleView(user)}
                     className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
@@ -368,25 +367,23 @@ const Users = () => {
         <button
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
-          className={`px-4 py-2 rounded ${
-            currentPage === 1
+          className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${currentPage === 1
               ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
               : 'bg-blue-500 text-white hover:bg-blue-700'
-          }`}
+            }`}
         >
           Previous
         </button>
         <span>
-          Page {currentPage} of {totalPages}
+          {currentPage} of {totalPages}
         </span>
         <button
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
-          className={`px-4 py-2 rounded ${
-            currentPage === totalPages
+          className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${currentPage === totalPages
               ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
               : 'bg-blue-500 text-white hover:bg-blue-700'
-          }`}
+            }`}
         >
           Next
         </button>

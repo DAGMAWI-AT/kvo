@@ -5,6 +5,7 @@ import Footer from '../common/Footer';
 import Header from '../common/Header';
 import News from '../news/News';
 import Abouts from '../about/Abouts';
+import Contact from '../contact/Contact';
 
 function Pages() {
     return (
@@ -15,8 +16,7 @@ function Pages() {
                     <Route path="/" element={<Home />} />
                     <Route path="/news" element={<News />} />
                     <Route path="/about" element={<Abouts />} />
-
-
+                    <Route path="/contact" element={<Contact />} />
                 </Routes>
             </div>
             <Footer />

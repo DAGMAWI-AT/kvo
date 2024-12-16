@@ -61,7 +61,7 @@
   */
   .urgent_meeting {
     position: absolute;
-    bottom: -60px;
+    bottom: -100px;
     right: 500px;
     left: 20px;
     background-color: #f0f8ff;
@@ -138,9 +138,9 @@
   
     .urgent_meeting {
       position: absolute;
-      bottom: -60px;
-      right: 100px;
-      left: 20px;
+      bottom: -100px;
+      right: 70px;
+      left: 15px;
       background-color: #f0f8ff;
       color: #333;
       padding: 15px;
@@ -153,7 +153,7 @@
     }
   }
   .hero-overlay {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/public/oromia.webp') center/cover no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
   }
   .bounce-animation {
     animation: bounce 2s infinite;

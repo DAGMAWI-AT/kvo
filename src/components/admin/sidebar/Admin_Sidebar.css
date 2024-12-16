@@ -155,13 +155,13 @@
   background-color: black;
 }
 @media screen and (max-width: 768px) {
-  .admin_sidebar {
+  /* .admin_sidebar {
     max-height: 100%;
     height: 100vh;
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
-  }
+  } */
 }
 
 
@@ -193,3 +193,66 @@
   --scrollbar-thumb-color: #888;
   --scrollbar-track-color: #f1f1f1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* ///////////////////////// */
+
+
+
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .admin_sidebar {
+    position: fixed;
+    z-index: 999;
+    width: 250px;
+    height: auto;
+    background-color: #6610f2;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 5px;
+    transition: all 0.9s ease;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  /*  */
+
+  .admin_sidebar.collapsed {
+    display: none;
+  }
+  .admin_sidebar.collapsed .logo {
+    /* font-size: 0; */
+    overflow: hidden;
+  }
+  
+  .admin_sidebar.collapsed .menu li {
+    padding: 15px; 
+  }
+  
+  .admin_sidebar.collapsed .menu li svg {
+    font-size: 1.3rem; 
+    margin: 0;
+  }
+  .admin_sidebar.show {
+    left: 0;
+  }
+  .scrollable-menu {
+    height: calc(100vh - 60px); 
+    overflow-y: auto;
+    scroll-behavior: smooth; /* Smooth scrolling */
+  }
+  
+}
+

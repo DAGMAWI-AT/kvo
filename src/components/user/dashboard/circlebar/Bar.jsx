@@ -1,6 +1,5 @@
 import React from "react";
-import { FaEnvelopeSquare, FaReply, FaRProject, FaTasks, FaTruckLoading } from "react-icons/fa";
-import { FaReact } from "react-icons/fa6";
+import { FaEnvelopeSquare, FaRProject, FaTasks, FaTruckLoading } from "react-icons/fa";
 import "./Bar.css"; // Ensure your CSS file is imported
 
 const Bar = ({ darkMode }) => {

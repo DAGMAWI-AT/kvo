@@ -27,9 +27,9 @@ const AddHeroContent = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl">
-                <h1 className="text-3xl font-bold text-gray-500 text-center mb-8">
+        <div className=" bg-gray-100 p-2 md:p-4 lg:p-6 flex justify-center font-serif items-center">
+            <div className="bg-white p-3 md:p-4 lg:p-6 rounded-lg shadow-lg w-full max-w-4xl">
+                <h1 className="text-xl lg:text-2xl font-bold text-gray-500 text-center mb-8">
                     Add Hero Content
                 </h1>
 

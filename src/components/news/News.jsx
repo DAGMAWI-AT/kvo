@@ -82,7 +82,7 @@ const News = () => {
 
     return (
         <>
-            <section className="hero relative bg-blue-500 h-[300px] flex items-center justify-center text-center text-white">
+            <section className="news_hero relative bg-blue-500 h-[300px] flex items-center justify-center text-center text-white">
                 <div className='heros'></div>
                 <div className="hero-content mt-8">
                     <h1 className="text-4xl font-semibold z-10">About Finance Office</h1>

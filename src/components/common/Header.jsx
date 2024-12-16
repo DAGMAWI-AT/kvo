@@ -11,6 +11,8 @@ export const navLinks = [
   { text: "News", path: "/news" },
 
   { text: "All CSAs", path: "/csas" },
+  { text: "Contact", path: "/contact" },
+
   { text: "Login", path: "/user/login" },
 ];
 
@@ -35,18 +37,17 @@ function Header() {
   // Handle scrolling
   useEffect(() => {
     const handleScroll = () => {
-        const header = document.querySelector(".nav-bar");
-        if (window.scrollY > 100) {
-            header.classList.add("header_scroll");
-        } else {
-            header.classList.remove("header_scroll");
-        }
+      const header = document.querySelector(".nav-bar");
+      if (window.scrollY > 100) {
+        header.classList.add("header_scroll");
+      } else {
+        header.classList.remove("header_scroll");
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-}, []);
-
+  }, []);
 
   // Toggle the menu visibility
   const toggleMenu = () => {
@@ -64,14 +65,14 @@ function Header() {
         darkMode ? "dark" : "light"
       }`}
     >
-      <div className="nav-logo mt-4">
+      <div className="nav-logo mt-4 pr-0 pl-0 lg:pr-10 lg:pl-10">
         <img
           src="/kvo.png"
           alt="Logo"
           className="logo"
           style={{ width: "40px", height: "40px" }}
         />
-        <h2 className="font-bold font-serif mb-4">Bissoftu Finance Office</h2>
+        <h2 className="mb-4 text-sm lg:text-2xl md:text-xl">Bissoftu Finance Office</h2>
       </div>
       <div className="menu-icon" onClick={toggleMenu}>
         {isMenuOpen ? (

@@ -28,7 +28,7 @@ const EditProfile = ({ profileData, onUpdate }) => {
   };
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-6"  onSubmit={handleSubmit}>
       <div className="flex flex-col items-center">
         <img
           src={formData.image}

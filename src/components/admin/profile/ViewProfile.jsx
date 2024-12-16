@@ -69,7 +69,7 @@ const ViewProfile = () => {
       {/* Modal: Edit Profile Form */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 max-h-[90vh] overflow-y-auto relative">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96 lg:w-1/3 max-h-[90vh] overflow-y-auto relative">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 text-blue-600 hover:text-gray-800 font-bold"

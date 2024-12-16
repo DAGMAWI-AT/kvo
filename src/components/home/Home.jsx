@@ -13,7 +13,7 @@ function Home() {
           {/* <Sidebar /> */}
           <Hero/>
           <What_We_Do/>
-          <Main />
+          {/* <Main /> */}
       </div>
   );
 }

@@ -33,9 +33,9 @@ const Category = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold font-serif text-gray-400 mb-4">Add Report Category</h1>
+      <h1 className="text-xl lg:text-2xl font-bold font-serif text-gray-400 mb-4">Add Report Category</h1>
       
-      <form onSubmit={handleAddCategory} className="bg-white p-4 rounded shadow-lg shadow-gray-400">
+      <form onSubmit={handleAddCategory} className="bg-white p-2 lg:p-4 md:p-4 rounded shadow-lg shadow-gray-400">
         <div className="mb-4">
           <label htmlFor="categoryName" className="block text-gray-700 mb-2">
             Report Category Name
