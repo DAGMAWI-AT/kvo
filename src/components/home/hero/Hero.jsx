@@ -14,7 +14,7 @@ function Hero() {
       description: "Driving Change through Collaboration",
     },
     {
-      image: "/irrecha.jpeg",
+      image: "/bishoftu.jpg",
       title: "Innovating Solutions",
       description: "Building a Better Tomorrow",
     },

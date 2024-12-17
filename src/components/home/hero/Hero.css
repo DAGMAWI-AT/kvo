@@ -62,10 +62,10 @@
   .urgent_meeting {
     position: absolute;
     bottom: -100px;
-    right: 500px;
+    right: 1000px;
     left: 20px;
-    background-color: #f0f8ff;
-    color: #333;
+    background-color: #aab7b7;
+    color: #6084a4;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
@@ -83,17 +83,18 @@
   
   .urgent_meeting h4 {
     font-size: 1rem;
-    color: #333;
+    color: #6084a4;
     margin-bottom: 5px;
   }
   
   .urgent_meeting p {
-    color: #777;
+    color: #6084a4;
     font-size: 0.9rem;
   }
   
   .urgent_meeting p a {
-    color: #333;
+    color: #6084a4;
+    font: bold;
     text-decoration: none;
   }
   

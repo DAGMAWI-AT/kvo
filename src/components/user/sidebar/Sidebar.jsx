@@ -46,10 +46,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Dashboard"}</span>
             </Link>
           </li>
-          <li>
-            <FaBox />
-            <span>{!collapsed && "Inventory"}</span>
-          </li>
+         
           <li className="menu-item" onClick={toggleReportsSubmenu}>
             <FaDochub />
             <span>{!collapsed && "Reports"}</span>
@@ -90,15 +87,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             </ul>
           )}
 
-          <li>
-            <FaUsers />
-            <span>{!collapsed && "Users"}</span>
-          </li>
-          <li>
-            <FaMoneyBill />
-            <span>{!collapsed && "Expenses"}</span>
-          </li>
-
+         
           <li>
             <FaHistory />
             <span>{!collapsed && "History"}</span>

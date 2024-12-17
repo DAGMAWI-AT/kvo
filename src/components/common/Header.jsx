@@ -67,7 +67,7 @@ function Header() {
     >
       <div className="nav-logo mt-4 pr-0 pl-0 lg:pr-10 lg:pl-10">
         <img
-          src="/kvo.png"
+          src="/logo3.png"
           alt="Logo"
           className="logo"
           style={{ width: "40px", height: "40px" }}

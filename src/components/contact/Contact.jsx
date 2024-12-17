@@ -113,7 +113,7 @@ const Contact = () => {
                 decoding="async"
                 data-nimg="1"
                 style={{ color: "transparent" }}
-                src="/contact-img.15a914b7.png"
+                src="/contact-img.png"
               />
             </div>
             <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">

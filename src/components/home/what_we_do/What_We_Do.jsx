@@ -2,7 +2,7 @@ import React from "react";
 import "./what.css"
 const What_We_Do = () => {
   return (
-    <div class="what-we-do-area ptb-80 mt-32">
+    <div class="what-we-do-area ptb-80 mt-32 ">
       <div class="container">
         <div class="section-title">
           <h2>What We Do</h2>
@@ -12,7 +12,7 @@ const What_We_Do = () => {
             eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
         </div>
-        <div class="row justify-content-center">
+        <div class="row flex-wrap flex justify-content-center">
           <div
             class="col-lg-4 col-md-6 col-sm-6 aos-init aos-animate"
             data-aos="fade-up"

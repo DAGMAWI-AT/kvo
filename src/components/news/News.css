@@ -38,16 +38,7 @@
 }
 
 /* Hero Section */
-.news_hero {
-    height: 90vh; /* Set height to 90% of the viewport */
-    position: relative;
-    background-color: #010c18; /* Optional: Add a background color */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    z-index: 1; /* Ensure content appears above any snowflakes */
-}
+
 
 /* Hero Content */
 .hero-content {
