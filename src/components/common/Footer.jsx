@@ -18,7 +18,7 @@ const Footer = () => {
           <div>
             <a href="/" className="inline-flex items-center space-x-2">
               <img src="/kvo.png" alt="Logo" className="h-10" />
-              <span className="text-xl font-semibold text-gray-800">StartP</span>
+              <span className="text-xl font-semibold text-gray-800">Finance Office</span>
             </a>
             <p className="mt-4 text-sm">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
@@ -40,7 +40,7 @@ const Footer = () => {
                 <a href="/features/" className="hover:text-gray-800">Features</a>
               </li>
               <li>
-                <a href="/csas/" className="hover:text-gray-800">All CSAs</a>
+                <a href="/csos/" className="hover:text-gray-800">All CSAs</a>
               </li>
               <li>
                 <a href="/blog/" className="hover:text-gray-800">Latest News</a>
@@ -76,18 +76,18 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li className="flex items-center">
                 <HiOutlineLocationMarker className="text-gray-500 mr-2" />
-                27 Division St, New York, NY 10002, USA
+                Bishoftu, Oromia, Ethiopia
               </li>
               <li className="flex items-center">
                 <HiOutlineMail className="text-gray-500 mr-2" />
                 <a href="mailto:startp@gmail.com" className="hover:text-gray-800">
-                  startp@gmail.com
+                  csos@gmail.com
                 </a>
               </li>
               <li className="flex items-center">
                 <HiOutlinePhone className="text-gray-500 mr-2" />
                 <a href="tel:+321984754" className="hover:text-gray-800">
-                  + (321) 984 754
+                  + (251) 000 0000
                 </a>
               </li>
             </ul>
@@ -130,9 +130,9 @@ const Footer = () => {
       </div>
       <div className="bg-gray-200 text-gray-600 text-center py-4">
         <p>
-          © 2024 StartP. All rights reserved. Powered by{" "}
-          <a href="https://envytheme.com" target="_blank" rel="noreferrer" className="hover:text-gray-800">
-            EnvyTheme
+          © 2024 CSOs. All rights reserved. Powered by{" "}
+          <a href="https://dagmawiamare.netlify.app" target="_blank" rel="noreferrer" className="hover:text-gray-800">
+            KVO
           </a>
         </p>
       </div>
