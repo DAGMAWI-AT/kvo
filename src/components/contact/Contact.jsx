@@ -14,9 +14,9 @@ const Contact = () => {
         </div>
       </div>
       {/* <div className=""> */}
-      <div className="contact-info-area ptb-80">
+      <div className="contact-info-area ptb-80 ">
         <div className="container">
-          <div className="row justify-content-center">
+          <div className="row flex flex-wrap justify-content-center">
             <div className="col-lg-4 col-md-6 col-sm-6">
               <div className="contact-info-box">
                 <div className="icon">
@@ -103,7 +103,7 @@ const Contact = () => {
             <div className="bar"></div>
             <p>Anything On your Mind. We’ll Be Glad To Assist You!</p>
           </div>
-          <div className="row align-items-center">
+          <div className="row flex-wrap flex align-items-center">
             <div className="img-container">
               <img
                 alt="image"

@@ -1,9 +1,18 @@
+:root {
+  --background-color: white;
+  --text-color: #003366;
+  --highlight-color: #007acc;
+  --mobile-menu-bg: #aab7b7e5;
+  --transition-speed: 0.3s;
+}
+
 .nav-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background: transparent; 
+  background: var(--background-color); 
+  color: var(--text-color);
   position: fixed;
   width: 100%;
   transition: background 0.3s ease, color 0.3s ease;
@@ -11,16 +20,24 @@
 }
 
 .nav-bar.header_scroll {
-  background-color: #2e4156; 
+  --background-color: #2e4156; 
   color: white;
 }
-
-.nav-bar.dark.header_scroll {
-  background-color: #2e4156; /* Dark mode background on scroll */
+.nav-bar.light {
+  --background-color: white;
+  --text-color: #003366;
 }
 
+.nav-bar.dark {
+  --background-color: #2e4156;
+  --text-color: white;
+}
+/* .nav-bar.dark.header_scroll {
+  --background-color: #2e4156; 
+} */
+
 .nav-bar.light.header_scroll {
-  background-color: white; 
+ --background-color: white; 
   color: #003366;
 }
 

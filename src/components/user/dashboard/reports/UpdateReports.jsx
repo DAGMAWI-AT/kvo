@@ -26,8 +26,23 @@ const UpdateReports = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, pdfFileName: file.name });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const today = new Date();
+    const selectedDate = new Date(formData.expireDate);
+
+    if (selectedDate < today) {
+      alert("Expiration date cannot be in the past.");
+      return;
+    }
 
     // Find the index of the report to update
     const reportIndex = reports.findIndex((report) => report.id === reportId);
@@ -43,59 +58,63 @@ const UpdateReports = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-700 mb-6 text-center">
+    <div className="min-h-screen bg-gray-100 p-2 md:p-4 lg:p-6 font-serif">
+      <div className="bg-white p-3 md:p-4 lg:p-6 rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold text-gray-700 mb-6 text-center">
           Update Report
         </h1>
         <form onSubmit={handleSubmit}>
           {/* Report Name */}
           <div className="flex flex-wrap lg:flex-nowrap items-center space-y-4 lg:space-y-0 lg:space-x-4">
+            <div className="mr-4 flex flex-col w-full lg:w-1/2">
+              <label htmlFor="reportName" className="block text-gray-600 font-medium mb-2">
+                Report Name
+              </label>
+              <input
+                type="text"
+                id="reportName"
+                name="reportName"
+                value={formData.reportName}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+            <div className="mr-4 flex flex-col w-full lg:w-1/2">
+              <label htmlFor="expireDate" className="block text-gray-600 font-medium mb-2">
+                Expiration Date
+              </label>
+              <input
+                type="date"
+                id="expireDate"
+                name="expireDate"
+                value={formData.expireDate}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
 
-          <div className="mr-4 flex flex-col w-full lg:w-1/2">
-          <label htmlFor="reportName" className="block text-gray-600 font-medium mb-2">
-              Report Name
-            </label>
-            <input
-              type="text"
-              id="reportName"
-              name="reportName"
-              value={formData.reportName}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-          <div className="mr-4 flex flex-col w-full lg:w-1/2">
-          <label htmlFor="expireDate" className="block text-gray-600 font-medium mb-2">
-              Expiration Date
-            </label>
-            <input
-              type="date"
-              id="expireDate"
-              name="expireDate"
-              value={formData.expireDate}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              required
-            />
-          </div>
-          </div>
+          {/* PDF File Name */}
           <div className="mb-4">
             <label htmlFor="pdfFileName" className="block text-gray-600 font-medium mb-2">
-              PDF File Name
+              PDF File
             </label>
-            <input
-              type="file"
-              id="pdfFileName"
-              name="pdfFileName"
-              value={formData.pdfFileName}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              placeholder="Enter file name"
-              required
-            />
+            <div className="flex items-center space-x-4">
+              <input
+                type="file"
+                id="pdfFileName"
+                name="pdfFileName"
+                onChange={handleFileChange}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
+              />
+              {formData.pdfFileName && (
+                <span className="text-gray-500 text-sm">{formData.pdfFileName}</span>
+              )}
+            </div>
           </div>
+
           {/* Description */}
           <div className="mb-4">
             <label htmlFor="description" className="block text-gray-600 font-medium mb-2">
@@ -112,16 +131,10 @@ const UpdateReports = () => {
             ></textarea>
           </div>
 
-          {/* Expiration Date */}
- 
-
-          {/* PDF File Name */}
-
-
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition-all"
+            className="w-40 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition-all"
           >
             Update Report
           </button>

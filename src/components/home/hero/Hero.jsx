@@ -55,7 +55,7 @@ function Hero() {
   }, [slides.length]);
 
   return (
-    <div className="hero relative h-screen w-full">
+    <div className="hero relative h-screen w-full mt-24">
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-center"

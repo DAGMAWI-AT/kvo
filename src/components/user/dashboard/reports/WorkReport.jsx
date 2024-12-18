@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import {reports} from "./data"
+import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
   
 const WorkReport = () => {
     const navigate= useNavigate();
@@ -118,29 +119,29 @@ const WorkReport = () => {
                     className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
                     onClick={() => handleViewReport(report.id)}
                   >
-                    View
+                    <FaEye/>
                   </button>
                   <button
                     className={`${
                       isExpired(report.expireDate)
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-700"
                     }`}
                     onClick={() => !isExpired(report.expireDate) && handleUpdateReport(report.id)}
                     disabled={isExpired(report.expireDate)}
                   >
-                    Edit
+                    <FaEdit/>
                   </button>
                   <button
                     className={`${
                       isExpired(report.expireDate)
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
                     }`}
                     onClick={() => !isExpired(report.expireDate) && alert(`Deleting ${report.reportName}`)}
                     disabled={isExpired(report.expireDate)}
                   >
-                    Delete
+                    <FaTrashAlt/>
                   </button>
                 </td>
               </tr>
