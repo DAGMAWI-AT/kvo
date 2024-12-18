@@ -4,10 +4,10 @@ import EditProfile from "./EditProfile"; // Ensure EditProfile.js is properly co
 const ViewProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "johndoe@example.com",
+    name: "Bishoftu admin",
+    email: "bishoftu@cso.com",
     role: "Admin",
-    image: "/kvo.png", // Path to profile image
+    image: "/logo3.png", // Path to profile image
   });
 
   // Open the modal

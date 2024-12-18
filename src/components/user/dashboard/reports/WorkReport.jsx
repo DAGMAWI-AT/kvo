@@ -52,7 +52,7 @@ const WorkReport = () => {
     <div className="p-4">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Work Report</h1>
+        <h1 className="text-2xl font-bold text-gray-400 font-serif ">Work Report</h1>
         <button
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
           onClick={handleUploadReport}
@@ -73,7 +73,7 @@ const WorkReport = () => {
       </div>
 
       {/* Table Section */}
-      <table className="w-full table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
+      <table className="w-full font-serif table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
         <thead>
           <tr className="bg-gray-100">
             <th className="border border-gray-300 p-2">ID</th>
@@ -90,13 +90,13 @@ const WorkReport = () => {
           {currentData.length > 0 ? (
             currentData.map((report) => (
               <tr key={report.id}>
-                <td className="border border-gray-300 p-2 text-center">{report.id}</td>
-                <td className="border border-gray-300 p-2">{report.reportName}</td>
-                <td className="border border-gray-300 p-2 text-center">{report.respond}</td>
-                <td className="border border-gray-300 p-2">{report.comment}</td>
-                <td className="border border-gray-300 p-2">{report.pdfFileName}</td>
+                <td className="border-b border-gray-300 p-2 text-center">{report.id}</td>
+                <td className="border-b border-gray-300 p-2">{report.reportName}</td>
+                <td className="border-b border-gray-300 p-2 text-center">{report.respond}</td>
+                <td className="border-b border-gray-300 p-2">{report.comment}</td>
+                <td className="border-b border-gray-300 p-2">{report.pdfFileName}</td>
 
-                <td className="border border-gray-300 p-2 text-center">
+                <td className="border-b border-gray-300 p-2 text-center">
                   <span
                     className={`px-2 py-1 rounded ${
                       report.remark === "Approved"
@@ -111,9 +111,9 @@ const WorkReport = () => {
                     {report.remark}
                   </span>
                 </td>
-                <td className="border border-gray-300 p-2 text-center">{report.expireDate}</td>
+                <td className="border-b border-gray-300 p-2 text-center">{report.expireDate}</td>
 
-                <td className="border border-gray-300 p-2 flex justify-around">
+                <td className="border-b border-gray-300 p-2 flex justify-around">
                   <button
                     className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
                     onClick={() => handleViewReport(report.id)}

@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import {
   FaTachometerAlt,
-  FaBox,
-  FaUsers,
   FaCog,
-  FaMoneyBill,
   FaHistory,
   FaDochub,
   FaClipboardList,
@@ -27,7 +24,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
 
   return (
     <div
-      className={`sidebar ${collapsed ? "collapsed" : ""} ${
+      className={`user_sidebar ${collapsed ? "collapsed" : ""} ${
         darkMode ? "dark" : "light"
       }`}
     >
