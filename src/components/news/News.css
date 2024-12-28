@@ -1,6 +1,10 @@
 
 
 /* Snow Animation */
+.news_hero{
+    background: url("/public/banner-bg1.jpg");
+    overflow: hidden;
+}
 @keyframes snow {
     0% {
         transform: translateY(-10px);

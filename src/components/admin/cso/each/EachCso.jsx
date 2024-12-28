@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { allcsos } from "../Csos"; // Import the CSO data
+import { allcsos } from "../Csos"; 
 
 export const allreport = [
   {

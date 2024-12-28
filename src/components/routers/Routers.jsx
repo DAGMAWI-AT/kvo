@@ -37,6 +37,7 @@ import QuarterlyReport from '../admin/reports/quarterly/QuarterlyReport';
 import EditMeeting from '../admin/webContent/meeting/EditMeeting';
 import ViewMeeting from '../admin/webContent/meeting/ViewMeeting';
 import Contact from '../contact/Contact';
+import BlogDetails from '../news/BlogDetails';
 
 
 const Routers = createBrowserRouter([
@@ -51,6 +52,10 @@ const Routers = createBrowserRouter([
             {
                 path: "/news",
                 element: <News />,
+            },
+            {
+                path: "/news/blogdetails/:id",
+                element: <BlogDetails />,
             },
             {
                 path: "/about",
