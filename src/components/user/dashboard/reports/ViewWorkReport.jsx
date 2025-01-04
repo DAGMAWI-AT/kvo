@@ -1,22 +1,18 @@
-import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { reports } from "./data";
+import React, { useState } from "react";
+import { useLoaderData, useNavigate } from "react-router-dom";
 
 const ViewWorkReport = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
-  const singleReport = reports.find((p) => p.id === parseInt(id));
+  const report = useLoaderData();
+  const [showFile, setShowFile] = useState(false);
 
-  if (!singleReport) {
+  if (!report) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600 text-lg">Report not found!</p>
       </div>
     );
   }
-
-  const { reportName, respond, comment, remark, expireDate, pdfFileName } =
-    singleReport;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -29,7 +25,8 @@ const ViewWorkReport = () => {
           Back
         </button>
         <h1 className="text-2xl font-bold font-serif mr-10 text-gray-400">
-          View Report: <span className="text-blue-500">{reportName}</span>
+          View Report:{" "}
+          <span className="text-blue-500">{report.reportName}</span>
         </h1>
       </div>
 
@@ -39,20 +36,20 @@ const ViewWorkReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Report Name</h2>
-            <p className="text-gray-600 mt-1">{reportName}</p>
+            <p className="text-gray-600 mt-1">{report.reportName}</p>
           </div>
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Response</h2>
             <p
               className={`mt-1 ${
-                respond === "Approved"
+                report.response === "Approved"
                   ? "text-green-600"
-                  : respond === "Pending"
+                  : report.response === "Pending"
                   ? "text-yellow-600"
                   : "text-red-600"
               }`}
             >
-              {respond}
+              {report.response}
             </p>
           </div>
         </div>
@@ -60,12 +57,16 @@ const ViewWorkReport = () => {
         {/* Middle Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div>
+            <h2 className="text-xl font-semibold text-gray-800">Description</h2>
+            <p className="text-gray-600 mt-1">{report.description}</p>
+          </div>
+          <div>
             <h2 className="text-xl font-semibold text-gray-800">Comment</h2>
-            <p className="text-gray-600 mt-1">{comment}</p>
+            <p className="text-gray-600 mt-1">{report.comment}</p>
           </div>
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Remark</h2>
-            <p className="text-gray-600 mt-1">{remark}</p>
+            <p className="text-gray-600 mt-1">{report.reportType}</p>
           </div>
         </div>
 
@@ -73,30 +74,37 @@ const ViewWorkReport = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div>
             <h2 className="text-xl font-semibold text-gray-800">Expire Date</h2>
-            <p className="text-gray-600 mt-1">{expireDate}</p>
+            <p className="text-gray-600 mt-1">{report.expireDate}</p>
           </div>
           <div>
             <h2 className="text-xl font-semibold text-gray-800">PDF File</h2>
-            <a
-              href={`/path/to/pdf/files/${pdfFileName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline mt-1 inline-block"
-            >
-              Download {pdfFileName}
-            </a>
+            <div>
+              <button
+                onClick={() => setShowFile(!showFile)}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition-all"
+              >
+                {showFile ? "Hide File" : "View File"}
+              </button>
+              {showFile && (
+                <div className="mt-4">
+                  <embed
+                    src={`http://localhost:8000/getUserReport/${report._id}/${report.pdfFile}`}
+                    type="application/pdf"
+                    width="100%"
+                    height="500px"
+                    onError={(e) => {
+                      console.error("Failed to load the file", e);
+                      alert(
+                        "The file could not be loaded. Please try again later."
+                      );
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* <div className="mt-8 flex justify-end">
-        <button
-          onClick={() => navigate("/user/dashboard/work_report")}
-          className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all"
-        >
-          Back to Dashboard
-        </button>
-      </div> */}
     </div>
   );
 };

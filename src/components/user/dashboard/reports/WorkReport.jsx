@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {reports} from "./data"
 import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
-  
+
 const WorkReport = () => {
-    const navigate= useNavigate();
-   
+  const navigate = useNavigate();
+  const [report, setReport] = useState([]);
   const itemsPerPage = 5; // Number of rows per page
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
@@ -14,8 +13,8 @@ const WorkReport = () => {
   const currentDate = new Date();
 
   // Filter reports based on search term
-  const filteredReports = reports.filter((report) =>
-    report.reportName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredReports = report.filter((item) =>
+    item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Calculate total pages based on filtered data
@@ -40,20 +39,38 @@ const WorkReport = () => {
     if (!expireDate) return false; // If no expire date, assume not expired
     return new Date(expireDate) < currentDate;
   };
+
   const handleViewReport = (id) => {
     navigate(`/user/dashboard/work_report/viewworkreport/${id}`);
   };
-  const handleUploadReport = ()=>{
+
+  const handleUploadReport = () => {
     navigate(`/user/dashboard/upload_report`);
-  }
-  const handleUpdateReport =(id)=>{
+  };
+
+  const handleUpdateReport = (id) => {
     navigate(`/user/dashboard/update_report/${id}`);
-  }
+  };
+
+  useEffect(() => {
+    fetch("http://localhost:8000/getUserReport")
+      .then((res) => res.json())
+      .then((data) => setReport(data));
+  }, []);
+
+
+
+  const viewUrl = `https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
+    `http://localhost:8000/getUserReport/${currentData.pdfFile}`
+  )}`;
+
   return (
     <div className="p-4">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-400 font-serif ">Work Report</h1>
+        <h1 className="text-2xl font-bold text-gray-400 font-serif">
+          Work Report
+        </h1>
         <button
           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
           onClick={handleUploadReport}
@@ -81,7 +98,7 @@ const WorkReport = () => {
             <th className="border border-gray-300 p-2">REPORT NAME</th>
             <th className="border border-gray-300 p-2">RESPOND</th>
             <th className="border border-gray-300 p-2">COMMENT</th>
-            <th className="border border-gray-300 p-2">PDF FILE NAME</th>
+            <th className="border border-gray-300 p-2">PDF FILE</th>
             <th className="border border-gray-300 p-2">REMARK</th>
             <th className="border border-gray-300 p-2">EXPIRE DATE</th>
             <th className="border border-gray-300 p-2">ACTION</th>
@@ -89,66 +106,92 @@ const WorkReport = () => {
         </thead>
         <tbody>
           {currentData.length > 0 ? (
-            currentData.map((report) => (
-              <tr key={report.id}>
-                <td className="border-b border-gray-300 p-2 text-center">{report.id}</td>
-                <td className="border-b border-gray-300 p-2">{report.reportName}</td>
-                <td className="border-b border-gray-300 p-2 text-center">{report.respond}</td>
-                <td className="border-b border-gray-300 p-2">{report.comment}</td>
-                <td className="border-b border-gray-300 p-2">{report.pdfFileName}</td>
+            currentData.map((item) => (
+              <tr key={item.id}>
+                <td className="border-b border-gray-300 p-2 text-center">
+                  {item.id}
+                </td>
+                <td className="border-b border-gray-300 p-2">
+                  {item.reportName}
+                </td>
+                <td className="border-b border-gray-300 p-2 text-center">
+                  {item.respond}
+                </td>
+                <td className="border-b border-gray-300 p-2">{item.comment}</td>
+                <td className="border-b border-gray-300 p-2">
+                  {item.pdfFile && item.pdfFile.endsWith(".pdf") ? (
+                    <a
+                      href={`https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
+                        `http://localhost:8000/getUserReport/${item.pdfFile}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      View PDF
+                    </a>
+                  ) : (
+                    "No preview available"
+                  )}
+                </td>
+
+
 
                 <td className="border-b border-gray-300 p-2 text-center">
                   <span
-                    className={`px-2 py-1 rounded ${
-                      report.remark === "Approved"
+                    className={`px-2 py-1 rounded ${item.remark === "Approved"
                         ? "bg-green-100 text-green-800"
-                        : report.remark === "Pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : report.remark === "Rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
+                        : item.remark === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : item.remark === "Rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                      }`}
                   >
-                    {report.remark}
+                    {item.remark}
                   </span>
                 </td>
-                <td className="border-b border-gray-300 p-2 text-center">{report.expireDate}</td>
-
+                <td className="border-b border-gray-300 p-2 text-center">
+                  {item.expireDate}
+                </td>
                 <td className="border-b border-gray-300 p-2 flex justify-around">
                   <button
                     className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
-                    onClick={() => handleViewReport(report.id)}
+                    onClick={() => handleViewReport(item._id)}
                   >
-                    <FaEye/>
+                    <FaEye />
                   </button>
                   <button
-                    className={`${
-                      isExpired(report.expireDate)
+                    className={`${isExpired(item.expireDate)
                         ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-700"
-                    }`}
-                    onClick={() => !isExpired(report.expireDate) && handleUpdateReport(report.id)}
-                    disabled={isExpired(report.expireDate)}
+                      }`}
+                    onClick={() =>
+                      !isExpired(item.expireDate) && handleUpdateReport(item.id)
+                    }
+                    disabled={isExpired(item.expireDate)}
                   >
-                    <FaEdit/>
+                    <FaEdit />
                   </button>
                   <button
-                    className={`${
-                      isExpired(report.expireDate)
+                    className={`${isExpired(item.expireDate)
                         ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                    }`}
-                    onClick={() => !isExpired(report.expireDate) && alert(`Deleting ${report.reportName}`)}
-                    disabled={isExpired(report.expireDate)}
+                      }`}
+                    onClick={() =>
+                      !isExpired(item.expireDate) &&
+                      alert(`Deleting ${item.reportName}`)
+                    }
+                    disabled={isExpired(item.expireDate)}
                   >
-                    <FaTrashAlt/>
+                    <FaTrashAlt />
                   </button>
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="text-center p-4">
+              <td colSpan="8" className="text-center p-4">
                 No reports found.
               </td>
             </tr>
@@ -159,11 +202,10 @@ const WorkReport = () => {
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <button
-          className={`px-4 py-2 rounded ${
-            currentPage === 1
+          className={`px-4 py-2 rounded ${currentPage === 1
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
+            }`}
           onClick={handlePrevious}
           disabled={currentPage === 1}
         >
@@ -173,11 +215,10 @@ const WorkReport = () => {
           Page {currentPage} of {totalPages}
         </span>
         <button
-          className={`px-4 py-2 rounded ${
-            currentPage === totalPages
+          className={`px-4 py-2 rounded ${currentPage === totalPages
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
+            }`}
           onClick={handleNext}
           disabled={currentPage === totalPages}
         >

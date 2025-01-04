@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaSearch,
   FaBell,
@@ -12,7 +12,8 @@ import { Link } from "react-router-dom";
 
 const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
@@ -20,6 +21,11 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const closeProfileMenu = () => {
     setIsProfileMenuOpen(false);
   };
+
+
+ 
+  
+
   return (
     // <nav className={`navbar ${darkMode ? "dark" : "light"}`}>
     <nav className="navbar">
@@ -44,7 +50,10 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
         <button className="dark-mode-toggle" onClick={toggleDarkMode}>
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
-        <FaBell className="icon" />
+        <div className="notification-wrapper">
+          <FaBell className="icon" />
+         
+        </div>
         <div className="profile-menu">
           {/* Profile Icon */}
           <FaUserCircle className="icon user-icon" onClick={toggleProfileMenu} />

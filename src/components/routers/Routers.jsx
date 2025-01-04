@@ -38,6 +38,7 @@ import EditMeeting from '../admin/webContent/meeting/EditMeeting';
 import ViewMeeting from '../admin/webContent/meeting/ViewMeeting';
 import Contact from '../contact/Contact';
 import BlogDetails from '../news/BlogDetails';
+import Service from '../service/Service';
 
 
 const Routers = createBrowserRouter([
@@ -56,6 +57,10 @@ const Routers = createBrowserRouter([
             {
                 path: "/news/blogdetails/:id",
                 element: <BlogDetails />,
+            },
+            {
+                path: "/service",
+                element: <Service />,
             },
             {
                 path: "/about",
@@ -85,7 +90,11 @@ const Routers = createBrowserRouter([
             {
                 path: "/user/dashboard/work_report/viewworkreport/:id",
                 element: <ViewWorkReport />,
-            },
+                loader: async ({ params }) =>
+                  fetch(`http://localhost:8000/getUserReport/${params.id}`).then((res) =>
+                    res.json()
+                  ),
+              },
             {
                 path: "/user/dashboard/upload_report",
                 element: <UploadReports />,

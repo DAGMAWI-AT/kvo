@@ -38,7 +38,7 @@ export const newArticles = [
     {
       id: 1,
       image: "/Ethiopia.jpg",
-      date: "March 15, 2022",
+      date: "March 15, 2024",
       author: "Admin",
       title: "The Security Risks of Changing Package Owners",
       description:
@@ -124,7 +124,7 @@ export const newArticles = [
     {
       id: 9,
       image: "/Ethiopia.jpg",
-      date: "March 15, 2022",
+      date: "March 15, 2023",
       author: "Admin",
       title: "Here are the 5 most telling signs of micromanagement",
       description:
@@ -203,7 +203,7 @@ export const newArticles = [
       image: "/Ethiopia.jpg",
       title: "The security risks of changing package owners",
       disc: "Quuntur magni dolores eos qui ratione voluptatem sequi nesciunt.Neque porro quia non numquam eius modi tempora incidunt ut labore et dolore magnam dolor sit amet, consectetur adipisicing.",
-      date: "September 31, 2022",
+      date: "September 31, 2024",
       author: "Dagmawi A",
       quetes: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.",
       list: "Scientific Skills For getting a better result,Communication Skills to getting in touch",

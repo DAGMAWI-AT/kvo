@@ -1,14 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 
 const UploadReports = () => {
   const [formData, setFormData] = useState({
     reportName: "",
     description: "",
-    expireDate: "",
     file: null,
-    reportType: "active", // Add a field to track report type
+    reportType: "monthly",
   });
-
+  const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
@@ -20,40 +20,59 @@ const UploadReports = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formDataObj = new FormData();
+    formDataObj.append("reportName", formData.reportName);
+    formDataObj.append("description", formData.description);
+    formDataObj.append("reportType", formData.reportType);
+    formDataObj.append("pdfFile", formData.file);
 
-    // Mock submission logic
-    console.log("Submitted data:", formData);
+    try {
+      const response = await fetch("http://localhost:8000/userReports", {
+        method: "POST",
+        body: formDataObj,
+      });
 
-    // Reset form and show success message
-    setFormData({
-      reportName: "",
-      description: "",
-      expireDate: "",
-      file: null,
-      reportType: "active", // Reset report type
-    });
-    setSuccessMessage("Report uploaded successfully!");
+      const result = await response.json();
+      if (result.success) {
+        setSuccessMessage("Report uploaded successfully!");
+        setTimeout(() => setSuccessMessage(""), 3000);
+        
+        // Clear form data
+        setFormData({
+          reportName: "",
+          description: "",
+          file: null,
+          reportType: "yearly",
+        });
+
+        // Navigate after showing the message
+        setTimeout(() => navigate("/user/dashboard/work_report"), 3000);
+      } else {
+        console.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-2 md:p-4 lg:p-6 font-serif">
+         {successMessage && (
+          <div className="mb-4 p-4 bg-green-100 text-green-600 rounded-lg">
+            {successMessage}
+          </div>
+        )}
       <div className="bg-white p-3 md:p-4 lg:p-6 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-gray-500 mb-6 text-center font-serif">
           Upload New Report
         </h1>
 
-        {successMessage && (
-          <div className="mb-4 p-4 bg-green-100 text-green-600 rounded-lg">
-            {successMessage}
-          </div>
-        )}
+     
 
         <form onSubmit={handleSubmit}>
-          {/* Row 1: Report Name and Expiration Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            {/* Report Name */}
             <div>
               <label
                 htmlFor="reportName"
@@ -72,28 +91,8 @@ const UploadReports = () => {
                 required
               />
             </div>
-
-            {/* Expiration Date */}
-            <div className="cursor-default">
-              <label
-                htmlFor="expireDate"
-                className="block text-gray-600 font-medium mb-2"
-              >
-                Date
-              </label>
-              <input
-                type="date"
-                id="expireDate"
-                name="expireDate"
-                value={formData.expireDate}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                required
-              />
-            </div>
           </div>
 
-          {/* Row 2: File Upload */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             <div className="mb-4">
               <label
@@ -111,8 +110,6 @@ const UploadReports = () => {
                 required
               />
             </div>
-
-            {/* Report Type Dropdown */}
             <div className="mb-4 mt-4">
               <label htmlFor="reportType" className="block text-gray-700">
                 Report Type
@@ -124,15 +121,14 @@ const UploadReports = () => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded"
               >
-                <option value="active">Yearly</option>
-                <option value="inactive">Monthly</option>
-                <option value="expire">Quarterly</option>
-                <option value="denied">Proposal</option>
+                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
+                <option value="quarterly">Quarterly</option>
+                <option value="proposal">Proposal</option>
               </select>
             </div>
           </div>
 
-          {/* Row 3: Description */}
           <div className="mb-6">
             <label
               htmlFor="description"
@@ -152,7 +148,6 @@ const UploadReports = () => {
             ></textarea>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-40 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-600 transition-all"

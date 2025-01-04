@@ -103,7 +103,7 @@ ol, ul {
     margin-right: 20px;
 }
 
-.blog-details-desc .article-content .entry-meta ul li:before {
+/* .blog-details-desc .article-content .entry-meta ul li:before {
     content: "";
     position: absolute;
     top: 12px;
@@ -111,7 +111,7 @@ ol, ul {
     width: 6px;
     height: 1px;
     background: #44ce6f;
-}
+} */
 
 .blog-details-desc .article-content .entry-meta ul li svg {
     color: #c679e3;
@@ -970,6 +970,14 @@ img, svg {
     font-size: 12px;
 }
 
+time {
+    display: block;
+    color: #6084a4;
+    text-transform: uppercase;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
 @media only screen and (max-width: 767px) {
     .widget-area .widget_startp_posts_thumb .item .info .title {
         font-size: 14px;

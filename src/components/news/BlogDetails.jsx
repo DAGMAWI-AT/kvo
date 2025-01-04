@@ -1,14 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import "./BlogDetail.css"
 import { dataBlog } from "../data";
 import { useParams } from "react-router";
+import {  LineStyle, ListAltOutlined, Person, TimerOutlined } from "@mui/icons-material";
+
 const BlogDetails = () => {
   const { id } = useParams();
-  const currentId=parseInt(id);
+  const currentId = parseInt(id);
   const blog = dataBlog.find((p) => p.id === currentId);
   const currentIndex = dataBlog.findIndex((p) => p.id === currentId);
   const prevBlog = dataBlog[(currentIndex - 1 + dataBlog.length) % dataBlog.length];
-const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
+  const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter blogs based on search query
+  const filteredBlogs = dataBlog.filter((blog) =>
+    blog.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  const sortedBlogs = [...dataBlog].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+
+  // Get the most recent 4 blogs
+  const recentBlogs = sortedBlogs.slice(0, 4);
   return (
     <>
       <div className="page-title-area">
@@ -126,10 +142,10 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
       </div>
 
 
-      <div className="blog-details-area p-12">
+      <div className="blog-details-area lg:p-12 md:p:12">
         <div className="container">
-          <div className="row1">
-            <div className="lg:w-2/3 md:w-full p-8">
+          <div className="flex flex-wrap">
+            <div className="lg:w-2/3 md:w-full p-4 lg:p-8 md:p-8">
               <div className="blog-details-desc">
                 <div className="article-image">
                   <img
@@ -140,58 +156,32 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                     decoding="async"
                     data-nimg="1"
                     style={{ color: "transparent" }}
-                    src="/Ethiopia.jpg"
+                    src={blog.image}
                   />
                 </div>
                 <div className="article-content">
                   <div className="entry-meta">
                     <ul className="flex space-x-4">
                       <li className="flex items-center space-x-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        <span>{blog.date}</span>
+                         <TimerOutlined/>
+                        <time>{blog.date}</time>
                       </li>
                       <li className="flex items-center space-x-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <a href="/blog/blogdetails/:id" className="text-blue-500 hover:underline">
+                          <Person/>
+                        <a href="/news/blogdetails/:id" className="text-blue-500 hover:underline">
                           {blog.author}
                         </a>
                       </li>
                     </ul>
                   </div>
 
-                  <h2>The security risks of changing package owners</h2>
+                  <h2>{blog.title}</h2>
                   <p>
                     {blog.description}
                   </p>
                   <blockquote>
                     <p>
-                     {blog.quetes}
+                      {blog.quetes}
                     </p>
                     <cite>Tom Cruise</cite>
                   </blockquote>
@@ -205,68 +195,8 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                   <h3>Four major elements that we offer:</h3>
                   <ul className="features-list">
                     <li>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>{" "}
+                     <ListAltOutlined/>
                       Scientific Skills For getting a better result
-                    </li>
-                    <li>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>{" "}
-                      Communication Skills to getting in touch
-                    </li>
-                    <li>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>{" "}
-                      A Career Overview opportunity Available
-                    </li>
-                    <li>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>{" "}
-                      A good Work Environment For work
                     </li>
                   </ul>
 
@@ -293,7 +223,7 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                             decoding="async"
                             data-nimg="1"
                             style={{ color: "transparent" }}
-                            src={prevBlog.image}                          />
+                            src={prevBlog.image} />
                           <span className="post-nav-title">Prev</span>
                         </span>
                         <span className="prev-link-info-wrapper">
@@ -622,12 +552,16 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
             <div className="w-full lg:w-1/3 p-8">
               <div className="widget-area" id="secondary">
                 <div className="widget widget_search">
-                  <form className="search-form">
+                  <form className="search-form" onSubmit={(e) => {
+                    e.preventDefault();
+                  }}>
                     <label>
                       <input
                         type="search"
                         className="search-field"
                         placeholder="Search..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </label>
                     <button type="submit">
@@ -648,82 +582,59 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                     </button>
                   </form>
                 </div>
+                {searchQuery && (
+                  <div className="search-results">
+                    <h2 className="font-serif text-gray-400">Search Results:</h2>
+                    {filteredBlogs.length > 0 ? (
+                      <ul>
+                        {filteredBlogs.map((blog) => (
+                          <li key={blog.id}>
+                            <article className="item flex p-2">
+                              <a className="thumb" href={`/news/blogdetails/${blog.id}`}>
+
+                                <img src={blog.image} className="max-w-20 h-16 p-2" />
+                              </a>
+                              <div className="info p-1">
+                                <h4 className="title usmall">
+                                  <a href={`/news/blogdetails/${blog.id}`}>{blog.title}</a>
+                                </h4>
+                                <time>{blog.date || "Unknown Date"}</time>
+
+                              </div>
+                              <div className="clear"></div>
+                            </article>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No blogs found for...</p>
+                    )}
+                  </div>
+                )}
+
                 <div className="widget widget_startp_posts_thumb">
-                  <h3 className="widget-title">Popular Posts</h3>
-                  <article className="item">
-                    <a className="thumb" href="/blog/blog-details/">
-                      <span
-                        className="fullimage cover"
-                        role="img"
-                        style={{ backgroundImage: "url(/Ethiopia.jpg)" }}
-                      ></span>
-                    </a>
-                    <div className="info">
-                      <time>June 10, 2022</time>
-                      <h4 className="title usmall">
-                        <a href="/blog/blog-details/">
-                          Making Peace With The Feast Or Famine Of Freelancing
-                        </a>
-                      </h4>
-                    </div>
-                    <div className="clear"></div>
-                  </article>
-                  <article className="item">
-                    <a className="thumb" href="/blog/blog-details/">
-                      <span
-                        className="fullimage cover"
-                        role="img"
-                        style={{ backgroundImage: "url(/Ethiopia.jpg)" }}
-                      ></span>
-                    </a>
-                    <div className="info">
-                      <time>June 21, 2022</time>
-                      <h4 className="title usmall">
-                        <a href="/blog/blog-details/">
-                          I Used The Web For A Day On A 50 MB Budget
-                        </a>
-                      </h4>
-                    </div>
-                    <div className="clear"></div>
-                  </article>
-                  <article className="item">
-                    <a className="thumb" href="/blog/blog-details/">
-                      <span
-                        className="fullimage cover"
-                        role="img"
-                        style={{ backgroundImage: "url('/Ethiopia.jpg')" }}
-                      ></span>
-                    </a>
-                    <div className="info">
-                      <time>June 30, 2022</time>
-                      <h4 className="title usmall">
-                        <a href="/blog/blog-details/">
-                          How To Create A Responsive Popup Gallery?
-                        </a>
-                      </h4>
-                    </div>
-                    <div className="clear"></div>
-                  </article>
-                </div>
-                <div className="widget widget_categories">
-                  <h3 className="widget-title">Categories</h3>
-                  <ul>
-                    <li>
-                      <a href="/blog/">Business</a>
-                    </li>
-                    <li>
-                      <a href="/blog/">Privacy</a>
-                    </li>
-                    <li>
-                      <a href="/blog/">Technology</a>
-                    </li>
-                    <li>
-                      <a href="/blog/">Tips</a>
-                    </li>
-                    <li>
-                      <a href="/blog/">Uncategorized</a>
-                    </li>
-                  </ul>
+                  <h3 className="widget-title">Recent Posts</h3>
+                  {recentBlogs.map((blog) => (
+                    <article className="item" key={blog.id}>
+                      <a className="thumb" href={`/news/bologdetails/${blog.id}`}>
+                        <span
+                          className="fullimage cover"
+                          role="img"
+                          style={{
+                            backgroundImage: `url(${blog.image || "/default.jpg"})`,
+                          }}
+                        ></span>
+                      </a>
+                      <div className="info">
+                        <time>{blog.date || "Unknown Date"}</time>
+                        <h4 className="title usmall">
+                          <a href={`/news/bologdetails/${blog.id}`}>{blog.title}</a>
+                        </h4>
+                      </div>
+                      <div className="clear"></div>
+                    </article>
+                  ))}
+
                 </div>
                 <div className="widget widget_tag_cloud">
                   <h3 className="widget-title">Tags</h3>
@@ -735,10 +646,10 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                       Spacle <span className="tag-link-count">(3)</span>
                     </a>
                     <a href="/blog/">
-                      Games <span className="tag-link-count">(2)</span>
+                      Rule <span className="tag-link-count">(2)</span>
                     </a>
                     <a href="/blog/">
-                      Fashion <span className="tag-link-count">(2)</span>
+                      News <span className="tag-link-count">(2)</span>
                     </a>
                     <a href="/blog/">
                       Travel <span className="tag-link-count">(1)</span>
@@ -747,7 +658,7 @@ const nextBlog = dataBlog[(currentIndex + 1) % dataBlog.length];
                       Smart <span className="tag-link-count">(1)</span>
                     </a>
                     <a href="/blog/">
-                      Marketing <span className="tag-link-count">(1)</span>
+                      Meeting <span className="tag-link-count">(1)</span>
                     </a>
                     <a href="/blog/">
                       Tips <span className="tag-link-count">(2)</span>
