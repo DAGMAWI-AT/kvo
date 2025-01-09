@@ -47,7 +47,9 @@ const CsoRegister = () => {
     formDataObje.append("registrationDate", registrationDate);
 
     try {
-      const response = await fetch("http://localhost:8000/registerStaff", {
+      // const response = await fetch("http://localhost:8000/registerStaff", {
+        const response = await fetch("https://finance-office.onrender.com/registerStaff", {
+
         method: "POST",
         body: formDataObje,
       });
@@ -95,7 +97,9 @@ const CsoRegister = () => {
     console.log("FormData being sent: ", formDataObj); // Log the FormData
 
     try {
-      const response = await fetch("http://localhost:8000/registerCSO", {
+      // const response = await fetch("http://localhost:8000/registerCSO", {
+        const response = await fetch("https://finance-office.onrender.com/registerCSO", {
+
         method: "POST",
         body: formDataObj,
       });
@@ -317,7 +321,6 @@ const CsoRegister = () => {
           </button>
         </form>
       )}
- 
     </div>
   );
 };

@@ -40,6 +40,7 @@ import Contact from '../contact/Contact';
 import BlogDetails from '../news/BlogDetails';
 import Service from '../service/Service';
 import CsoRegister from '../admin/csoRegister/CsoRegister';
+import CreateAccount from '../admin/createAccount/CreateAccount';
 
 
 const Routers = createBrowserRouter([
@@ -204,7 +205,11 @@ const Routers = createBrowserRouter([
                 path: "/admin/user_register",
                 element: <CsoRegister />,
             },
-            
+
+                        {
+                path: "/admin/create_userAccount",
+                element: <CreateAccount />,
+            },
             
         ]
     },

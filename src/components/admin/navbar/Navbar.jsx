@@ -52,7 +52,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Mark a notification as read
   const markAsRead = async (id) => {
     try {
-      await axios.patch(`http://localhost:8000/notifications/${id}`);
+      // await axios.patch(`http://localhost:8000/notifications/${id}`);
+      await axios.patch(`https://finance-office.onrender.com/notifications/${id}`);
       // Update the notifications state to mark as read
       setNotifications((prevNotifications) =>
         prevNotifications.map((notif) =>
