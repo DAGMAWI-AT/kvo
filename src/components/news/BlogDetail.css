@@ -35,9 +35,9 @@ img {
     max-width: 100%;
     height: auto;
 }
-img, svg {
+/* img, svg {
     vertical-align: middle;
-}
+} */
 
 .blog-details-desc .article-content {
     margin-top: 30px;
@@ -120,9 +120,9 @@ ol, ul {
     top: -1px;
     width: 15px;
 }
-img, svg {
+/* img, svg {
     vertical-align: middle;
-}
+} */
 
 .blog-details-desc .article-content .entry-meta ul li a {
     /* display: inline-block; */
@@ -898,9 +898,9 @@ button {
     margin-left: auto;
     margin-right: auto;
 }
-img, svg {
+/* img, svg {
     vertical-align: middle;
-}
+} */
 
 .widget-area .widget_startp_posts_thumb {
     position: relative;

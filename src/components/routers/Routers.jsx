@@ -39,6 +39,7 @@ import ViewMeeting from '../admin/webContent/meeting/ViewMeeting';
 import Contact from '../contact/Contact';
 import BlogDetails from '../news/BlogDetails';
 import Service from '../service/Service';
+import CsoRegister from '../admin/csoRegister/CsoRegister';
 
 
 const Routers = createBrowserRouter([
@@ -199,6 +200,11 @@ const Routers = createBrowserRouter([
                 path: "/admin/web_content/view_meeting_content",
                 element: <ViewMeeting />,
             },
+            {
+                path: "/admin/user_register",
+                element: <CsoRegister />,
+            },
+            
             
         ]
     },

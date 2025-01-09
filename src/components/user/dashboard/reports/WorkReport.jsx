@@ -5,7 +5,7 @@ import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
 const WorkReport = () => {
   const navigate = useNavigate();
   const [report, setReport] = useState([]);
-  const itemsPerPage = 5; // Number of rows per page
+  const itemsPerPage = 5; 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
@@ -58,8 +58,6 @@ const WorkReport = () => {
       .then((data) => setReport(data));
   }, []);
 
-
-
   const viewUrl = `https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
     `http://localhost:8000/getUserReport/${currentData.pdfFile}`
   )}`;
@@ -98,7 +96,7 @@ const WorkReport = () => {
             <th className="border border-gray-300 p-2">REPORT NAME</th>
             <th className="border border-gray-300 p-2">RESPOND</th>
             <th className="border border-gray-300 p-2">COMMENT</th>
-            <th className="border border-gray-300 p-2">PDF FILE</th>
+            <th className="border border-gray-300 p-2">FILE</th>
             <th className="border border-gray-300 p-2">REMARK</th>
             <th className="border border-gray-300 p-2">EXPIRE DATE</th>
             <th className="border border-gray-300 p-2">ACTION</th>
@@ -106,10 +104,10 @@ const WorkReport = () => {
         </thead>
         <tbody>
           {currentData.length > 0 ? (
-            currentData.map((item) => (
+            currentData.map((item,i) => (
               <tr key={item.id}>
                 <td className="border-b border-gray-300 p-2 text-center">
-                  {item.id}
+                {i + 1 + (currentPage - 1) * itemsPerPage}
                 </td>
                 <td className="border-b border-gray-300 p-2">
                   {item.reportName}
@@ -120,33 +118,47 @@ const WorkReport = () => {
                 <td className="border-b border-gray-300 p-2">{item.comment}</td>
                 <td className="border-b border-gray-300 p-2">
                   {item.pdfFile && item.pdfFile.endsWith(".pdf") ? (
-                    <a
-                      href={`https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
-                        `http://localhost:8000/getUserReport/${item.pdfFile}`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 underline"
-                    >
-                      View PDF
-                    </a>
+                    // <a
+                    //   href={`https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
+                    //     `http://localhost:8000/user_report/${item.pdfFile}`
+                    //   )}`}
+                    //   target="_blank"
+                    //   rel="noopener noreferrer"
+                    //   className="text-blue-500 underline"
+                    // >
+                    //   {item.pdfFile}
+                    // </a>
+                    <embed
+                    src={`http://localhost:8000/user_report/${item.pdfFile}`}
+                    type="application/pdf"
+                    
+                    className="max-h-10 max-w-10"
+
+                    onError={(e) => {
+                      console.error("Failed to load the file", e);
+                      alert("The file could not be loaded. Please try again later.");
+                    }}
+                  />
                   ) : (
-                    "No preview available"
+                    <img
+                      className=" max-h-10 max-w-10"
+                      src={`http://localhost:8000/user_report/${item.pdfFile}`}
+                      alt={report.pdfFile}
+                    />
                   )}
                 </td>
 
-
-
                 <td className="border-b border-gray-300 p-2 text-center">
                   <span
-                    className={`px-2 py-1 rounded ${item.remark === "Approved"
+                    className={`px-2 py-1 rounded ${
+                      item.remark === "Approved"
                         ? "bg-green-100 text-green-800"
                         : item.remark === "Pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : item.remark === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                      }`}
+                        ? "bg-yellow-100 text-yellow-800"
+                        : item.remark === "Rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
                   >
                     {item.remark}
                   </span>
@@ -162,10 +174,11 @@ const WorkReport = () => {
                     <FaEye />
                   </button>
                   <button
-                    className={`${isExpired(item.expireDate)
+                    className={`${
+                      isExpired(item.expireDate)
                         ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-700"
-                      }`}
+                    }`}
                     onClick={() =>
                       !isExpired(item.expireDate) && handleUpdateReport(item.id)
                     }
@@ -174,10 +187,11 @@ const WorkReport = () => {
                     <FaEdit />
                   </button>
                   <button
-                    className={`${isExpired(item.expireDate)
+                    className={`${
+                      isExpired(item.expireDate)
                         ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
                         : "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                      }`}
+                    }`}
                     onClick={() =>
                       !isExpired(item.expireDate) &&
                       alert(`Deleting ${item.reportName}`)
@@ -202,10 +216,11 @@ const WorkReport = () => {
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <button
-          className={`px-4 py-2 rounded ${currentPage === 1
+          className={`px-4 py-2 rounded ${
+            currentPage === 1
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-700"
-            }`}
+          }`}
           onClick={handlePrevious}
           disabled={currentPage === 1}
         >
@@ -215,10 +230,11 @@ const WorkReport = () => {
           Page {currentPage} of {totalPages}
         </span>
         <button
-          className={`px-4 py-2 rounded ${currentPage === totalPages
+          className={`px-4 py-2 rounded ${
+            currentPage === totalPages
               ? "bg-gray-300 text-gray-600 cursor-not-allowed"
               : "bg-blue-500 text-white hover:bg-blue-700"
-            }`}
+          }`}
           onClick={handleNext}
           disabled={currentPage === totalPages}
         >

@@ -6,6 +6,30 @@ const ViewWorkReport = () => {
   const report = useLoaderData();
   const [showFile, setShowFile] = useState(false);
 
+  const handleDownload = () => {
+    const fileUrl = `http://localhost:8000/user_report/${report.pdfFile}`;
+    fetch(fileUrl)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = report.pdfFile; // Use the file name here
+        link.click();
+        window.URL.revokeObjectURL(link.href); // Clean up after download
+      })
+      .catch((error) => {
+        console.error("Error downloading the file:", error);
+        alert("Failed to download the file. Please try again later.");
+      });
+  };
+
+
+
   if (!report) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -16,7 +40,6 @@ const ViewWorkReport = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <button
           onClick={() => navigate("/user/dashboard/work_report")}
@@ -24,30 +47,27 @@ const ViewWorkReport = () => {
         >
           Back
         </button>
-        <h1 className="text-2xl font-bold font-serif mr-10 text-gray-400">
+        <h1 className="text-xl font-bold font-serif mr-10 text-gray-400">
           View Report:{" "}
           <span className="text-blue-500">{report.reportName}</span>
         </h1>
       </div>
 
-      {/* Report Details */}
       <div className="bg-slate-100 rounded-lg shadow-lg p-8 font-serif">
-        {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Report Name</h2>
+            <h2 className="text-md font-semibold text-gray-800">Report Name</h2>
             <p className="text-gray-600 mt-1">{report.reportName}</p>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Response</h2>
+            <h2 className="text-md font-semibold text-gray-800">Response</h2>
             <p
-              className={`mt-1 ${
-                report.response === "Approved"
-                  ? "text-green-600"
-                  : report.response === "Pending"
+              className={`mt-1 ${report.response === "Approved"
+                ? "text-green-600"
+                : report.response === "Pending"
                   ? "text-yellow-600"
                   : "text-red-600"
-              }`}
+                }`}
             >
               {report.response}
             </p>
@@ -57,53 +77,81 @@ const ViewWorkReport = () => {
         {/* Middle Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Description</h2>
-            <p className="text-gray-600 mt-1">{report.description}</p>
+            <h2 className="text-md font-semibold text-gray-800">Expire Date</h2>
+            <p className="text-gray-600 mt-1">{report.expireDate}</p>
           </div>
+
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Comment</h2>
-            <p className="text-gray-600 mt-1">{report.comment}</p>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800">Remark</h2>
+            <h2 className="text-md font-semibold text-gray-800">Report Type</h2>
             <p className="text-gray-600 mt-1">{report.reportType}</p>
+          </div>
+
+          <div>
+            <h2 className="text-md font-semibold text-gray-800">Summery</h2>
+            <p className="text-gray-600 mt-1 overflow-y-auto overflow-x-hidden max-h-32 p-2">
+              {report.description}
+            </p>
+          </div>
+          <div>
+            <h2 className="text-md font-semibold text-gray-800">Comment</h2>
+            <p
+              className="text-gray-600 mt-1 overflow-y-auto overflow-x-hidden max-h-32 p-2"
+              style={{
+                wordWrap: "break-word", // Break long words to fit within the width
+                whiteSpace: "normal", // Ensure the text wraps properly
+              }}
+            >
+              {report.comment}{" "}
+              lkhakguuydihsf,kjjddddddddddddddddddddddddddbbbbbbbbbbbbbbbbbbbbbbbdddddddddddddddddddddddddllllllllllllllllllllllllllllllllllllllllllllaaaaaaaaaaaaaaaaaaaaaallllllllnbbbbbbbbbbbbbe.
+              kjlka,hndlk,hnlkhnlk,manklf,mvncm,nfkam,nm,gflkhakguuydihsf,kjjddddddddddddddddddddddddddbbbbbbbbbbbbbbbbbbbbbbbdddddddddddddddddddddddddllllllllllllllllllllllllllllllllllllllllllllaaaaaaaaaaaaaaaaaaaaaallllllllnbbbbbbbbbbbbbe.
+              kjlka,hndlk,hnlkhnlk,manklf,mvncm,nfkam,nm,gf
+            </p>
           </div>
         </div>
 
-        {/* Bottom Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">Expire Date</h2>
-            <p className="text-gray-600 mt-1">{report.expireDate}</p>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800">PDF File</h2>
+            <h2 className="text-md font-semibold text-gray-800">File</h2>
             <div>
               <button
                 onClick={() => setShowFile(!showFile)}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition-all"
+                className="px-3 py-1 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition-all"
               >
                 {showFile ? "Hide File" : "View File"}
               </button>
-              {showFile && (
-                <div className="mt-4">
-                  <embed
-                    src={`http://localhost:8000/getUserReport/${report._id}/${report.pdfFile}`}
-                    type="application/pdf"
-                    width="100%"
-                    height="500px"
-                    onError={(e) => {
-                      console.error("Failed to load the file", e);
-                      alert(
-                        "The file could not be loaded. Please try again later."
-                      );
-                    }}
-                  />
-                </div>
-              )}
+              <button
+                onClick={handleDownload}
+                className="px-3 m-2 py-1 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-all"
+              >
+                Download
+              </button>
+
+              <a
+                href={`http://localhost:8000/user_report/${report.pdfFile}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition-all"
+              >
+                View File
+              </a>
+
             </div>
           </div>
         </div>
+        {showFile && (
+          <div className="mt-4">
+            <embed
+              src={`http://localhost:8000/user_report/${report.pdfFile}`}
+              type="application/pdf"
+              width="100%"
+              height="500px"
+              onError={(e) => {
+                console.error("Failed to load the file", e);
+                alert("The file could not be loaded. Please try again later.");
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

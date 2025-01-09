@@ -7,11 +7,11 @@ a, a:focus, a:hover {
     outline: 0 !important;
 }
 
-img, svg {
+/* img, svg {
     max-width: 100%;
     height: auto;
     vertical-align: middle;
-}
+} */
 
 /*  Container Styles  */
 .container, .container-fluid, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {

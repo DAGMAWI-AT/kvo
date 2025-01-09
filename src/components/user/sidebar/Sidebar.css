@@ -117,6 +117,13 @@
   /* margin-left: 10px; */
   flex: 1;
 }
+.user_sidebar .svg {
+  display: none !important;
+}
+img, svg {
+  display: inline-block;
+  vertical-align: middle;
+}
 
 .submenu {
   list-style-type: none;
