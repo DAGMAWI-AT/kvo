@@ -1,65 +1,83 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signin.css";
+import axios from "axios";
 
 const Signin = () => {
-  const [email, setEmail] = useState("");
+  const [registrationId, setRegistrationId] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [message, setMessage] = useState(""); // For displaying messages
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
-    // Add login logic here (e.g., API call)
-    console.log("Email:", email);
-    console.log("Password:", password);
-
-    // Simulate successful login
-    if (email === "user@example.com" && password === "password") {
-      setIsLoggedIn(true);
-      navigate("/user/dashboard");
-    } else {
-      alert("Invalid email or password. Please try again.");
+  
+    try {
+      const response = await axios.post("http://localhost:8000/user/login", {
+        registrationId,
+        password,
+      });
+  
+      console.log("Full server response:", response.data); // Log full response
+  
+      if (response.data.success) {
+        const { user } = response.data; // Extract the user object
+        const { role } = user; // Extract the role from the user object
+  
+        // console.log("Role from server:", role); 
+  
+        localStorage.setItem("token", response.data.token); // Save token if provided
+        localStorage.setItem("role", role);
+  
+        // Navigate based on role
+        if (role === "admin") {
+          navigate("/admin");
+        } else if (role === "cso") {
+          navigate("/user/dashboard");
+        } else {
+          setMessage("Invalid role: " + role);
+        }
+      } else {
+        setMessage(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setMessage(error.response?.data?.message || "An error occurred.");
     }
   };
+  
+  
+  
 
   return (
     <div className="login-page">
-      <div className="login-container">
-        <h2 className="login-title">Welcome Back!</h2>
-        <form className="login-form" onSubmit={handleLogin}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <button type="submit" className="login-button">
-            Login
-          </button>
-        </form>
-        <p className="login-footer">
-          Don't have an account? <a href="/user/register">Register here</a>
-        </p>
-      </div>
+      <form className="login-form" onSubmit={handleLogin}>
+        <h2>Login</h2>
+        <div className="form-group">
+          <label htmlFor="registrationId">Registration ID</label>
+          <input
+            type="text"
+            id="registrationId"
+            value={registrationId}
+            onChange={(e) => setRegistrationId(e.target.value)}
+            placeholder="Enter your registration ID"
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <button type="submit">Login</button>
+        {message && <p className="message">{message}</p>} {/* Display any error or info messages */}
+      </form>
     </div>
   );
 };

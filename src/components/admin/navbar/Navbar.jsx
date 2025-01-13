@@ -8,7 +8,7 @@ import {
   FaBars,
 } from "react-icons/fa";
 import "./Navbar.css"; // Custom CSS file for styling
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios to make HTTP requests
 
 const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
@@ -16,7 +16,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0); // To store unread notifications count
-
+  const navigate = useNavigate();
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
@@ -65,6 +65,22 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
       console.error("Error marking notification as read:", error);
     }
   };
+
+
+  const handleLogout = async () => {
+    try {
+      // Call the server's logout endpoint to clear the session
+      await axios.post("http://localhost:8000/logout");
+
+      // Remove token and user data from localStorage (or cookies if used)
+      localStorage.removeItem("token"); // Clear token or session data
+      localStorage.removeItem("role"); // Clear role if stored
+      window.location.href = "/user/login";
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
 
   return (
     <nav className="navbar">
@@ -135,6 +151,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                 <li onClick={closeProfileMenu}>
                   <Link to="/admin/logout">Log Out</Link>
                 </li>
+                <li onClick={handleLogout}>Log Out</li>
               </ul>
             </div>
           )}
