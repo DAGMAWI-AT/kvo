@@ -69,17 +69,23 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      // Call the server's logout endpoint to clear the session
-      await axios.post("http://localhost:8000/logout");
-
-      // Remove token and user data from localStorage (or cookies if used)
-      localStorage.removeItem("token"); // Clear token or session data
-      localStorage.removeItem("role"); // Clear role if stored
+      // Call the logout endpoint on the backend
+      await axios.post("http://localhost:8000/user/logout");
+  
+      // Remove token and role from localStorage (if you're storing it there)
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+  
+      // Optionally clear any other data in localStorage
+      // localStorage.removeItem("user"); // If you store user data
+  
+      // Redirect the user to the login page
       window.location.href = "/user/login";
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
+  
 
 
   return (

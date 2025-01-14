@@ -21,17 +21,18 @@ const Signin = () => {
       console.log("Full server response:", response.data); // Log full response
   
       if (response.data.success) {
-        const { user } = response.data; // Extract the user object
-        const { role } = user; // Extract the role from the user object
-  
+        // const { user } = response.data; // Extract the user object
+        // const { role } = user; // Extract the role from the user object
+        const { token, role } = response.data; // Directly extract token and role
+
         // console.log("Role from server:", role); 
   
-        localStorage.setItem("token", response.data.token); // Save token if provided
+        localStorage.setItem("token",token); // Save token if provided
         localStorage.setItem("role", role);
   
         // Navigate based on role
         if (role === "admin") {
-          navigate("/admin");
+          navigate("/admin/dashboard");
         } else if (role === "cso") {
           navigate("/user/dashboard");
         } else {

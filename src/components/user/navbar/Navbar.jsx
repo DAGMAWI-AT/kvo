@@ -23,7 +23,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const handleLogout = async () => {
     try {
       // Call the server's logout endpoint to clear the session
-      await axios.post("http://localhost:8000/logout");
+      await axios.post("http://localhost:8000/user/logout");
 
       // Remove token and user data from localStorage (or cookies if used)
       localStorage.removeItem("token"); // Clear token or session data

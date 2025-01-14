@@ -21,7 +21,7 @@ const CreateAccount = () => {
 
     setLoading(true); // Start loading
     try {
-      const response = await axios.post("http://localhost:8000/createAccount_users", {
+      const response = await axios.post("http://localhost:8000/user/createAccount", {
         registrationId,
         password,
       });

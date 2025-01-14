@@ -10,7 +10,7 @@ const PrivateRoute = ({ element, roleRequired, ...rest }) => {
   }
 
   if (role !== roleRequired) {
-    return <Navigate to={{}} />; // Redirect to home if role does not match
+    return role === 'admin' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/user/dashboard" />; 
   }
 
   return element;
