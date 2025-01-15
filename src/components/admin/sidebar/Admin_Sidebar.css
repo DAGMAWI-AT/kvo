@@ -56,6 +56,9 @@
   font-size: 1.45rem; /* Medium icon size */
 }
 
+svg {
+display: inline-block; 
+}
 .admin_sidebar.dark .menu li:hover {
   background-color: #555;
 }

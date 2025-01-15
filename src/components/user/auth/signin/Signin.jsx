@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Signin.css";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
+// import jwt_decode from "jwt-decode";
 
 const Signin = () => {
   const [registrationId, setRegistrationId] = useState("");
@@ -11,42 +14,50 @@ const Signin = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     try {
       const response = await axios.post("http://localhost:8000/user/login", {
         registrationId,
         password,
       });
-  
-      console.log("Full server response:", response.data); // Log full response
-  
-      if (response.data.success) {
-        // const { user } = response.data; // Extract the user object
-        // const { role } = user; // Extract the role from the user object
-        const { token, role } = response.data; // Directly extract token and role
 
-        // console.log("Role from server:", role); 
-  
-        localStorage.setItem("token",token); // Save token if provided
-        localStorage.setItem("role", role);
-  
+      // Log full server response for debugging
+      // console.log("Server response:", response.data);
+
+      if (response.data.success) {
+        const { token } = response.data;
+
+        // Save the token in localStorage
+        localStorage.setItem("token", token);
+
+        // Decode token to extract role
+        const decoded = jwtDecode(token);
+
+        if (!decoded || !decoded.role) {
+          setMessage("Failed to retrieve role from the token.");
+          return;
+        }
+
+        const { role } = decoded;
+
         // Navigate based on role
         if (role === "admin") {
           navigate("/admin/dashboard");
         } else if (role === "cso") {
           navigate("/user/dashboard");
         } else {
-          setMessage("Invalid role: " + role);
+          setMessage("Unknown role: " + role);
         }
       } else {
         setMessage(response.data.message);
       }
     } catch (error) {
       console.error("Error during login:", error);
-      setMessage(error.response?.data?.message || "An error occurred.");
+      setMessage(
+        error.response?.data?.message || "An unexpected error occurred."
+      );
     }
   };
-  
   
   
 
