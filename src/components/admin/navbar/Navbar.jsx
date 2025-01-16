@@ -72,7 +72,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const handleLogout = async () => {
     try {
       // Call the logout endpoint on the backend
-      await axios.post("http://localhost:8000/user/logout");
+      await axios.post("https://finance-office.onrender.com/user/logout");
   
       // Remove token and role from localStorage (if you're storing it there)
       localStorage.removeItem("token");
