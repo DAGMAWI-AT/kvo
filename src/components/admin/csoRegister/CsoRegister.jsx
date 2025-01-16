@@ -48,7 +48,7 @@ const CsoRegister = () => {
 
     try {
       // const response = await fetch("http://localhost:8000/registerStaff", {
-        const response = await fetch("https://finance-office.onrender.com/registerStaff", {
+        const response = await fetch("https://finance-office.onrender.com/staff/register", {
 
         method: "POST",
         body: formDataObje,

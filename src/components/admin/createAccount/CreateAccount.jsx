@@ -21,7 +21,10 @@ const CreateAccount = () => {
 
     setLoading(true); // Start loading
     try {
-      const response = await axios.post("http://localhost:8000/user/createAccount", {
+      // const response = await axios.post("http://localhost:8000/user/createAccount", 
+      const response = await axios.get("https://finance-office.onrender.com/user/createAccount",
+        
+      {
         registrationId,
         password,
       });

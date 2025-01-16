@@ -29,7 +29,9 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/notifications");
+        // const response = await axios.get("http://localhost:8000/notifications");
+        const response = await axios.get("https://finance-office.onrender.com/notifications");
+
         const notificationsData = response.data;
         setNotifications(notificationsData);
 
