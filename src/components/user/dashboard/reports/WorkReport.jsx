@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 
 const WorkReport = () => {
   const navigate = useNavigate();
@@ -13,9 +14,15 @@ const WorkReport = () => {
   const currentDate = new Date();
 
   // Filter reports based on search term
-  const filteredReports = report.filter((item) =>
-    item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredReports = report.filter((item) =>
+  //   item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+  const filteredReports = Array.isArray(report)
+  ? report.filter((item) =>
+      item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  : [];
+
 
   // Calculate total pages based on filtered data
   const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
@@ -52,16 +59,41 @@ const WorkReport = () => {
     navigate(`/user/dashboard/update_report/${id}`);
   };
 
-  useEffect(() => {
-    fetch("http://localhost:8000/getUserReport")
-      .then((res) => res.json())
-      .then((data) => setReport(data));
-  }, []);
-
-  const viewUrl = `https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
-    `http://localhost:8000/getUserReport/${currentData.pdfFile}`
-  )}`;
-
+    useEffect(() => {
+      const fetchProfileData = async () => {
+        try {
+          // Get the token from localStorage
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("No token found");
+            return;
+          }
+  
+          // Decode the token to extract user information
+          const decodedToken = jwtDecode(token);
+          const { registrationId } = decodedToken;
+  
+          if (!registrationId) {
+            console.error("Invalid token: registrationId not found");
+            return;
+          }
+  
+          // Fetch user profile using registrationId
+          const response = await fetch(`http://localhost:8000/reports/report/${registrationId}`);
+          if (response.ok) {
+            const data = await response.json();
+            // setReport(data);
+            setReport(data.data || []);
+          } else {
+            console.error("Failed to fetch profile data");
+          }
+        } catch (error) {
+          console.error("Error fetching profile data:", error);
+        }
+      };
+  
+      fetchProfileData();
+    }, []);
   return (
     <div className="p-4">
       {/* Header Section */}
@@ -87,14 +119,14 @@ const WorkReport = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-
+    {report.reportName}
       {/* Table Section */}
       <table className="w-full font-serif table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
         <thead>
           <tr className="bg-gray-100">
             <th className="border border-gray-300 p-2">ID</th>
             <th className="border border-gray-300 p-2">REPORT NAME</th>
-            <th className="border border-gray-300 p-2">RESPOND</th>
+            <th className="border border-gray-300 p-2">REPORT TYPE</th>
             <th className="border border-gray-300 p-2">COMMENT</th>
             <th className="border border-gray-300 p-2">FILE</th>
             <th className="border border-gray-300 p-2">REMARK</th>
@@ -113,21 +145,12 @@ const WorkReport = () => {
                   {item.reportName}
                 </td>
                 <td className="border-b border-gray-300 p-2 text-center">
-                  {item.respond}
+                  {item.reportType}
                 </td>
                 <td className="border-b border-gray-300 p-2">{item.comment}</td>
                 <td className="border-b border-gray-300 p-2">
                   {item.pdfFile && item.pdfFile.endsWith(".pdf") ? (
-                    // <a
-                    //   href={`https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(
-                    //     `http://localhost:8000/user_report/${item.pdfFile}`
-                    //   )}`}
-                    //   target="_blank"
-                    //   rel="noopener noreferrer"
-                    //   className="text-blue-500 underline"
-                    // >
-                    //   {item.pdfFile}
-                    // </a>
+                   
                     <embed
                     src={`http://localhost:8000/user_report/${item.pdfFile}`}
                     type="application/pdf"

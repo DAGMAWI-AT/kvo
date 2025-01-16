@@ -42,6 +42,8 @@ import Service from "../service/Service";
 import CsoRegister from "../admin/csoRegister/CsoRegister";
 import CreateAccount from "../admin/createAccount/CreateAccount";
 import PrivateRoute from "../privateRoute/PrivateRoute ";
+import EditUserProfile from "../user/profile/EditUserProfile";
+import ViewUserProfile from "../user/profile/ViewUserProfile";
 
 const Routers = createBrowserRouter([
   {
@@ -76,11 +78,11 @@ const Routers = createBrowserRouter([
   },
   //User Dashboard
   {
-    path: "/user/dashboard",
+    path: "/user",
     element: <PrivateRoute element={<UserLayout />} roleRequired="cso" />,
     children: [
       {
-        path: "/user/dashboard",
+        path: "dashboard",
         element: <Dashboard />,
       },
       {
@@ -102,6 +104,14 @@ const Routers = createBrowserRouter([
       {
         path: "/user/dashboard/update_report/:id",
         element: <UpdateReports />,
+      },
+      {
+        path: "Edit_user_prifile",
+        element: <EditUserProfile />,
+      },
+      {
+        path: "view_user_prifile",
+        element: <ViewUserProfile />,
       },
     ],
   },

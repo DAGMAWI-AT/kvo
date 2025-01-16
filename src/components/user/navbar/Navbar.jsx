@@ -71,13 +71,10 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
             <div className="dropdown-menu" onMouseLeave={closeProfileMenu}>
               <ul>
                 <li onClick={closeProfileMenu}>
-                  <Link to="/admin/view_profile">Profile</Link>
+                  <Link to="/user/view_user_prifile">Profile</Link>
                 </li>
                 <li onClick={closeProfileMenu}>
-                  <Link to="/admin/update_password">Update Password</Link>
-                </li>
-                <li onClick={closeProfileMenu}>
-                  <Link to="/admin/logout">Log Out</Link>
+                  <Link to="/user/Edit_user_prifile">Update Password</Link>
                 </li>
                 <li onClick={handleLogout}>Log Out</li>
               </ul>

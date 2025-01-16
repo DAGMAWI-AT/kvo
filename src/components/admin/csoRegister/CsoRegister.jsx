@@ -97,9 +97,8 @@ const CsoRegister = () => {
     console.log("FormData being sent: ", formDataObj); // Log the FormData
 
     try {
-      // const response = await fetch("http://localhost:8000/registerCSO", {
-        const response = await fetch("https://finance-office.onrender.com/cso/register", {
-
+      const response = await fetch("http://localhost:8000/cso/register", {
+        // const response = await fetch("https://finance-office.onrender.com/cso/register", {
         method: "POST",
         body: formDataObj,
       });
