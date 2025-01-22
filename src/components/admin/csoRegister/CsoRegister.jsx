@@ -12,6 +12,8 @@ const CsoRegister = () => {
     status: "active",
     logo: null, // File upload for logo
     role: "cso", // New state for the selected CSO role
+    licenses: [], // Add an array to store licenses
+
   });
 
   
@@ -33,6 +35,31 @@ const CsoRegister = () => {
       }));
     }
   };
+
+  // Function to handle the addition of multiple licenses
+  const handleLicenseChange = (e, index, key) => {
+    const updatedLicenses = [...formData.licenses];
+    updatedLicenses[index][key] = e.target.value;
+    setFormData({ ...formData, licenses: updatedLicenses });
+  };
+
+  const handleFileChange = (e, index) => {
+    const updatedLicenses = [...formData.licenses];
+    updatedLicenses[index].file = e.target.files[0];
+    setFormData({ ...formData, licenses: updatedLicenses });
+  };
+  
+  // Function to add a new license
+  const addLicense = (licenseType) => {
+    setFormData({
+      ...formData,
+      licenses: [
+        ...formData.licenses,
+        { name: licenseType, customName: "", file: null },
+      ],
+    });
+  };
+  
   const handleSubmitStaff = async (e) => {
     e.preventDefault();
     const registrationDate = new Date().toISOString();
@@ -77,7 +104,7 @@ const CsoRegister = () => {
     }
   };
   
-  const handleSubmit = async (e) => {
+  const handleSubmitCSO = async (e) => {
     e.preventDefault();
     const registrationDate = new Date().toISOString(); // Converts to ISO format (e.g., 2025-01-08T10:00:00.000Z)
 
@@ -93,6 +120,10 @@ const CsoRegister = () => {
     formDataObj.append("role", formData.role);
     formDataObj.append("registrationDate", registrationDate); // Automatically add registration date
 
+    formData.licenses.forEach((license, index) => {
+      formDataObj.append(`licenseName_${index}`, license.name);
+      formDataObj.append(`licenseFile_${index}`, license.file);
+    });
 
     console.log("FormData being sent: ", formDataObj); // Log the FormData
 
@@ -120,6 +151,8 @@ const CsoRegister = () => {
           status: "active",
           logo: null,
           role: "",
+          licenses: [], // Clear licenses after submission
+
         });
 
         // Navigate after showing the message
@@ -157,7 +190,51 @@ const CsoRegister = () => {
       </div>
 
       {formData.role === "cso" && (
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
+        <form onSubmit={handleSubmitCSO} encType="multipart/form-data">
+<div className="mb-4">
+  <label className="block text-gray-600 font-medium">Licenses</label>
+
+  {formData.licenses.map((license, index) => (
+    <div key={index} className="flex flex-col mb-4">
+      {/* License Name or Custom Name Input */}
+      {license.name === "other" ? (
+        <input
+          type="text"
+          placeholder="License Name"
+          value={license.customName || ""}
+          onChange={(e) => handleLicenseChange(e, index, "customName")}
+          className="w-full px-3 py-2 border rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          required
+        />
+      ) : (
+        <p className="text-gray-700">{license.name}</p>
+      )}
+
+      {/* File Upload Input */}
+      <input
+        type="file"
+        onChange={(e) => handleFileChange(e, index)}
+        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+        required
+      />
+    </div>
+  ))}
+
+  {/* Dropdown for Adding a New License */}
+  <select
+    onChange={(e) => addLicense(e.target.value)} // Handle license addition
+    value=""
+    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+  >
+    <option value="" disabled>
+      Add License
+    </option>
+    <option value="Registration">Registration License</option>
+    <option value="TIN">TIN Certificate</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+
           <div className="mb-4">
             <label className="block text-gray-600 font-medium">CSO Name</label>
             <input

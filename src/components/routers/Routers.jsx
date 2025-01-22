@@ -13,13 +13,13 @@ import UpdateReports from "../user/dashboard/reports/UpdateReports";
 //admin
 import AdminLayout from "../admin/adminLayout/AdminLayout";
 import AdminDashboard from "../admin/adminDashboard/AdminDashboard";
-import Reports from "../admin/reportCategory/Reports";
+import Category from "../admin/reportCategory/Category";
 import ExpireDate from "../admin/expireDate/ExpireDate";
 import Csos from "../admin/cso/Csos";
 import EachCso from "../admin/cso/each/EachCso";
-import YearlyReport from "../admin/reports/yearly/YearlyReport";
+import YearlyReport from "../admin/cso/reports/yearly/YearlyReport";
 import Users from "../admin/users/Users";
-import Category from "../admin/reportCategory/Category";
+import UploadCategory from "../admin/reportCategory/UploadCategory";
 import EditCategory from "../admin/reportCategory/EditCategory";
 import AllCsoReports from "../admin/cso/allCsoReports/AllCsoReports";
 import EditProfile from "../admin/profile/EditProfile";
@@ -33,7 +33,7 @@ import News from "../news/News";
 import Abouts from "../about/Abouts";
 import Meeting from "../admin/webContent/meeting/Meeting";
 import AddMeeting from "../admin/webContent/meeting/AddMeeting";
-import QuarterlyReport from "../admin/reports/quarterly/QuarterlyReport";
+import QuarterlyReport from "../admin/cso/reports/quarterly/QuarterlyReport";
 import EditMeeting from "../admin/webContent/meeting/EditMeeting";
 import ViewMeeting from "../admin/webContent/meeting/ViewMeeting";
 import Contact from "../contact/Contact";
@@ -44,6 +44,8 @@ import CreateAccount from "../admin/createAccount/CreateAccount";
 import PrivateRoute from "../privateRoute/PrivateRoute ";
 import EditUserProfile from "../user/profile/EditUserProfile";
 import ViewUserProfile from "../user/profile/ViewUserProfile";
+import ShowReport from "../admin/cso/reports/ShowReport";
+import CSOProfile from "../admin/cso/cosProfile/CSOProfile";
 
 const Routers = createBrowserRouter([
   {
@@ -93,8 +95,8 @@ const Routers = createBrowserRouter([
         path: "/user/dashboard/work_report/viewworkreport/:id",
         element: <ViewWorkReport />,
         loader: async ({ params }) =>
-          fetch(`http://localhost:8000/getUserReport/${params.id}`).then(
-            (res) => res.json()
+          fetch(`http://localhost:8000/reports/${params.id}`).then((res) =>
+            res.json()
           ),
       },
       {
@@ -118,9 +120,8 @@ const Routers = createBrowserRouter([
   // admin dashboard
   {
     path: "/admin",
-      // <PrivateRoute><AdminLayout /></PrivateRoute>
-      element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
-    
+    // <PrivateRoute><AdminLayout /></PrivateRoute>
+    element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
     children: [
       {
         path: "/admin/dashboard",
@@ -128,7 +129,7 @@ const Routers = createBrowserRouter([
       },
       {
         path: "report_category",
-        element: <Reports />,
+        element: <Category />,
       },
       {
         path: "expire_date",
@@ -141,6 +142,18 @@ const Routers = createBrowserRouter([
       {
         path: "each_cso/:id",
         element: <EachCso />,
+        // loader: async ({ params }) =>
+        //   fetch(`http://localhost:8000/reports/${params.id}`).then(
+        //     (res) => res.json()
+        //   ),
+      },
+      {
+        path: "show_report/:id",
+        element: <ShowReport />,
+        loader: async ({ params }) =>
+          fetch(`http://localhost:8000/reports/${params.id}`).then(
+            (res) => res.json()
+          ),
       },
       {
         path: "yearly_Report/:id",
@@ -156,7 +169,7 @@ const Routers = createBrowserRouter([
       },
       {
         path: "report_category/category",
-        element: <Category />,
+        element: <UploadCategory />,
       },
       {
         path: "report_category/edit_category",
@@ -177,6 +190,14 @@ const Routers = createBrowserRouter([
       {
         path: "update_password",
         element: <ChangePassowrd />,
+      },
+      {
+        path: "cso_profile/:id",
+        element: <CSOProfile />,
+        // loader: async ({ params }) =>
+        //   fetch(`http://localhost:8000/cso/res/${params.id}`).then(
+        //     (res) => res.json()
+        //   ),
       },
       {
         path: "web_content/hero_content",

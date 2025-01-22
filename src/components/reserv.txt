@@ -952,3 +952,267 @@ const Blog = () => {
 };
 
 export default Blog; image of bolg or news  Hight should be fixed not up and down based on image height should be appropriate height 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////each report/////////////////////////////////
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+const EachCso = () => {
+  const { id } = useParams();
+  const [report, setReport] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 5; // Adjust as needed
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  useEffect(() => {
+    const fetchCsoData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/reports/report/${id}`);
+        if (!response.ok) {
+          console.error("Failed to fetch CSO data:", response.status);
+          return;
+        }
+        const data = await response.json();
+        setReport(data.data || []);
+        console.log(report)
+        console.log(data)
+
+
+      } catch (error) {
+        console.error("Error fetching CSO data:", error);
+      }
+    };
+    fetchCsoData();
+  }, [id]);
+
+  // if (!report.length) return <p>Loading...</p>;
+
+  // Filtered reports based on user input
+  const filteredReports = Array.isArray(report)
+  ? report.filter((item) => {
+      const matchesFilter = filter === "all" || item.reportType.toLowerCase() === filter.toLowerCase();
+      const matchesSearch = item.reportName.toLowerCase().includes(search.toLowerCase());
+      const matchesDate = date ? item.date.includes(date) : true;
+      return matchesFilter && matchesSearch && matchesDate;
+    })
+  : [];
+
+  // const filteredReports = Array.isArray(report)
+  // ? report.filter((item) =>
+  //     item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  // : [];
+  
+  // Pagination logic
+  const indexOfLastReport = currentPage * reportsPerPage;
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
+  const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
+
+  const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleView = (report) => {
+    const { reportType, id: reportId } = report;
+    if (reportType === "yearly") {
+      navigate(`/admin/yearly_Report/${reportId}`);
+    } else if (reportType === "quarterly") {
+      navigate(`/admin/quarterly_report/${reportId}`);
+    }
+  };
+
+  return (
+    <div className="bg-gray-100 p-2 lg:p-6 md:p-4">
+      <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
+        <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">
+          CSO Details
+        </h2>
+        <p className="text-gray-600 mb-4">ID: {id}</p>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          {["all", "yearly", "quarterly", "proposal", "projects", "other"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilter(type)}
+              className={`py-2 px-4 rounded ${
+                filter === type
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+              } transition`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Search and Date Inputs */}
+        <div className="flex space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Search by Name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        {/* Reports Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border px-4 py-2">Name</th>
+                <th className="border px-4 py-2">Type</th>
+                <th className="border px-4 py-2">Date</th>
+                <th className="border px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentReports.length > 0 ? (
+                currentReports.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-100">
+                    <td className="border px-4 py-2">{item.reportName}</td>
+                    <td className="border px-4 py-2">{item.reportType}</td>
+                    <td className="border px-4 py-2">{item.date}</td>
+                    <td className="border px-4 py-2">
+                      <button
+                        onClick={() => handleView(item)}
+                        className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center py-4">
+                    No reports found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+            className={`py-2 px-4 rounded ${
+              currentPage === 1 ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Previous
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className={`py-2 px-4 rounded ${
+              currentPage === totalPages ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EachCso;

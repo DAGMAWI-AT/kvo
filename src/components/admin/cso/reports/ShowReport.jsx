@@ -1,7 +1,7 @@
 import React, {useState } from "react";
 import { useLoaderData, useNavigate,  } from "react-router-dom";
+const ShowReport = () => {
 
-const ViewWorkReport = () => {
   const navigate = useNavigate();
   const report = useLoaderData();
   const [showFile, setShowFile] = useState(false);
@@ -50,7 +50,8 @@ const ViewWorkReport = () => {
     <div className="min-h-screen bg-gray-50 p-2">
       <div className="flex justify-between items-center mb-8">
         <button
-          onClick={() => navigate("/user/dashboard/work_report")}
+          onClick={() => navigate(`/admin/each_cso/${report.registrationId}`)}
+
           className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition-all"
         >
           Back
@@ -165,4 +166,6 @@ const ViewWorkReport = () => {
   );
 };
 
-export default ViewWorkReport;
+
+
+export default ShowReport

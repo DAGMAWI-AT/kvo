@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 
 const UploadReports = () => {
   const [formData, setFormData] = useState({
@@ -19,26 +20,37 @@ const UploadReports = () => {
       setFormData({ ...formData, [name]: value });
     }
   };
+  const token = localStorage.getItem("token"); // Example: Retrieve userId from local storage
 
+  const decodedToken = jwtDecode(token);
+  const { registrationId } = decodedToken;
+  if (!registrationId) {
+    console.error("User ID not found.");
+    return;
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formDataObj = new FormData();
+    formDataObj.append("registrationId", registrationId); // Attach userId to the form data
     formDataObj.append("reportName", formData.reportName);
     formDataObj.append("description", formData.description);
     formDataObj.append("reportType", formData.reportType);
     formDataObj.append("pdfFile", formData.file);
 
     try {
-      const response = await fetch("http://localhost:8000/userReports", {
-        method: "POST",
-        body: formDataObj,
-      });
+      const response = await fetch(
+        "http://localhost:8000/reports/upload_reports",
+        {
+          method: "POST",
+          body: formDataObj,
+        }
+      );
 
       const result = await response.json();
       if (result.success) {
         setSuccessMessage("Report uploaded successfully!");
         setTimeout(() => setSuccessMessage(""), 3000);
-        
+
         // Clear form data
         setFormData({
           reportName: "",
@@ -59,17 +71,15 @@ const UploadReports = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-2 md:p-4 lg:p-6 font-serif">
-         {successMessage && (
-          <div className="mb-4 p-4 bg-green-100 text-green-600 rounded-lg">
-            {successMessage}
-          </div>
-        )}
+      {successMessage && (
+        <div className="mb-4 p-4 bg-green-100 text-green-600 rounded-lg">
+          {successMessage}
+        </div>
+      )}
       <div className="bg-white p-3 md:p-4 lg:p-6 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-gray-500 mb-6 text-center font-serif">
           Upload New Report
         </h1>
-
-     
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">

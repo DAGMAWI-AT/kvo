@@ -110,6 +110,7 @@ const ViewUserProfile = () => {
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Date:</span>
             <span className="text-gray-800">{profileData.registrationDate}</span>
+            {new Date(profileData.registrationDate).toLocaleDateString()}
           </div>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Role:</span>

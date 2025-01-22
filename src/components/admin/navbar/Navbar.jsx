@@ -156,9 +156,6 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                 <li onClick={closeProfileMenu}>
                   <Link to="/admin/update_password">Update Password</Link>
                 </li>
-                <li onClick={closeProfileMenu}>
-                  <Link to="/admin/logout">Log Out</Link>
-                </li>
                 <li onClick={handleLogout}>Log Out</li>
               </ul>
             </div>

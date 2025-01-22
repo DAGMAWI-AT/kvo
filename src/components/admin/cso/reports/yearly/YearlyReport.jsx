@@ -1,6 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { allreport } from "../../cso/each/EachCso"; // Adjust the path if needed
+// import { allreport } from "../../cso/each/EachCso"; // Adjust the path if needed
+export const allreport = [
+  {
+    id: 1,
+    name: "bishofftu high school",
+    type: "yearly",
+    date: "2025-10-10",
+    status: "pending",  
+    reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
+    comment: "",
+  },
+  {
+    id: 2,
+    name: "bishofftu high school",
+    type: "quarterly",
+    date: "2025-10-20",
+    status: "commented",  
+    reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
+    comment: "",
+  },
+  {
+    id: 3,
+    name: "bishofftu health care",
+    type: "proposal",
+    date: "2025-10-20",
+    status: "approve",  // Active status
+    reportFile: "0001Bisoftu.pdf",
+    updatePermission:"expire, restrict, open",
+    comment: "",
+  },
+  // Add more reports as needed
+];
 
 const YearlyReport = () => {
   const location = useLocation();

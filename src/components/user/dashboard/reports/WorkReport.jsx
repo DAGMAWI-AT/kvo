@@ -95,7 +95,7 @@ const WorkReport = () => {
       fetchProfileData();
     }, []);
   return (
-    <div className="p-4">
+    <div className="p-2">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-400 font-serif">
@@ -114,14 +114,16 @@ const WorkReport = () => {
         <input
           type="text"
           placeholder="Search"
-          className="border border-gray-300 rounded px-2 py-2 w-60 focus:outline-none focus:ring focus:ring-blue-300"
+          className="border border-gray-300 rounded px-2 py-2 lg:w-60 md:w-40 w-40 focus:outline-none focus:ring focus:ring-blue-300"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
     {report.reportName}
       {/* Table Section */}
-      <table className="w-full font-serif table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
+      <div className="overflow-x-auto">
+
+      <table className="w-full  font-serif table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
         <thead>
           <tr className="bg-gray-100">
             <th className="border border-gray-300 p-2">ID</th>
@@ -235,7 +237,7 @@ const WorkReport = () => {
           )}
         </tbody>
       </table>
-
+     </div>
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <button

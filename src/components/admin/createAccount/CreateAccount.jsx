@@ -9,9 +9,14 @@ const CreateAccount = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false); // Loading state
   const navigate = useNavigate();
-
+  const [error, setError] = useState();
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
 
     // Validate if passwords match
     if (password !== confirmPassword) {
@@ -21,13 +26,21 @@ const CreateAccount = () => {
 
     setLoading(true); // Start loading
     try {
-      // const response = await axios.post("http://localhost:8000/user/createAccount", 
-      const response = await axios.get("https://finance-office.onrender.com/user/createAccount",
-        
-      {
-        registrationId,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:8000/user/createAccount",
+        // const response = await axios.get("https://finance-office.onrender.com/user/createAccount",
+
+        {
+          registrationId,
+          password,
+        },
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`, // Include token in Authorization header
+            "Content-Type": "application/json", // Ensure proper content type
+          },
+        }
+      );
 
       if (response.data?.success) {
         // Clear input fields
@@ -56,10 +69,14 @@ const CreateAccount = () => {
   return (
     <div className="flex items-center justify-center bg-gray-100">
       <div className="bg-white m-6 p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-center text-2xl font-bold mb-6">Create User Account</h2>
+        <h2 className="text-center text-2xl font-bold mb-6">
+          Create User Account
+        </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Registration ID:</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Registration ID:
+            </label>
             <input
               type="text"
               value={registrationId}
@@ -69,7 +86,9 @@ const CreateAccount = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Password:</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Password:
+            </label>
             <input
               type="password"
               value={password}
@@ -79,7 +98,9 @@ const CreateAccount = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Confirm Password:</label>
+            <label className="block text-gray-700 font-medium mb-2">
+              Confirm Password:
+            </label>
             <input
               type="password"
               value={confirmPassword}
@@ -98,9 +119,10 @@ const CreateAccount = () => {
         </form>
         {message && (
           <p
-            className={`mt-4 text-center font-medium ${
-              message.includes("successfully") ? "text-green-600" : "text-red-600"
-            }`}
+            className={`mt-4 text-center font-medium ${message.includes("successfully")
+                ? "text-green-600"
+                : "text-red-600"
+              }`}
           >
             {message}
           </p>
