@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EditProfile from "./EditProfile";
 import { jwtDecode } from "jwt-decode";
+import { FaUser } from "react-icons/fa";
 
 const ViewProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,7 +27,7 @@ const ViewProfile = () => {
 
         // Fetch user profile using registrationId
         const response = await fetch(
-          `http://localhost:8000/staffs/byid/${registrationId}`
+          `http://localhost:5000/api/staff/byId/${registrationId}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -67,10 +68,11 @@ const ViewProfile = () => {
         </h1>
         <div className="flex flex-col items-center mb-6">
           <img
-            src={`http://localhost:8000/staff/${profileData.photo}`}
+            src={profileData.photo}
             alt="Profile"
             className="w-32 h-32 rounded-full border-2 border-gray-300 object-cover"
           />
+
           <p className="mt-4 font-semibold text-gray-700">{profileData.name}</p>
         </div>
         <div className="space-y-4">
@@ -87,6 +89,11 @@ const ViewProfile = () => {
             <span className="font-semibold text-gray-600">Email:</span>
             <span className="text-gray-800">{profileData.email}</span>
           </div>
+
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">Position:</span>
+            <span className="text-gray-800">{profileData.position}</span>
+          </div>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Phone:</span>
             <span className="text-gray-800">{profileData.phone}</span>
@@ -97,9 +104,7 @@ const ViewProfile = () => {
           </div>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Date:</span>
-            <span className="text-gray-800">
-              {profileData.registrationDate}
-            </span>
+            <span className="text-gray-800">{profileData.created_at}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Role:</span>
@@ -127,7 +132,7 @@ const ViewProfile = () => {
               X
             </button>
             <EditProfile
-              profileData={profileData}
+              initialData={profileData}
               onUpdate={handleProfileUpdate}
             />
           </div>

@@ -150,8 +150,8 @@ const Category = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="px-4 py-2 border-b">ID</th>
-              <th className="px-4 py-2 border-b">Report Category</th>
-              <th className="px-4 py-2 border-b">Date</th>
+              <th className="px-4 py-2 border-b">Report Type</th>
+              <th className="px-4 py-2 border-b">Expire Date</th>
               <th className="px-4 py-2 border-b">Actions</th>
             </tr>
           </thead>

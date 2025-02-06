@@ -10,6 +10,8 @@ import {
 import "./Navbar.css"; // Custom CSS file for styling
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"; // Import axios to make HTTP requests
+import {jwtDecode} from "jwt-decode";
+
 
 const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -26,26 +28,55 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   };
 
   // Fetch notifications from the server
-  useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        // const response = await axios.get("http://localhost:8000/notifications");
-        const response = await axios.get("https://finance-office.onrender.com/notifications");
-
-        const notificationsData = response.data;
-        setNotifications(notificationsData);
-
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+  
+        // Decode the token to extract user information
+        const decodedToken = jwtDecode(token);
+        const { registrationId } = decodedToken;
+  
+        if (!registrationId) {
+          console.error("Invalid token: registrationId not found");
+          return;
+        }
+  
+        // Fetch notifications
+        const response = await axios.get("http://localhost:5000/api/notifications");
+        // const response = await axios.get("https://finance-office.onrender.com/notifications");
+  
+        const notificationsData = response.data; // Assuming this is an array of notifications
+        // console.log("Notifications Data:", notificationsData);
+  
+        // Filter notifications where the author is not the logged-in user
+        const filteredNotifications = notificationsData.filter((notif) => {
+          return notif.author_id !== registrationId;
+        });
+        
+  
+        // console.log("Filtered Notifications:", filteredNotifications);
+  
+        // Update the state with filtered notifications
+        setNotifications(filteredNotifications);
+  
         // Calculate the number of unread notifications
-        const unread = notificationsData.filter((notif) => !notif.read).length;
+        const unread = filteredNotifications.filter((notif) => !notif.read).length;
         setUnreadCount(unread);
+  
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
     };
+  
 
+  
+  useEffect(() => {
     fetchNotifications();
   }, []);
-
   // Toggle the notification dropdown
   const toggleNotificationDropdown = () => {
     setShowNotifications(!showNotifications);
@@ -54,40 +85,34 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Mark a notification as read
   const markAsRead = async (id) => {
     try {
-      // await axios.patch(`http://localhost:8000/notifications/${id}`);
-      await axios.patch(`https://finance-office.onrender.com/notifications/${id}`);
-      // Update the notifications state to mark as read
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notif) =>
-          notif._id === id ? { ...notif, read: true } : notif
-        )
-      );
-      setUnreadCount((prevCount) => prevCount - 1); // Decrease the unread count
+      await axios.put(`http://localhost:5000/api/notifications/read/${id}`);
+      fetchNotifications(); // Refresh the notification list
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
+  
 
 
   const handleLogout = async () => {
     try {
-      // Call the logout endpoint on the backend
-      await axios.post("https://finance-office.onrender.com/user/logout");
-  
-      // Remove token and role from localStorage (if you're storing it there)
+      await axios.post("http://localhost:5000/api/users/logout");
+      // await axios.post("https://finance-office.onrender.com/user/logout");
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-  
-      // Optionally clear any other data in localStorage
-      // localStorage.removeItem("user"); // If you store user data
-  
-      // Redirect the user to the login page
       window.location.href = "/user/login";
     } catch (error) {
       console.error("Error logging out:", error);
     }
   };
   
+  const viewReportDetails = async (report_id) => {
+    try {
+      navigate(`/admin/show_report/${report_id}`);
+    } catch (error) {
+      console.error("Error fetching report details:", error);
+    }
+  };
 
 
   return (
@@ -122,25 +147,29 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
           )}
           {showNotifications && (
             <div className="notifications-dropdown">
-              {notifications.length > 0 ? (
+              {notifications.filter((notif) => !notif.read).length > 0 ? (
                 <ul>
-                  {notifications.map((notif) => (
-                    <li
-                      key={notif._id}
-                      onClick={() => markAsRead(notif._id)} // Mark notification as read when clicked
-                      className={notif.read ? "read" : "unread"}
-                    >
-                      {notif.message}
-                      {notif.csoUser} {/* //which cso user sebmit */}
-                      {notif.reportName}
-                      {notif.reportType}
-                      <p className="p-0 m-0 ">
-                      {notif.timestamp}</p>
-                    </li>
-                  ))}
+                  {notifications
+                    .filter((notif) => !notif.read) // Show only unread notifications
+                    .map((notif) => (
+                      <li key={notif.id} className="unread">
+                        {notif.notification_message}
+                        <p>{new Date(notif.timestamp).toLocaleString()}
+                        </p>
+                        <button
+                          onClick={() => {
+                            viewReportDetails(notif.report_id);
+                            markAsRead(notif.id);
+                          }}
+                          className="px-2 py-0 bg-green-600 rounded text-white text-sm"
+                        >
+                          View
+                        </button>
+                      </li>
+                    ))}
                 </ul>
               ) : (
-                <p>No notifications</p>
+                <p>No unread notifications</p>
               )}
             </div>
           )}

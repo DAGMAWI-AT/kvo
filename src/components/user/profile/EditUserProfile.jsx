@@ -1,37 +1,63 @@
 import React, { useState } from "react";
 
 const EditUserProfile = ({ profileData, onUpdate }) => {
+  const [imageFile, setImageFile] = useState(profileData.logo);
   const [formData, setFormData] = useState(profileData);
+  const [successMessage, setSuccessMessage] = useState(""); // State for success message
+  const [errorMessage, setErrorMessage] = useState(""); // State for error message
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prevData) => ({
-        ...prevData,
-        image: imageUrl,
-      }));
+      setImageFile(file);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdate(formData); // Pass updated data back to parent
+    setSuccessMessage(""); // Reset any previous success message
+    setErrorMessage(""); // Reset any previous error message
+
+    try {
+      const updatedData = new FormData();
+      updatedData.append("csoName", formData.csoName); // Ensure the updated csoName is added
+
+      if (imageFile instanceof File) {
+        updatedData.append("logo", imageFile);
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/cso/update/${profileData.id}`,
+        {
+          method: "PATCH",
+          body: updatedData,
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccessMessage("Profile updated successfully!"); // Show success message
+        onUpdate({ ...profileData, logo: result.logoUrl, csoName: formData.csoName });
+      } else {
+        setErrorMessage("Error updating profile: " + result.message); // Show error message
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setErrorMessage("An error occurred while updating the profile."); // Show error message
+    }
   };
 
   return (
-    <form className="space-y-6"  onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="flex flex-col items-center">
         <img
-          src={formData.image}
+          src={imageFile instanceof File ? URL.createObjectURL(imageFile) : imageFile}
           alt="Profile"
           className="w-28 h-28 rounded-full border-2 border-gray-300 object-cover"
         />
@@ -45,41 +71,28 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
           />
         </label>
       </div>
-
       <div>
         <label className="block text-gray-700 font-medium mb-1">Name</label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
+          name="csoName" // Ensure the name matches the data model
+          value={formData.csoName} // Bind to formData.csoName
           onChange={handleChange}
           className="w-full border border-gray-300 rounded-lg px-4 py-2"
         />
       </div>
 
-      <div>
-        <label className="block text-gray-700 font-medium mb-1">Email</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-        />
-      </div>
-
-      <div>
-        <label className="block text-gray-700 font-medium mb-1">Role</label>
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-        >
-          <option value="Admin">Admin</option>
-          <option value="User">User</option>
-        </select>
-      </div>
+      {/* Success or Error message display */}
+      {successMessage && (
+        <div className="text-green-600 bg-green-100 p-3 rounded-md mt-4">
+          {successMessage}
+        </div>
+      )}
+      {errorMessage && (
+        <div className="text-red-600 bg-red-100 p-3 rounded-md mt-4">
+          {errorMessage}
+        </div>
+      )}
 
       <div className="flex justify-end">
         <button

@@ -9,6 +9,7 @@ import { jwtDecode } from "jwt-decode";
 const Signin = () => {
   const [registrationId, setRegistrationId] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [message, setMessage] = useState(""); // For displaying messages
   const navigate = useNavigate();
 
@@ -65,8 +66,10 @@ const Signin = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:8000/user/login", {
+      // const response = await axios.post("http://localhost:8000/user/login", {
+        const response = await axios.post("http://localhost:5000/api/users/login", {
         registrationId,
+        email,
         password,
       });
 
@@ -105,11 +108,17 @@ const Signin = () => {
   };
 
   return (
-    <div className="login-page">
-      <form className="login-form" onSubmit={handleLogin}>
-        <h2>Login</h2>
-        <div className="form-group">
-          <label htmlFor="registrationId">Registration ID</label>
+<div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-blue-300 to-blue-500">
+<div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <label
+            htmlFor="registrationId"
+            className="block text-gray-600 font-medium mb-1"
+          >
+            Registration ID
+          </label>
           <input
             type="text"
             id="registrationId"
@@ -117,10 +126,33 @@ const Signin = () => {
             onChange={(e) => setRegistrationId(e.target.value)}
             placeholder="Enter your registration ID"
             required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
+        <div>
+          <label
+            htmlFor="registrationId"
+            className="block text-gray-600 font-medium mb-1"
+          >
+            Email
+          </label>
+          <input
+            type="text"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your registration ID"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-gray-600 font-medium mb-1"
+          >
+            Password
+          </label>
           <input
             type="password"
             id="password"
@@ -128,13 +160,22 @@ const Signin = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
             required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <button type="submit">Login</button>
-        {message && <p className="message">{message}</p>} {/* Display any error or info messages */}
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          Login
+        </button>
+        {message && (
+          <p className="text-center text-red-500 font-medium mt-4">{message}</p>
+        )}
       </form>
     </div>
-  );
+  </div>
+);
 };
 
 export default Signin;

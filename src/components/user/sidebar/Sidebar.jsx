@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import {
-  FaTachometerAlt,
   FaCog,
   FaHistory,
   FaDochub,
   FaClipboardList,
+  FaHome,
 } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -39,7 +39,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             }`}
           >
             <Link to="/user/dashboard" className="flex items-center">
-              <FaTachometerAlt />
+              <FaHome />
               <span>{!collapsed && "Dashboard"}</span>
             </Link>
           </li>
@@ -58,11 +58,11 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             <ul className="submenu">
               <li
                 className={`submenu-item ${
-                  isActive("/user/dashboard/work_report") ? "active" : ""
+                  isActive("/user/work_report") ? "active" : ""
                 }`}
               >
                 <Link
-                  to="/user/dashboard/work_report"
+                  to="/user/work_report"
                   className="flex items-center"
                 >
                   <FaClipboardList />

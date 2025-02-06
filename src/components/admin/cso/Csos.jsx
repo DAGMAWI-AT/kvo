@@ -234,7 +234,7 @@ const Csos = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await fetch("http://localhost:8000/cso/get");
+        const response = await fetch("http://localhost:5000/api/cso/get");
         if (response.ok) {
           const data = await response.json();
           setCsos(data || []);
@@ -397,7 +397,7 @@ const Csos = () => {
                 </span>
               )}
               <img
-                src={`http://localhost:8000/logos/${cso.logo}`} // Replace with a placeholder image if no image is provided
+                src={`${cso.logo}`} // Replace with a placeholder image if no image is provided
                 alt={cso.csoName}
                 className={`${
                   displayMode === "list"

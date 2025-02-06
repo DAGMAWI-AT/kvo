@@ -46,6 +46,7 @@ import EditUserProfile from "../user/profile/EditUserProfile";
 import ViewUserProfile from "../user/profile/ViewUserProfile";
 import ShowReport from "../admin/cso/reports/ShowReport";
 import CSOProfile from "../admin/cso/cosProfile/CSOProfile";
+import Unauthorized from "../unauthorized/Unauthorized";
 
 const Routers = createBrowserRouter([
   {
@@ -88,23 +89,38 @@ const Routers = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/user/dashboard/work_report",
+        path: "work_report",
         element: <WorkReport />,
       },
+      // {
+      //   path: "/user/dashboard/work_report/viewworkreport/:id",
+      //   element: <ViewWorkReport />,
+      //   loader: async ({ params }) =>
+      //     fetch(`http://localhost:5000/api/report/byId/${params.id}`).then((res) =>
+      //       res.json()
+      //     ),
+      // },
       {
-        path: "/user/dashboard/work_report/viewworkreport/:id",
+        path: "viewworkreport/:id",
         element: <ViewWorkReport />,
         loader: async ({ params }) =>
-          fetch(`http://localhost:8000/reports/${params.id}`).then((res) =>
-            res.json()
-          ),
+          fetch(`http://localhost:5000/api/report/byId/${params.id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is sent
+            },
+          }).then((res) => res.json()),
+      },
+      
+      {
+        path: "unauthorized",
+        element: <Unauthorized />,
       },
       {
-        path: "/user/dashboard/upload_report",
+        path: "upload_report",
         element: <UploadReports />,
       },
       {
-        path: "/user/dashboard/update_report/:id",
+        path: "update_report/:id",
         element: <UpdateReports />,
       },
       {
@@ -151,17 +167,9 @@ const Routers = createBrowserRouter([
         path: "show_report/:id",
         element: <ShowReport />,
         loader: async ({ params }) =>
-          fetch(`http://localhost:8000/reports/${params.id}`).then(
+          fetch(`http://localhost:5000/api/report/view/byId/${params.id}`).then(
             (res) => res.json()
           ),
-      },
-      {
-        path: "yearly_Report/:id",
-        element: <YearlyReport />,
-      },
-      {
-        path: "quarterly_report/:id",
-        element: <QuarterlyReport />,
       },
       {
         path: "users",

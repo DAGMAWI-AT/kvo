@@ -1,24 +1,19 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import {
+  FaEnvelope,
+  FaHome,
+  FaMapMarkedAlt,
+  FaPhoneAlt,
+  FaTypo3,
+  FaUserAlt,
+} from "react-icons/fa";
 import { useNavigate } from "react-router";
 
 const CsoRegister = () => {
-  const [formData, setFormData] = useState({
-    csoName: "",
-    sector: "",
-    email: "",
-    phone: "",
-    location: "",
-    office: "",
-    status: "active",
-    logo: null, // File upload for logo
-    role: "cso", // New state for the selected CSO role
-    licenses: [], // Add an array to store licenses
+  const [formData, setFormData] = useState({role: "cso", status:"active"});
 
-  });
-
-  
-  
   const [successMessage, setSuccessMessage] = useState("");
+  const [error, setError] = useState();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,33 +31,11 @@ const CsoRegister = () => {
     }
   };
 
-  // Function to handle the addition of multiple licenses
-  const handleLicenseChange = (e, index, key) => {
-    const updatedLicenses = [...formData.licenses];
-    updatedLicenses[index][key] = e.target.value;
-    setFormData({ ...formData, licenses: updatedLicenses });
-  };
 
-  const handleFileChange = (e, index) => {
-    const updatedLicenses = [...formData.licenses];
-    updatedLicenses[index].file = e.target.files[0];
-    setFormData({ ...formData, licenses: updatedLicenses });
-  };
-  
-  // Function to add a new license
-  const addLicense = (licenseType) => {
-    setFormData({
-      ...formData,
-      licenses: [
-        ...formData.licenses,
-        { name: licenseType, customName: "", file: null },
-      ],
-    });
-  };
-  
+  //   setError("");
   const handleSubmitStaff = async (e) => {
     e.preventDefault();
-    const registrationDate = new Date().toISOString();
+    // const registrationDate = new Date().toISOString();
 
     const formDataObje = new FormData();
     formDataObje.append("name", formData.name);
@@ -71,16 +44,24 @@ const CsoRegister = () => {
     formDataObje.append("status", formData.status);
     formDataObje.append("photo", formData.photo);
     formDataObje.append("role", formData.role);
-    formDataObje.append("registrationDate", registrationDate);
+    // formDataObje.append("registrationDate", registrationDate);
 
     try {
-      // const response = await fetch("http://localhost:8000/registerStaff", {
-        const response = await fetch("https://finance-office.onrender.com/staff/register", {
-
-        method: "POST",
-        body: formDataObje,
-      });
-
+      const response = await fetch("http://localhost:5000/api/staff/register", {
+      // const response = await fetch(
+      //   "https://finance-office.onrender.com/staff/register",
+      //   {
+          method: "POST",
+          body: formDataObje,
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        // console.error("Backend error:", errorData.message);
+        setError(errorData.message || "An unexpected error occurred.");
+        return;
+      }
+      
       const result = await response.json();
       if (result.success) {
         setSuccessMessage("Staff registered successfully!");
@@ -98,18 +79,23 @@ const CsoRegister = () => {
         setTimeout(() => navigate("/admin/dashboard"), 3000);
       } else {
         console.error(result.message);
+        setError(result.message)
+        setTimeout(() => setError(" "), 3000);
+
+
       }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
   };
-  
+
   const handleSubmitCSO = async (e) => {
     e.preventDefault();
-    const registrationDate = new Date().toISOString(); // Converts to ISO format (e.g., 2025-01-08T10:00:00.000Z)
 
+    setError("");
     const formDataObj = new FormData();
     formDataObj.append("csoName", formData.csoName);
+    formDataObj.append("repName", formData.repName);
     formDataObj.append("sector", formData.sector);
     formDataObj.append("email", formData.email);
     formDataObj.append("phone", formData.phone);
@@ -117,24 +103,30 @@ const CsoRegister = () => {
     formDataObj.append("office", formData.office);
     formDataObj.append("status", formData.status);
     formDataObj.append("logo", formData.logo);
+    formDataObj.append("tin_certificate", formData.tin_certificate);
+    formDataObj.append("registration_certificate", formData.registration_certificate);
     formDataObj.append("role", formData.role);
-    formDataObj.append("registrationDate", registrationDate); // Automatically add registration date
+    // formDataObj.append("registrationDate", registrationDate); // Automatically add registration date
 
-    formData.licenses.forEach((license, index) => {
-      formDataObj.append(`licenseName_${index}`, license.name);
-      formDataObj.append(`licenseFile_${index}`, license.file);
-    });
-
-    console.log("FormData being sent: ", formDataObj); // Log the FormData
+    // console.log("FormData being sent: ", formDataObj); // Log the FormData
 
     try {
-      const response = await fetch("http://localhost:8000/cso/register", {
-        // const response = await fetch("https://finance-office.onrender.com/cso/register", {
+      const response = await fetch("http://localhost:5000/api/cso/register", {
         method: "POST",
         body: formDataObj,
       });
-
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Backend error:", errorData.message);
+        setError(errorData.message || "An unexpected error occurred.");
+        return;
+      }
+      
       const result = await response.json();
+      console.log("Success:", result);
+      // setSuccessMessage("CSO registered successfully!");
+      
       console.log("Response: ", result); // Log the response
       if (result.success) {
         setSuccessMessage("CSO registered successfully!");
@@ -143,6 +135,7 @@ const CsoRegister = () => {
         // Clear form data
         setFormData({
           csoName: "",
+          repName:"",
           sector: "",
           email: "",
           phone: "",
@@ -150,23 +143,25 @@ const CsoRegister = () => {
           office: "",
           status: "active",
           logo: null,
+          tin_certificate: null,
+          registration_certificate:null,
           role: "",
-          licenses: [], // Clear licenses after submission
-
         });
 
         // Navigate after showing the message
         setTimeout(() => navigate("/admin/dashboard"), 3000);
       } else {
         console.error(result.message);
+        console.log(result.message)
       }
     } catch (error) {
       console.error("Error submitting report:", error);
+      
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-gray-100 rounded-lg shadow-md mt-10">
+    <div className="min-h-screen mx-auto p-8 bg-gray-100 rounded-lg shadow-md mt-2">
       <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
         Register Civic Society Organization (CSO)
       </h2>
@@ -175,227 +170,302 @@ const CsoRegister = () => {
           {successMessage}
         </div>
       )}
+       {setError && (
+        <div className="mb-4 p-4 bg-green-100 text-red-600 rounded-lg">
+          {error}
+        </div>
+      )}
       <div className="mb-4">
         <label className="block text-gray-600 font-medium">Choose Role</label>
         <select
           name="role"
           value={formData.role}
           onChange={handleChange}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-36 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         >
-          <option value="cso user">cso</option>
+          <option value="cso">CSO</option>
           <option value="admin">Staff</option>
         </select>
       </div>
 
       {formData.role === "cso" && (
-        <form onSubmit={handleSubmitCSO} encType="multipart/form-data">
-<div className="mb-4">
-  <label className="block text-gray-600 font-medium">Licenses</label>
+        <div className="overflow-x-auto">
+          <form
+            onSubmit={handleSubmitCSO}
+            encType="multipart/form-data"
+            className="min-w-[600px] px-4"
+          >
+            <div className="flex justify-between items-start mb-4 space-x-4">
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  CSO Name
+                </label>
+                <FaUserAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+                <input
+                  type="text"
+                  name="csoName"
+                  value={formData.csoName}
+                  onChange={handleChange}
+                  className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="cso name"
+                  required
+                />
+              </div>
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Representative Name
+                </label>
+                <FaUserAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+                <input
+                  type="text"
+                  name="repName"
+                  value={formData.repName}
+                  onChange={handleChange}
+                  className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Representative Name"
+                  required
+                />
+              </div>
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Sector
+                </label>
+                <FaTypo3 className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
 
-  {formData.licenses.map((license, index) => (
-    <div key={index} className="flex flex-col mb-4">
-      {/* License Name or Custom Name Input */}
-      {license.name === "other" ? (
-        <input
-          type="text"
-          placeholder="License Name"
-          value={license.customName || ""}
-          onChange={(e) => handleLicenseChange(e, index, "customName")}
-          className="w-full px-3 py-2 border rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        />
-      ) : (
-        <p className="text-gray-700">{license.name}</p>
-      )}
+                <select
+                  name="sector"
+                  value={formData.sector}
+                  onChange={handleChange}
+                  className="w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                >
+                  <option value="">Select Sector</option>
+                  <option value="Education">Education</option>
+                  <option value="Health">Health</option>
+                  <option value="Environment">Environment</option>
+                  <option value="Agriculture">Agriculture</option>
+                </select>
+              </div>
+            </div>
 
-      {/* File Upload Input */}
-      <input
-        type="file"
-        onChange={(e) => handleFileChange(e, index)}
-        className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        required
-      />
-    </div>
-  ))}
+            <div className="flex justify-between items-start mb-4 space-x-4">
+              <div className="relative flex-1">
+                <label className="block text-gray-600 font-medium">Email</label>
 
-  {/* Dropdown for Adding a New License */}
-  <select
-    onChange={(e) => addLicense(e.target.value)} // Handle license addition
-    value=""
-    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-  >
-    <option value="" disabled>
-      Add License
-    </option>
-    <option value="Registration">Registration License</option>
-    <option value="TIN">TIN Certificate</option>
-    <option value="other">Other</option>
-  </select>
-</div>
+                <FaEnvelope className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                  placeholder="Enter email"
+                  pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+                  />
+              </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">CSO Name</label>
-            <input
-              type="text"
-              name="csoName"
-              value={formData.csoName}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Sector</label>
-            <select
-              name="sector"
-              value={formData.sector}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">Phone</label>
+                <FaPhoneAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter Phone (e.g., +251 985187059 or 0985187059)"
+                  pattern="^\+251 [0-9]{9}$|^0[0-9]{9}$"
+                  required
+                />
+              </div>
+
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Office
+                </label>
+                <FaHome className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                <input
+                  type="text"
+                  name="office"
+                  value={formData.office}
+                  onChange={handleChange}
+                  className="w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter Office"
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex justify-between items-start mb-4 space-x-4">
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Location
+                </label>
+                <FaMapMarkedAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  className="w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter Location"
+                  required
+                />
+              </div>
+
+              <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Upload Licenses
+                </label>
+                <input
+                  type="file"
+                  name="tin_certificate"
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  // required
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-gray-600 font-medium">
+                  Upload Logo
+                </label>
+                <input
+                  type="file"
+                  name="logo"
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex justify-between items-start mb-4 space-x-4">
+
+            <div className="flex-1 relative">
+                <label className="block text-gray-600 font-medium">
+                  Upload registration_certificate
+                </label>
+                <input
+                  type="file"
+                  name="registration_certificate"
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  // required
+                />
+              </div>
+              </div>
+            {error && <p className="text-red-600"> {error}</p>}
+            <button
+              type="submit"
+              className="w-28 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <option value="">Select Sector</option>
-              <option value="Education">Education</option>
-              <option value="Health">Health</option>
-              <option value="Environment">Environment</option>
-              <option value="Agriculture">Agriculture</option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Phone</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Location</label>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Office</label>
-            <input
-              type="text"
-              name="office"
-              value={formData.office}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">
-              Upload Logo
-            </label>
-            <input
-              type="file"
-              name="logo"
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            Register
-          </button>
-        </form>
+              Register
+            </button>
+          </form>
+        </div>
       )}
-      {(formData.role === "admin" || formData.role ==="reportViewer") && (
-    <form onSubmit={handleSubmitStaff} encType="multipart/form-data">
-
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Photo</label>
-            <input
-              type="file"
-              name="photo"
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">
-              Staff Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-600 font-medium">Phone</label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-          </div>
-          <div className="mb-4">
-        <label className="block text-gray-600 font-medium">Staff Role</label>
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          required
-        >
-          <option value="admin">Admin</option>
-          <option value="reportViewer">Report Viewer</option>
-        </select>
-      </div>
-
-        </>
-        <button
-            type="submit"
-            className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      {(formData.role === "admin" || formData.role === "viewer") && (
+        <div className="overflow-x-auto">
+          <form
+            onSubmit={handleSubmitStaff}
+            encType="multipart/form-data"
+            className="min-w-[800px]"
           >
-            Register
-          </button>
-        </form>
+            <>
+              <div className="flex justify-between items-start mb-4 space-x-4">
+                <div className="flex-1 relative p-1">
+                  <label className="block text-gray-600 font-medium">
+                    Staff Name
+                  </label>
+                  <FaUserAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Enter Name"
+                    required
+                  />
+                </div>
+                <div className="flex-1 relative p-1">
+                  <label className="block text-gray-600 font-medium">
+                    Email
+                  </label>
+                  <FaEnvelope className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Enter Email"
+                    formNoValidate="@"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-start mb-4 space-x-4">
+                <div className="flex-1 relative p-1">
+                  <label className="block text-gray-600 font-medium">
+                    Phone
+                  </label>
+                  <FaPhoneAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                  <input
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="Enter Phone"
+                    required
+                  />
+                </div>
+                <div className="flex-1 relative p-1">
+                  <label className="block text-gray-600 font-medium">
+                    Staff Role
+                  </label>
+                  <FaUserAlt className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
+
+                  <select
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="w-full pl-10 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    required
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="reportViewer">Report Viewer</option>
+                  </select>
+                </div>
+                <div className="flex-1 relative">
+                  <label className="block text-gray-600 font-medium">
+                    Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="photo"
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+              </div>
+            </>
+            <button
+              type="submit"
+              className="w-28 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              Register
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );
