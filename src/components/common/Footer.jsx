@@ -17,7 +17,7 @@ const Footer = () => {
           {/* Logo and Description */}
           <div>
             <a href="/" className="inline-flex items-center space-x-2">
-              <img src="/kvo.png" alt="Logo" className="h-10" />
+              <img src="/logo3.png" alt="Logo" className="h-10" />
               <span className="text-xl font-semibold text-gray-800">Finance Office</span>
             </a>
             <p className="mt-4 text-sm">
