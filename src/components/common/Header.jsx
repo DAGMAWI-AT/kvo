@@ -7,7 +7,7 @@ import { FaMoon, FaSun } from "react-icons/fa";
 export const navLinks = [
   { text: "Home", path: "/" },
   { text: "About", path: "/about" },
-  { text: "Services", path: "/" },
+  { text: "Services", path: "/service" },
   { text: "News", path: "/news" },
 
   { text: "All CSAs", path: "/csas" },

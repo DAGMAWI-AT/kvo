@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import "./News.css";
+import Blog from './Blog';
 
 const News = () => {
     const [newsArticles] = useState([
@@ -82,18 +83,18 @@ const News = () => {
 
     return (
         <>
-            <section className="news_hero bg-gray-400 relative h-[350px] flex items-center justify-center text-center text-white">
+            <section className="news_hero relative h-[300px] flex items-center justify-center text-center text-white">
                 <div className='heros'></div>
                 <div className="hero-content mt-10 p-16">
-                    <h1 className="mt-20 text-xl font-semibold z-10">News of Finance Office</h1>
-                    <p className="z-10">Finance report for all Civic Society Associations</p>
+                    <h2 className="mt-20 text-2xl text-gray-400 font-semibold z-10">News of Finance Office</h2>
+                    <p className="z-10 text-sm">Finance report for all Civic Society Associations</p>
                     <button className="cta-button rounded-lg px-3 py-4 mt-4 z-10 bg-yellow-500 text-white hover:bg-yellow-600">
                         Contact
                     </button>
                 </div>
             </section>
 
-            <div className="container mx-auto px-16 py-16">
+            {/* <div className="container mx-auto px-16 py-16">
                 <h1 className="text-4xl font-semibold text-center text-gray-800 mb-6">Latest News</h1>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
                     {newsArticles.map((article) => (
@@ -131,7 +132,8 @@ const News = () => {
                         </div>
                     ))}
                 </div>
-            </div>
+            </div> */}
+            <Blog/>
         </>
     );
 };

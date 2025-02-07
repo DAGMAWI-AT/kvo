@@ -129,10 +129,6 @@
 } */
 /*  */
 
-img, svg {
-    vertical-align: middle;
-}
-
 @media only screen and (max-width: 767px) {
     .contact-info-box h3 {
         font-size: 17px;
@@ -246,9 +242,7 @@ img {
     max-width: 100%;
     height: auto;
 }
-img, svg {
-    vertical-align: middle;
-}
+
 /*  */
 
 /* form {

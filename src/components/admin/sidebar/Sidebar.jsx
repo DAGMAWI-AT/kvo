@@ -170,6 +170,24 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Users"}</span>
             </Link>
           </li>
+
+          <li
+            className={`menu-item ${isActive("/admin/create_userAccount") ? "active" : ""}`}
+          >
+            <Link to="/admin/create_userAccount" className="flex items-center">
+              <FaUsers />
+              <span>{!collapsed && "Create Account Users"}</span>
+            </Link>
+          </li>
+
+          <li
+            className={`menu-item ${isActive("/admin/user_register") ? "active" : ""}`}
+          >
+            <Link to="/admin/user_register" className="flex items-center">
+              <FaUsers />
+              <span>{!collapsed && "Register CSOs"}</span>
+            </Link>
+          </li>
           {/* <li>
             <FaMoneyBill />
             <span>{!collapsed && "Expenses"}</span>

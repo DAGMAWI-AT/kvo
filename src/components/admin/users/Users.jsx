@@ -1,15 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode
 
 const Users = () => {
-  const [users, setUsers] = useState(
-    Array.from({ length: 10 }, (_, index) => ({
-      id: `CSO-${String(index + 1).padStart(3, '0')}`,
-      email: `user${index + 1}@example.com`,
-      password: '********',
-      status: index % 2 === 0 ? 'Active' : 'Inactive',
-      role: index % 3 === 0 ? 'Admin' : 'User',
-    }))
-  );
+
+  const [error, setError] = useState(null); // Error state
+  const [users, setUsers] = useState([]); // Error state
 
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showViewUserForm, setShowViewUserForm] = useState(false); // State for viewing user details
@@ -21,6 +16,51 @@ const Users = () => {
     status: 'Active',
     role: 'User',
   });
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("No token found. Please log in.");
+          return;
+        }
+
+        // const decodedToken = jwtDecode(token);
+        // const { role } = decodedToken;
+
+        // // Prevent fetch if the user is not an admin
+        // if (role !== "admin") {
+        //   console.log("eroor")
+        //   setError("Access denied. Admins only.");
+        //   return;
+        // }
+
+        // Proceed to fetch users only if role is admin
+        const response = await fetch("http://localhost:8000/user/users", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`, // Include token in the Authorization header
+          },
+        });
+        if (!response.ok) {
+          console.log("eroor")
+
+          const errorMessage = await response.json();
+          throw new Error(errorMessage.message || "Failed to fetch user data");
+        }
+        // console.log(token)
+
+        const data = await response.json();
+        setUsers(data); // Set users if everything goes well
+
+      } catch (err) {
+        setError(err.message || "An error occurred while fetching users.");
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 5;
@@ -315,9 +355,9 @@ const Users = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map((user) => (
+            {paginatedUsers.map((user,i) => (
               <tr key={user.id}>
-                <td className="px-4 py-2 border-b text-center">{user.id}</td>
+                <td className="px-4 py-2 border-b text-center">{i + 1 + (currentPage - 1) * usersPerPage}</td>
                 <td className="px-4 py-2 border-b text-center">{user.email}</td>
                 <td className="px-4 py-2 border-b text-center">{user.password}</td>
                 <td

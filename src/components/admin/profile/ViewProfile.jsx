@@ -1,15 +1,47 @@
-import React, { useState } from "react";
-import EditProfile from "./EditProfile"; // Ensure EditProfile.js is properly configured
+import React, { useEffect, useState } from "react";
+import EditProfile from "./EditProfile";
+import { jwtDecode } from "jwt-decode";
+import { FaUser } from "react-icons/fa";
 
 const ViewProfile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "Bishoftu admin",
-    email: "bishoftu@cso.com",
-    role: "Admin",
-    image: "/logo3.png", // Path to profile image
-  });
+  const [profileData, setProfileData] = useState([]);
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        // Get the token from localStorage
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
 
+        // Decode the token to extract user information
+        const decodedToken = jwtDecode(token);
+        const { registrationId } = decodedToken;
+
+        if (!registrationId) {
+          console.error("Invalid token: registrationId not found");
+          return;
+        }
+
+        // Fetch user profile using registrationId
+        const response = await fetch(
+          `http://localhost:5000/api/staff/byId/${registrationId}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data);
+        } else {
+          console.error("Failed to fetch profile data");
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
   // Open the modal
   const openModal = () => {
     setIsModalOpen(true);
@@ -28,7 +60,7 @@ const ViewProfile = () => {
 
   return (
     <div className="flex justify-center items-center bg-gray-100">
-          {/* <div className="flex justify-center items-center bg-gray-100 min-h-screen"> */}
+      {/* <div className="flex justify-center items-center bg-gray-100 min-h-screen"> */}
 
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-lg">
         <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
@@ -36,10 +68,11 @@ const ViewProfile = () => {
         </h1>
         <div className="flex flex-col items-center mb-6">
           <img
-            src={profileData.image}
+            src={profileData.photo}
             alt="Profile"
             className="w-32 h-32 rounded-full border-2 border-gray-300 object-cover"
           />
+
           <p className="mt-4 font-semibold text-gray-700">{profileData.name}</p>
         </div>
         <div className="space-y-4">
@@ -48,8 +81,30 @@ const ViewProfile = () => {
             <span className="text-gray-800">{profileData.name}</span>
           </div>
           <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">ID:</span>
+            <span className="text-gray-800">{profileData.registrationId}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Email:</span>
             <span className="text-gray-800">{profileData.email}</span>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">Position:</span>
+            <span className="text-gray-800">{profileData.position}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">Phone:</span>
+            <span className="text-gray-800">{profileData.phone}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">Status:</span>
+            <span className="text-gray-800">{profileData.status}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-gray-600">Date:</span>
+            <span className="text-gray-800">{profileData.created_at}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="font-semibold text-gray-600">Role:</span>
@@ -77,7 +132,7 @@ const ViewProfile = () => {
               X
             </button>
             <EditProfile
-              profileData={profileData}
+              initialData={profileData}
               onUpdate={handleProfileUpdate}
             />
           </div>

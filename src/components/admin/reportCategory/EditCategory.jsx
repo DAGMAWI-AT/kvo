@@ -1,47 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2'; // SweetAlert2 for notifications
 
 const EditCategory = () => {
-  const { id } = useParams(); // Get category ID from route params
+  const { id } = useParams(); // Retrieve category ID from route parameters
   const [categoryName, setCategoryName] = useState('');
   const [expireDate, setExpireDate] = useState('');
   const navigate = useNavigate();
 
-  // Simulate fetching category details by ID
+  // Fetch category details by ID
   useEffect(() => {
     const fetchCategory = async () => {
-      // Replace with actual API call
-      const category = {
-        id,
-        name: 'Quarterly Report',
-        expireDate: '2024-12-31',
-      };
-      setCategoryName(category.name);
-      setExpireDate(category.expireDate);
+      try {
+        const response = await fetch(`http://localhost:8000/reportCategory/${id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch category details.');
+        }
+        const category = await response.json();
+        setCategoryName(category.name);
+        setExpireDate(category.expireDate);
+      } catch (error) {
+        console.error('Error fetching category:', error.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to fetch category details. Please try again later.',
+          confirmButtonColor: '#d33',
+        });
+      }
     };
+
     fetchCategory();
   }, [id]);
 
-  const handleEditCategory = (e) => {
+  // Handle category update submission
+  const handleEditCategory = async (e) => {
     e.preventDefault();
 
     if (!categoryName || !expireDate) {
-      alert('Please fill out all fields.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill out all fields.',
+        confirmButtonColor: '#fbbf24',
+      });
       return;
     }
 
-    // Show SweetAlert2 success message
-    Swal.fire({
-      icon: 'success',
-      title: 'Category Updated',
-      text: 'The category has been updated successfully!',
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#3085d6',
-    }).then(() => {
-      // Redirect to report category list after alert is closed
-      navigate('/admin/report_category');
-    });
+    try {
+      const response = await fetch(`http://localhost:8000/api/categories/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: categoryName, expireDate }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update category.');
+      }
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Category Updated',
+        text: 'The category has been updated successfully!',
+        confirmButtonColor: '#3085d6',
+      }).then(() => {
+        navigate('/admin/report_category');
+      });
+    } catch (error) {
+      console.error('Error updating category:', error.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: 'Could not update the category. Please try again later.',
+        confirmButtonColor: '#d33',
+      });
+    }
   };
 
   return (

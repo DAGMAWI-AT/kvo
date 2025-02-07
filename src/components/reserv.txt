@@ -425,3 +425,849 @@ function Footer() {
 }
 
 export default Footer;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React from "react";
+import "./Blog.css"
+const Blog = () => {
+  return (
+    <div>
+      <div class="blog-area ptb-80">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/Ethiopia.jpg"
+                      style={{color: "transparent;"}}
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 15, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      The Security Risks of Changing Package Owners
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">Admin</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/Ethiopia.jpg"
+                      style={{color: "transparent;"}}
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 17, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      Tips to Protecting Your Business and Family
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">Smith</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/bishoftu.jpg"
+                      style={{color: "transparent;"}}
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 19, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      Protect Your Workplace from Cyber Attacks
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">John</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/Ethiopia.jpg"
+                      style={{color: "transparent;"}}
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 15, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      Here are the 5 most telling signs of micromanagement
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">Admin</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/bishoftu.jpg"
+                      style={{color: "transparent;"}}
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 17, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      I Used The Web For A Day On A 50 MB Budget
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">Smith</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <div class="single-blog-post">
+                <div class="blog-image">
+                  <a href="/blog/blog-details/">
+                    <img
+                      alt="image"
+                      loading="lazy"
+                      width="860"
+                      height="700"
+                      decoding="async"
+                      data-nimg="1"
+                      src="/kvo.png"
+                      style={{color: "transparent;"}}
+                      className="h-52"
+                    />
+                  </a>
+                  <div class="date flex">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <rect
+                        x="3"
+                        y="4"
+                        width="18"
+                        height="18"
+                        rx="2"
+                        ry="2"
+                      ></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>{" "}
+                    March 19, 2022
+                  </div>
+                </div>
+                <div class="blog-post-content">
+                  <h3>
+                    <a href="/blog/blog-details/">
+                      Making Peace With The Feast Or Famine Of Freelancing
+                    </a>
+                  </h3>
+                  <span>
+                    By <a href="/blog/#">John</a>
+                  </span>
+                  <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                    do eiusmod tempor incididunt ut labore et dolore magna
+                    aliqua. Quis ipsum suspendisse ultrices gravida.
+                  </p>
+                  <a class="read-more-btn" href="/blog/blog-details/">
+                    Read More{" "}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 col-md-12">
+              <div class="pagination-area">
+                <nav aria-label="Page navigation">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                      <a class="page-link" href="#">
+                        Prev
+                      </a>
+                    </li>
+                    <li class="page-item active">
+                      <a class="page-link" href="#">
+                        1
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">
+                        2
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">
+                        3
+                      </a>
+                    </li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">
+                        Next
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Blog; image of bolg or news  Hight should be fixed not up and down based on image height should be appropriate height 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////each report/////////////////////////////////
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+
+const EachCso = () => {
+  const { id } = useParams();
+  const [report, setReport] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const reportsPerPage = 5; // Adjust as needed
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
+  useEffect(() => {
+    const fetchCsoData = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/reports/report/${id}`);
+        if (!response.ok) {
+          console.error("Failed to fetch CSO data:", response.status);
+          return;
+        }
+        const data = await response.json();
+        setReport(data.data || []);
+        console.log(report)
+        console.log(data)
+
+
+      } catch (error) {
+        console.error("Error fetching CSO data:", error);
+      }
+    };
+    fetchCsoData();
+  }, [id]);
+
+  // if (!report.length) return <p>Loading...</p>;
+
+  // Filtered reports based on user input
+  const filteredReports = Array.isArray(report)
+  ? report.filter((item) => {
+      const matchesFilter = filter === "all" || item.reportType.toLowerCase() === filter.toLowerCase();
+      const matchesSearch = item.reportName.toLowerCase().includes(search.toLowerCase());
+      const matchesDate = date ? item.date.includes(date) : true;
+      return matchesFilter && matchesSearch && matchesDate;
+    })
+  : [];
+
+  // const filteredReports = Array.isArray(report)
+  // ? report.filter((item) =>
+  //     item.reportName?.toLowerCase().includes(searchTerm.toLowerCase())
+  //   )
+  // : [];
+  
+  // Pagination logic
+  const indexOfLastReport = currentPage * reportsPerPage;
+  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
+  const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
+
+  const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleView = (report) => {
+    const { reportType, id: reportId } = report;
+    if (reportType === "yearly") {
+      navigate(`/admin/yearly_Report/${reportId}`);
+    } else if (reportType === "quarterly") {
+      navigate(`/admin/quarterly_report/${reportId}`);
+    }
+  };
+
+  return (
+    <div className="bg-gray-100 p-2 lg:p-6 md:p-4">
+      <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
+        <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">
+          CSO Details
+        </h2>
+        <p className="text-gray-600 mb-4">ID: {id}</p>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-4 mb-6">
+          {["all", "yearly", "quarterly", "proposal", "projects", "other"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilter(type)}
+              className={`py-2 px-4 rounded ${
+                filter === type
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+              } transition`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Search and Date Inputs */}
+        <div className="flex space-x-4 mb-4">
+          <input
+            type="text"
+            placeholder="Search by Name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="p-2 border border-gray-300 rounded w-1/3"
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        {/* Reports Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border px-4 py-2">Name</th>
+                <th className="border px-4 py-2">Type</th>
+                <th className="border px-4 py-2">Date</th>
+                <th className="border px-4 py-2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentReports.length > 0 ? (
+                currentReports.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-100">
+                    <td className="border px-4 py-2">{item.reportName}</td>
+                    <td className="border px-4 py-2">{item.reportType}</td>
+                    <td className="border px-4 py-2">{item.date}</td>
+                    <td className="border px-4 py-2">
+                      <button
+                        onClick={() => handleView(item)}
+                        className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                      >
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center py-4">
+                    No reports found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+            className={`py-2 px-4 rounded ${
+              currentPage === 1 ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Previous
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className={`py-2 px-4 rounded ${
+              currentPage === totalPages ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EachCso;
+
+
+
+
+
+
+
+
+/////private router
+
+
+
+// import React from "react";
+// import { Navigate, Route } from "react-router-dom";
+// import {jwtDecode} from "jwt-decode";
+// import Cookies from "js-cookie"; // To handle cookies
+
+// // PrivateRoute component checks user role
+// const PrivateRoute = ({ element, roleRequired, ...rest }) => {
+//   // const role = localStorage.getItem("role");
+//   const token = localStorage.getItem("token");
+//   // const token = Cookies.get("token");
+
+  
+//   if (!token) {
+//     return <Navigate to="/user/login" />; // Redirect to login if not logged in
+//   }
+//   const decoded = jwtDecode(token);
+//   if (decoded.role !== roleRequired) {
+//     return decoded.role === 'admin' ? <Navigate to="/admin/dashboard" /> : <Navigate to="/user/dashboard" />; 
+//   }
+
+//   return element;
+// };
+
+// export default PrivateRoute;
+
+// // import { Navigate } from "react-router-dom";
+// // import {jwtDecode} from "jwt-decode";
+
+// // const PrivateRoute = ({ children, role }) => {
+// //   const token = localStorage.getItem("token");
+// //   if (!token) {
+// //     return <Navigate to="/login" />;
+// //   }
+
+// //   const decoded = jwtDecode(token);
+// //   if (decoded.role !== role) {
+// //     return <Navigate to="/unauthorized" />;
+// //   }
+
+// //   return children;
+// // };
+
+// // export default PrivateRoute;
