@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Signin.css";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -169,6 +169,8 @@ const Signin = () => {
         >
           Login
         </button>
+
+<Link to="/forgot_password">Forgot Password?</Link>
         {message && (
           <p className="text-center text-red-500 font-medium mt-4">{message}</p>
         )}

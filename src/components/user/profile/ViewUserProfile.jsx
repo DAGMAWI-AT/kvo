@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import EditUserProfile from "./EditUserProfile";
+import { FaCalendarAlt, FaCalendarTimes, FaCircle, FaEnvelope, FaFileAlt, FaIdCard, FaKey, FaMobileAlt, FaPhoneAlt } from "react-icons/fa";
+import { FaLocationPin, FaPerson } from "react-icons/fa6";
 
 const ViewUserProfile = () => {
   // ... [keep existing state and logic the same] ...
@@ -109,10 +111,10 @@ const ViewUserProfile = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-center">
+          <div className="bg-gradient-to-r from-gray-800 to-indigo-600 p-8 text-center">
             <div className="relative inline-block group">
               <img
-                src={profileData.logo || "https://avatars.githubusercontent.com/u/9919?s=200&v=4"}
+                src={profileData.logo || `http://localhost:5000/logos/person.png`}
                 alt="Profile"
                 className="w-32 h-32 rounded-full border-4 border-white/80 shadow-xl transform group-hover:scale-105 transition-transform duration-300"
               />
@@ -123,15 +125,17 @@ const ViewUserProfile = () => {
             </h1>
             <p className="mt-2 text-lg text-blue-100">{profileData.sector}</p>
           </div>
-
+           
           {/* Profile Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
             <div className="space-y-6">
               {[
-                { label: "Registration ID", value: profileData.registrationId, icon: "🆔" },
-                { label: "Contact Email", value: profileData.email, icon: "📧" },
-                { label: "Representative", value: profileData.repName, icon: "👤" },
-                { label: "Office Location", value: profileData.office, icon: "🏢" },
+                { label: "Registration ID", value: profileData.registrationId, icon: <FaIdCard/> },
+                { label: "Contact Email", value: profileData.email, icon: <FaEnvelope/> },
+                { label: "Representative", value: profileData.repName, icon: <FaPerson/> },
+                { label: "Office Location", value: profileData.office, icon: <FaLocationPin/> },
+                { label: "Updated Date", value: new Date(profileData.updated_at).toLocaleString(), icon: <FaCalendarTimes/> },
+
               ].map((item, index) => (
                 <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <span className="text-2xl">{item.icon}</span>
@@ -145,10 +149,10 @@ const ViewUserProfile = () => {
 
             <div className="space-y-6">
               {[
-                { label: "Contact Number", value: profileData.phone, icon: "📱" },
-                { label: "Organization Status", value: profileData.status, icon: "🏷️" },
-                { label: "Registration Date", value: new Date(profileData.date).toLocaleDateString(), icon: "📅" },
-                { label: "User Role", value: profileData.role, icon: "🔑" },
+                { label: "Contact Number", value: profileData.phone, icon: <FaMobileAlt/> },
+                { label: "Organization Status", value: profileData.status, icon: <FaCircle/> },
+                { label: "Registration Date", value: new Date(profileData.date).toLocaleDateString(), icon: <FaCalendarAlt/> },
+                { label: "User Role", value: profileData.role, icon: <FaKey/> },
               ].map((item, index) => (
                 <div key={index} className="flex items-start space-x-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
                   <span className="text-2xl">{item.icon}</span>
@@ -165,7 +169,7 @@ const ViewUserProfile = () => {
           <div className="px-8 pb-8">
             <div className="border-t border-gray-200 pt-8">
               <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                <span className="mr-2">📄</span> Organization Documents
+                <span className="mr-2"><FaFileAlt/></span> Organization Documents
               </h3>
               
               <div className="space-y-6">

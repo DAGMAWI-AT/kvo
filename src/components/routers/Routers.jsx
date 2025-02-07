@@ -47,6 +47,9 @@ import ViewUserProfile from "../user/profile/ViewUserProfile";
 import ShowReport from "../admin/cso/reports/ShowReport";
 import CSOProfile from "../admin/cso/cosProfile/CSOProfile";
 import Unauthorized from "../unauthorized/Unauthorized";
+import EditUserPassword from "../user/password/EditUserPassword";
+import ForgotPassword from "../user/auth/forgotPassword/ForgotPassword";
+import ResetPassword from "../user/auth/resetPassword/ResetPassword";
 
 const Routers = createBrowserRouter([
   {
@@ -131,6 +134,11 @@ const Routers = createBrowserRouter([
         path: "view_user_prifile",
         element: <ViewUserProfile />,
       },
+      {
+        path: "edit_user_password",
+        element: <EditUserPassword />,
+      },
+
     ],
   },
   // admin dashboard
@@ -254,6 +262,15 @@ const Routers = createBrowserRouter([
   {
     path: "/user/login",
     element: <Signin />,
+  },
+
+  {
+    path: "forgot_password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "reset_password",
+    element: <ResetPassword />,
   },
   // //register rout
   // {

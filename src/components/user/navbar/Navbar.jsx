@@ -198,7 +198,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                   <Link to="/user/view_user_prifile">Profile</Link>
                 </li>
                 <li onClick={closeProfileMenu}>
-                  <Link to="/user/Edit_user_prifile">Update Password</Link>
+                  <Link to="/user/edit_user_password">Update Password</Link>
                 </li>
                 <li onClick={handleLogout}>Log Out</li>
               </ul>
