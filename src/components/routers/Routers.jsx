@@ -188,7 +188,7 @@ const Routers = createBrowserRouter([
         element: <UploadCategory />,
       },
       {
-        path: "report_category/edit_category",
+        path: "report_category/edit_category/:id",
         element: <EditCategory />,
       },
       {
@@ -269,7 +269,7 @@ const Routers = createBrowserRouter([
     element: <ForgotPassword />,
   },
   {
-    path: "reset_password",
+    path: "/reset-password/:token",
     element: <ResetPassword />,
   },
   // //register rout

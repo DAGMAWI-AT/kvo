@@ -1,16 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import {
+  FaDownload,
+  FaExternalLinkAlt,
+  FaEye,
+  FaCommentDots,
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const ShowReport = () => {
   const navigate = useNavigate();
   const report = useLoaderData();
   const [showFile, setShowFile] = useState(false);
-  const [comments, setComment] = useState({ comment_file: null });
+  const [comments, setComment] = useState({ comment: "", comment_file: null });
   const [commentData, setCommentData] = useState([]);
+  const [categories, setCategories] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState("");
-  const [authors, setAuthorName] = useState([]);
+  const [authors, setAuthorName] = useState("");
+  const [showAll, setShowAll] = useState(false);
+  const [expandedComments, setExpandedComments] = useState({});
+
+  const visibleComments = showAll ? commentData : commentData.slice(0, 3);
+
   useEffect(() => {
     if (report?.id) {
       const fetchComments = async () => {
@@ -20,11 +33,9 @@ const ShowReport = () => {
           );
           if (!response.ok) throw new Error(`Error: ${response.status}`);
           const data = await response.json();
-          // Access the comments array from the response object
           setCommentData(data.comments || []);
         } catch (error) {
           console.error("Error fetching comments:", error);
-          setError("Failed to fetch comments. Please try again later.");
         }
       };
       fetchComments();
@@ -39,6 +50,22 @@ const ShowReport = () => {
     }));
   };
 
+  useEffect(() => {
+    const fetchCategory = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/reportCategory/${report.category_id}`
+        );
+        if (!response.ok) throw new Error("Failed to fetch category");
+        const data = await response.json();
+        setCategories(data.category_name);
+      } catch (error) {
+        console.error("Error fetching category:", error);
+      }
+    };
+    fetchCategory();
+  }, [report.category_id]);
+
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -47,21 +74,22 @@ const ShowReport = () => {
     try {
       const decodedToken = jwtDecode(token);
       const { registrationId } = decodedToken;
-      
+
       if (!registrationId) {
         setError("Author information missing in token");
         return;
       }
-      // Fetch staff name
-      const staffResponse = await fetch(`http://localhost:5000/api/staff/byid/${registrationId}`);
+
+      const staffResponse = await fetch(
+        `http://localhost:5000/api/staff/byid/${registrationId}`
+      );
       if (!staffResponse.ok) throw new Error(`Error: ${staffResponse.status}`);
       const staffData = await staffResponse.json();
-      
-      // Assuming staffData is an object with name property
+
       const name = staffData.name || staffData[0]?.name;
       if (!name) throw new Error("Staff name not found");
       setAuthorName(name);
-      console.log(name)
+
       const formData = new FormData();
       formData.append("comment", comments.comment);
       formData.append("comment_file", comments.comment_file);
@@ -70,7 +98,7 @@ const ShowReport = () => {
       formData.append("author", name);
       formData.append("author_id", registrationId);
 
-      const response = await fetch("http://localhost:5000/api/comments", {
+      const response = await fetch(`http://localhost:5000/api/comments`, {
         method: "POST",
         body: formData,
       });
@@ -80,7 +108,6 @@ const ShowReport = () => {
         throw new Error(errorData.message || "Failed to submit comment");
       }
 
-      // Refresh comments after successful submission
       const newResponse = await fetch(
         `http://localhost:5000/api/comments/comment/${report.id}`
       );
@@ -90,7 +117,6 @@ const ShowReport = () => {
       setSuccessMessage("Comment submitted successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
       setComment({ comment: "", comment_file: null });
-      
     } catch (error) {
       console.error("Submission error:", error);
       setError(error.message || "Failed to submit comment");
@@ -112,153 +138,247 @@ const ShowReport = () => {
       })
       .catch((error) => {
         console.error("Download error:", error);
-        alert("Failed to download file");
+        setError("Failed to download file");
       });
   };
 
   if (!report) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-gray-600 text-lg">Report not found!</p>
       </div>
     );
   }
 
+  const toggleExpand = (id) => {
+    setExpandedComments((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-2 lg:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-12">
           <button
-            onClick={() => navigate(`/admin/each_cso/${report.registration_id}`)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={() =>
+              navigate(`/admin/each_cso/${report.registration_id}`)
+            }
+            className="flex items-center space-x-2 lg:px-6 lg:py-3 px-3 py-2 bg-white text-gray-600 rounded-xl hover:bg-gray-50 transition-all shadow-md border border-gray-200 hover:shadow-lg"
+            aria-label="Back to CSO"
           >
-            Back
+            <FaArrowLeft size={20} className="text-blue-600" />
+            <span className="font-medium">Back to Organization</span>
           </button>
-          <h1 className="text-2xl font-bold text-gray-700">
-            View Report: {report.report_name}
+          <h1 className="text-xl lg:text-4xl p-4 font-bold font-[Poppins] text-gray-900 tracking-tight">
+            {report.report_name}
           </h1>
         </div>
 
         {/* Report Details */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Status</h3>
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                Status
+              </h3>
               <p
-                className={`text-lg ${
+                className={`text-lg font-medium ${
                   report.response === "Approved"
-                    ? "text-green-600"
+                    ? "text-emerald-600"
                     : report.response === "Pending"
-                    ? "text-yellow-600"
-                    : "text-red-600"
+                    ? "text-amber-500"
+                    : "text-rose-600"
                 }`}
               >
-                {report.response}
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50/50 text-emerald-700">
+                  {report.response}
+                </span>
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Due Date</h3>
-              <p className="text-gray-600">
-                {new Date(report.expireDate).toLocaleDateString()}
+
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                Submitted
+              </h3>
+              <p className="text-gray-900 font-medium">
+                {new Date(report.created_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Report Type</h3>
-              <p className="text-gray-600">{report.reportType}</p>
+
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                Last Updated
+              </h3>
+              <p className="text-gray-900 font-medium">
+                {new Date(report.updated_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-700 mb-2">Summary</h3>
-              <p className="text-gray-600">{report.description}</p>
+
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                Category
+              </h3>
+              <p className="text-gray-900 font-medium">{categories}</p>
+            </div>
+
+            <div className="md:col-span-2 xl:col-span-4 pt-6">
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wider">
+                  Summary
+                </h3>
+                <p className="text-gray-700 leading-relaxed font-[Inter] text-lg">
+                  {report.description}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Comments Section */}
-
-
         {/* File Section */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
+          <div className="flex flex-wrap items-center gap-4 mb-6">
             <button
               onClick={() => setShowFile(!showFile)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg"
+              aria-label={showFile ? "Hide File" : "View File"}
             >
-              {showFile ? "Hide File" : "View File"}
+              <FaEye size={18} />
+              <span>{showFile ? "Hide File" : "View File"}</span>
             </button>
             <button
               onClick={handleDownload}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg"
+              aria-label="Download File"
             >
-              Download File
+              <FaDownload size={18} />
+              <span>Download File</span>
             </button>
+            <a
+              href={`http://localhost:5000/user_report/${report.report_file}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg"
+              aria-label="Open in New Tab"
+            >
+              <FaExternalLinkAlt size={18} />
+              <span>Open in New Tab</span>
+            </a>
           </div>
 
           {showFile && (
-            <div className="mt-4">
+            <div className="mt-6">
               <embed
                 src={`http://localhost:5000/user_report/${report.report_file}`}
                 type="application/pdf"
-                className="w-full min-h-96"
+                className="w-full min-h-[500px] rounded-lg shadow-md"
               />
             </div>
           )}
         </div>
 
+        {/* Comments Section */}
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center space-x-2">
+            <FaCommentDots size={24} />
+            <span>Comments ({commentData.length})</span>
+          </h2>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Comments ({commentData.length})</h2>
-          
-          {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
           {successMessage && (
-            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg">
               {successMessage}
             </div>
           )}
 
-          <div className="space-y-4 mb-8">
+          <div className="space-y-6 mb-8">
             {commentData.length > 0 ? (
-              commentData.map((comment) => (
-                <div key={comment.id} className="border-l-4 border-blue-500 pl-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <span className="font-semibold">{comment.author}</span>
-                      <span className="text-gray-500 text-sm ml-2">
-                        {new Date(comment.commented_time).toLocaleString()}
-                      </span>
+              <>
+                {visibleComments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="border-l-4 border-blue-500 pl-6 py-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <span className="font-semibold text-gray-800">
+                          {comment.author}
+                        </span>
+                        <span className="text-gray-500 text-sm ml-2">
+                          {new Date(comment.commented_time).toLocaleString()}
+                        </span>
+                      </div>
                     </div>
+                    <p className="text-gray-700">
+                      {expandedComments[comment.id]
+                        ? comment.comment
+                        : comment.comment.slice(0, 200)}
+                      {comment.comment.length > 200 && (
+                        <button
+                          onClick={() => toggleExpand(comment.id)}
+                          className="text-indigo-600 hover:underline ml-2"
+                        >
+                          {expandedComments[comment.id]
+                            ? "Read Less"
+                            : "Read More"}
+                        </button>
+                      )}
+                    </p>
+                    {comment.comment_file &&
+                      comment.comment_file !== "null" && (
+                        <a
+                          href={`http://localhost:5000/comment/${comment.comment_file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline mt-2 inline-block"
+                        >
+                          View attached file
+                        </a>
+                      )}
                   </div>
-                  <p className="text-gray-700">{comment.comment}</p>
-                  {comment.comment_file && comment.comment_file !== "null" && (
-                    <a
-                      href={`http://localhost:5000/comment/${comment.comment_file}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline mt-2 inline-block"
-                    >
-                      View attached file
-                    </a>
-                  )}
-                </div>
-              ))
+                ))}
+                {commentData.length > 3 && (
+                  <button
+                    onClick={() => setShowAll(!showAll)}
+                    className="text-indigo-600 mt-2 hover:underline"
+                  >
+                    {showAll ? "Show Less" : "Show More"}
+                  </button>
+                )}
+              </>
             ) : (
               <p className="text-gray-500">No comments yet</p>
             )}
           </div>
 
           {/* Comment Form */}
-          <form onSubmit={handleSubmitComment} className="border-t pt-4">
-            <div className="mb-4">
+          <form onSubmit={handleSubmitComment} className="border-t pt-6">
+            <div className="mb-6">
               <textarea
                 name="comment"
                 value={comments.comment}
                 onChange={handleChange}
                 placeholder="Write your comment..."
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows="3"
+                className="w-full p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                rows="4"
                 required
               />
             </div>
-            <div className="mb-4">
+            <div className="mb-6">
               <input
                 type="file"
                 name="comment_file"
@@ -268,7 +388,7 @@ const ShowReport = () => {
             </div>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg"
             >
               Post Comment
             </button>

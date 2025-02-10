@@ -188,12 +188,13 @@ const EachCso = () => {
 
         {/* Reports Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300">
+          <table className="w-full border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border border-gray-300 px-4 py-2">Report Name</th>
                 <th className="border border-gray-300 px-4 py-2">Type</th>
-                <th className="border border-gray-300 px-4 py-2">Date</th>
+                <th className="border border-gray-300 px-4 py-2">Submitted Date</th>
+                <th className="border border-gray-300 px-4 py-2">Updated Date</th>
                 <th className="border border-gray-300 px-4 py-2">File</th>
                 <th className="border border-gray-300 px-4 py-2">Status</th>
                 <th className="border border-gray-300 px-4 py-2">Actions</th>
@@ -207,15 +208,18 @@ const EachCso = () => {
                       {item.report_name}
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
-                      {categories[item.category_id] || "Unknown"}
+                      {categories[item.category_id] }
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
-                      {item.created_at}
+                      {new Date(item.created_at).toLocaleString()}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {new Date(item.updated_at).toLocaleString()}
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       {item.report_file && item.report_file.endsWith(".pdf") ? (
                         <embed
-                          src={item.report_file}
+                          src={`http://localhost:5000/user_report/${item.report_file}`}
                           type="application/pdf"
                           className="max-h-10 max-w-10"
                           onError={(e) => {
@@ -228,7 +232,7 @@ const EachCso = () => {
                       ) : (
                         <img
                           className="max-h-10 max-w-10"
-                          src={`http://localhost:8000/user_report/${item.report_file}`}
+                          src={`http://localhost:5000/user_report/${item.report_file}`}
                           alt={item.pdfFile}
                         />
                       )}

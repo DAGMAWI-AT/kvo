@@ -7,33 +7,32 @@ import { FaAd } from 'react-icons/fa';
 const UploadCategory = () => {
   const [categoryName, setCategoryName] = useState('');
   const [expireDate, setExpireDate] = useState('');
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
-
-   const token =  localStorage.getItem("token");
-   if (!token) {
-    setError("No token found. Please log in.");
-    return;
-  }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
     try {
-      // Make a POST request to the backend
-      // const response = await axios.post('http://localhost:8000/reportCategory/category', {
-        const response = await axios.post('http://localhost:5000/api/reportCategory/upload', {
-
+      const response = await axios.post(
+        'http://localhost:5000/api/reportCategory/upload',
+        {
           category_name: categoryName,
           expire_date: expireDate,
-      },{
-      headers: {
-        "Authorization": `Bearer ${token}`, // Include token in Authorization header
-        "Content-Type": "application/json", // Ensure proper content type
-      },
-    });
-       console.log(response)
+        },
+        {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (response.data.success) {
-        // Show success message
         Swal.fire({
           icon: 'success',
           title: 'Category Added Successfully',
@@ -41,14 +40,11 @@ const UploadCategory = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#4CAF50',
         }).then(() => {
-          // Redirect to /admin/report_category
           navigate('/admin/report_category');
         });
-
         setCategoryName('');
         setExpireDate('');
       } else {
-        // Show error message
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -70,49 +66,49 @@ const UploadCategory = () => {
   };
 
   return (
-    <div className="mx-auto p-2 items-center min-h-[100vh]  bg-gray-100">
-      <h1 className="text-xl p-4 lg:text-2xl font-bold font-serif text-gray-400 mb-4 text-center ">Add Report Category</h1>
-      <div className="flex justify-center ">
-  
-      <form onSubmit={handleAddCategory} className="bg-white  p-2 w-1/2 lg:p-4 md:p-4 rounded shadow-lg shadow-gray-400">
-        <div className="mb-4 relative">
-          <label htmlFor="categoryName" className="block text-gray-700 mb-2">
-            Report Category Name
-          </label>
-            <FaAd className="absolute left-3 top-3/4 transform -translate-y-1/2 text-blue-800" />
-          
-          <input
-            type="text"
-            id="categoryName"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-            placeholder="e.g., Yearly, Quarterly, Project Proposal"
-            className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="max-w-lg mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+          <h1 className="text-2xl font-bold text-white text-center">Add Report Category</h1>
         </div>
+        <form onSubmit={handleAddCategory} className="p-6">
+          <div className="mb-5 relative">
+            <label htmlFor="categoryName" className="block text-gray-700 font-medium mb-2">
+              Report Category Name
+            </label>
+            <FaAd className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-800" />
+            <input
+              type="text"
+              id="categoryName"
+              value={categoryName}
+              onChange={(e) => setCategoryName(e.target.value)}
+              placeholder="e.g., Yearly, Quarterly, Project Proposal"
+              className="w-full pl-10 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="expireDate" className="block text-gray-700 mb-2">
-            Expire Date
-          </label>
-          <input
-            type="date"
-            id="expireDate"
-            value={expireDate}
-            onChange={(e) => setExpireDate(e.target.value)}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
+          <div className="mb-5">
+            <label htmlFor="expireDate" className="block text-gray-700 font-medium mb-2">
+              Expire Date
+            </label>
+            <input
+              type="date"
+              id="expireDate"
+              value={expireDate}
+              onChange={(e) => setExpireDate(e.target.value)}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Add Category
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
+          >
+            Add Category
+          </button>
+        </form>
       </div>
     </div>
   );

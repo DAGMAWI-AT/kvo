@@ -26,18 +26,18 @@ const Users = () => {
           return;
         }
 
-        // const decodedToken = jwtDecode(token);
-        // const { role } = decodedToken;
+        const decodedToken = jwtDecode(token);
+        const { role } = decodedToken;
 
-        // // Prevent fetch if the user is not an admin
-        // if (role !== "admin") {
-        //   console.log("eroor")
-        //   setError("Access denied. Admins only.");
-        //   return;
-        // }
+        // Prevent fetch if the user is not an admin
+        if (role !== "admin") {
+          console.log("eroor")
+          setError("Access denied. Admins only.");
+          return;
+        }
 
         // Proceed to fetch users only if role is admin
-        const response = await fetch("http://localhost:8000/user/users", {
+        const response = await fetch("http://localhost:5000/api/users/users", {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`, // Include token in the Authorization header

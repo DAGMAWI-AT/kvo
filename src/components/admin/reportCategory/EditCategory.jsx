@@ -1,24 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Swal from 'sweetalert2'; // SweetAlert2 for notifications
+import Swal from 'sweetalert2';
 
 const EditCategory = () => {
   const { id } = useParams(); // Retrieve category ID from route parameters
-  const [categoryName, setCategoryName] = useState('');
-  const [expireDate, setExpireDate] = useState('');
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+  };
   // Fetch category details by ID
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/reportCategory/${id}`);
+        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch category details.');
         }
-        const category = await response.json();
-        setCategoryName(category.name);
-        setExpireDate(category.expireDate);
+        const data = await response.json();
+        setCategory(data);
       } catch (error) {
         console.error('Error fetching category:', error.message);
         Swal.fire({
@@ -27,6 +38,8 @@ const EditCategory = () => {
           text: 'Failed to fetch category details. Please try again later.',
           confirmButtonColor: '#d33',
         });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -37,7 +50,8 @@ const EditCategory = () => {
   const handleEditCategory = async (e) => {
     e.preventDefault();
 
-    if (!categoryName || !expireDate) {
+    // Validate if required fields are provided
+    if (!category || !category.category_name || !category.expire_date) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
@@ -48,12 +62,15 @@ const EditCategory = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/categories/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: categoryName, expireDate }),
+        body: JSON.stringify({
+          name: category.category_name,
+          expire_date: category.expire_date,
+        }),
       });
 
       if (!response.ok) {
@@ -79,47 +96,70 @@ const EditCategory = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-lg text-gray-700">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-lg text-red-500">Category not found!</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Edit Report Category</h1>
-
-      <form onSubmit={handleEditCategory} className="bg-white p-4 rounded shadow-md">
-        <div className="mb-4">
-          <label htmlFor="categoryName" className="block text-gray-700 mb-2">
-            Report Category Name
-          </label>
-          <input
-            type="text"
-            id="categoryName"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-            placeholder="e.g., Yearly, Quarterly, Project Proposal"
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="max-w-lg mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4">
+          <h1 className="text-2xl font-bold text-white text-center">Edit Report Category</h1>
         </div>
+        <form onSubmit={handleEditCategory} className="p-6">
+          <div className="mb-5">
+            <label htmlFor="categoryName" className="block text-gray-700 font-medium mb-2">
+              Report Category Name
+            </label>
+            <input
+              type="text"
+              id="categoryName"
+              value={category.category_name || ''}
+              onChange={(e) =>
+                setCategory((prev) => ({ ...prev, category_name: e.target.value }))
+              }
+              placeholder="e.g., Yearly, Quarterly, Project Proposal"
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="expireDate" className="block text-gray-700 mb-2">
-            Expire Date
-          </label>
-          <input
-            type="date"
-            id="expireDate"
-            value={expireDate}
-            onChange={(e) => setExpireDate(e.target.value)}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            required
-          />
-        </div>
+          <div className="mb-5">
+            <label htmlFor="expireDate" className="block text-gray-700 font-medium mb-2">
+              Expire Date
+            </label>
+            <input
+              type="date"
+              id="expireDate"
+              value={formatDate(category.expire_date)}
+              onChange={(e) =>
+                setCategory((prev) => ({ ...prev, expire_date: e.target.value }))
+              }
+              className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
 
-        <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Update Category
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors"
+          >
+            Update Category
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

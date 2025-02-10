@@ -7,7 +7,7 @@ const Category = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,7 +21,7 @@ const Category = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:8000/reportCategory", {
+        const response = await fetch("http://localhost:5000/api/reportCategory/cat", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,12 +59,9 @@ const Category = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await fetch(
-            `http://localhost:8000/api/categories/${id}`,
-            {
-              method: "DELETE",
-            }
-          );
+          const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
+            method: "DELETE",
+          });
           if (!response.ok) {
             throw new Error("Failed to delete category");
           }
@@ -97,8 +94,8 @@ const Category = () => {
 
     return data.filter(
       (item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.expireDate.includes(searchQuery)
+        item.category_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.expire_date.includes(searchQuery)
     );
   };
 
@@ -120,87 +117,110 @@ const Category = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p className="text-center py-10">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500 py-10">{error}</p>;
   }
 
   return (
-    <div className="p-2 lg:p-8 mx-auto max-w-7xl font-serif">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl lg:text-2xl font-bold font-serif text-gray-400">
-          Report Category
-        </h2>
-        <div className="flex items-center">
-          <input
-            type="text"
-            placeholder="Search by name or date"
-            className="px-3 py-2 border rounded mr-4"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button
-            className="px-4 py-2 lg:px-6 lg:py-3 text-base text-white bg-green-600 rounded hover:bg-green-700"
-            onClick={handleAddReportCategory}
-          >
-            + Upload
-          </button>
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
+      <div className="max-w-7xl mx-auto bg-white shadow rounded-lg p-6">
+        <div className="flex flex-col md:flex-row justify-between items-center border-b pb-4 mb-4">
+          <h2 className="text-2xl font-bold text-gray-700">Report Category</h2>
+          <div className="flex items-center mt-4 md:mt-0">
+            <input
+              type="text"
+              placeholder="Search by name or date"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button
+              className="ml-4 px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors"
+              onClick={handleAddReportCategory}
+            >
+              + Upload
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border shadow-2xl border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 border-b">ID</th>
-              <th className="px-4 py-2 border-b">Report Type</th>
-              <th className="px-4 py-2 border-b">Expire Date</th>
-              <th className="px-4 py-2 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((row, index) => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                <td className="px-4 py-2 border-b text-center">
-                  {index + 1 + (currentPage - 1) * itemsPerPage}
-                </td>
-                <td className="px-4 py-2 border-b text-center">{row.name}</td>
-                <td className="px-4 py-2 border-b text-center">
-                  {row.expireDate}
-                </td>
-                <td className="px-4 py-2 border-b text-center flex">
-                  <button
-                    className="mr-4 px-1 py-1 lg:px-4 lg:py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
-                    onClick={() => handleEdit(row.id)}
-                  >
-                    <FaEdit className="mr-1" />
-                  </button>
-                  <button
-                    className="px-1 py-1 lg:px-4 lg:py-2 text-sm text-white bg-red-500 rounded hover:bg-red-600"
-                    onClick={() => handleDelete(row.id)}
-                  >
-                    <FaTrashAlt className="mr-1" />
-                  </button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Report Type
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expire Date
+                </th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center mt-4">
-          <button
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <p>
-            Page {currentPage} of {Math.ceil(filteredData.length / itemsPerPage)}
-          </p>
-          <button
-            className="px-4 py-2 text-white bg-gray-600 rounded hover:bg-gray-700"
-            onClick={handleNextPage}
-            disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
-          >
-            Next
-          </button>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentData.map((row, index) => (
+                <tr key={row.id} className="hover:bg-gray-100">
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {index + 1 + (currentPage - 1) * itemsPerPage}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {row.category_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {new Date(row.expire_date).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <div className="flex justify-center space-x-2">
+                      <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                        onClick={() => handleEdit(row.id)}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                        onClick={() => handleDelete(row.id)}
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {currentData.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                    No categories found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="flex justify-between items-center mt-6">
+            <button
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="text-gray-600">
+              Page {currentPage} of {Math.ceil(filteredData.length / itemsPerPage)}
+            </span>
+            <button
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              onClick={handleNextPage}
+              disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

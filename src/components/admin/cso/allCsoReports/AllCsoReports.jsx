@@ -1,195 +1,204 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
-
-// Example CSO reports data with multiple CSOs
-const allreport = [
-  {
-    id: 1,
-    csoName: "Bishofftu High School",
-    name: "Annual Report",
-    type: "Yearly",
-    date: "2025-10-10",
-    status: "active",
-    reportFile: "0001Bisoftu.pdf",
-    comment: "",
-  },
-  {
-    id: 2,
-    csoName: "Bishofftu High School",
-    name: "Quarterly Report",
-    type: "Quarterly",
-    date: "2025-10-20",
-    status: "inactive",
-    reportFile: "0001Bisoftu.pdf",
-    comment: "",
-  },
-  {
-    id: 3,
-    csoName: "KVO NGO",
-    name: "Project Update Report",
-    type: "Monthly",
-    date: "2025-11-01",
-    status: "active",
-    reportFile: "KVOReport.pdf",
-    comment: "",
-  },
-  {
-    id: 4,
-    csoName: "KVO NGO",
-    name: "Financial Statement",
-    type: "Annual",
-    date: "2025-11-05",
-    status: "inactive",
-    reportFile: "KVONGO_Statement.pdf",
-    comment: "",
-  },
-  {
-    id: 5,
-    csoName: "Health for All",
-    name: "Healthcare Progress Report",
-    type: "Quarterly",
-    date: "2025-09-15",
-    status: "active",
-    reportFile: "HealthForAll_Report.pdf",
-    comment: "",
-  },
-  {
-    id: 6,
-    csoName: "CSO Global",
-    name: "Global Health Initiatives",
-    type: "Yearly",
-    date: "2025-12-01",
-    status: "active",
-    reportFile: "CSO_GlobalHealth.pdf",
-    comment: "",
-  },
-  // Add more reports here to simulate a large dataset...
-];
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const AllCsoReports = () => {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [allReport, setAllReport] = useState([]);
+  const [csoNames, setCsoNames] = useState({}); // Maps registration_id to csoName
+  const [categories, setCategories] = useState({}); // Maps category_id to category_name
   const reportsPerPage = 5;
   const navigate = useNavigate();
 
-  // Filter reports by name or other criteria
-  const filteredReports = allreport.filter((report) =>
-    report.csoName.toLowerCase().includes(search.toLowerCase()) ||
-    report.name.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        // Fetch reports
+        const response = await fetch("http://localhost:5000/api/report");
+        if (!response.ok) throw new Error("Failed to fetch reports");
+        const data = await response.json();
+        const reportsArray = Array.isArray(data) ? data : data.reports || [];
+        setAllReport(reportsArray);
 
-  // Pagination logic
+        // Fetch categories
+        const uniqueCategoryIds = [...new Set(reportsArray.map((report) => report.category_id))];
+        const categoryData = {};
+        await Promise.all(
+          uniqueCategoryIds.map(async (catId) => {
+            try {
+              const resultCat = await fetch(`http://localhost:5000/api/reportCategory/${catId}`);
+              if (resultCat.ok) {
+                const catData = await resultCat.json();
+                categoryData[catId] = catData.category_name || catData[0]?.category_name;
+              }
+            } catch (error) {
+              console.error("Error fetching category for id", catId, error);
+            }
+          })
+        );
+        setCategories(categoryData);
+
+        // Fetch CSO names
+        const uniqueRegIds = [...new Set(reportsArray.map((report) => report.registration_id))];
+        const csoData = {};
+        await Promise.all(
+          uniqueRegIds.map(async (regId) => {
+            try {
+              const csoResult = await fetch(`http://localhost:5000/api/cso/res/${regId}`);
+              if (csoResult.ok) {
+                const csoDataResponse = await csoResult.json();
+                // Adjust based on API response structure:
+                csoData[regId] = csoDataResponse[0]?.csoName || csoDataResponse.csoName;
+              }
+            } catch (error) {
+              console.error("Error fetching CSO for registration ID:", regId, error);
+            }
+          })
+        );
+        setCsoNames(csoData);
+
+      } catch (error) {
+        console.error("Error fetching reports:", error.message);
+        // Swal.fire({
+        //   icon: "error",
+        //   title: "Error",
+        //   text: "Failed to fetch reports. Please try again later.",
+        //   confirmButtonColor: "#d33",
+        // });
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Filter reports by search query
+  const filteredReports = allReport.filter((item) => {
+    const csoName = csoNames[item.registration_id] || "";
+    const reportName = item.report_name || "";
+    return (
+      csoName.toLowerCase().includes(search.toLowerCase()) ||
+      reportName.toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  // Pagination
   const indexOfLastReport = currentPage * reportsPerPage;
   const indexOfFirstReport = indexOfLastReport - reportsPerPage;
   const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
-
   const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
 
   const handleView = (report) => {
-    if (report.type.toLowerCase() === "yearly") {
-      navigate(`/admin/yearly_Report/${report.id}`);
-    } else if (report.type.toLowerCase() === "quarterly") {
-      navigate(`/admin/quarterly_report/${report.id}`);
-    }
+    navigate(`/admin/show_report/${report.id}`);
   };
 
-  // Handle pagination buttons
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
-  const handlePreviousPage = () => {
+  const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-2 lg:p-6 md:p-4 font-serif">
-      <div className="bg-white p-3 lg:p-6 md:p-4 rounded-lg shadow-lg">
-        <h2 className="text-xl lg:text-2xl font-bold font-serif text-gray-400 mb-4">All CSO Reports</h2>
+    <div className="min-h-screen bg-gray-100 p-4 font-sans">
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-bold text-gray-700 mb-6">All CSO Reports</h2>
 
-        {/* Search Filter */}
         <input
           type="text"
           placeholder="Search by CSO or Report Name"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="p-2 w-48 border border-gray-300 rounded mb-4"
+          className="p-2 w-64 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
-        {/* Reports Table */}
         <div className="overflow-x-auto">
-
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">CSO Name</th>
-              <th className="border border-gray-300 px-4 py-2">Report Name</th>
-              <th className="border border-gray-300 px-4 py-2">Type</th>
-              <th className="border border-gray-300 px-4 py-2">Date</th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentReports.length > 0 ? (
-              currentReports.map((report) => (
-                <tr key={report.id} className="hover:bg-gray-100">
-                  <td className="border-b border-gray-300 px-4 py-2">{report.csoName}</td>
-                  <td className="border-b border-gray-300 px-4 py-2">{report.name}</td>
-                  <td className="border-b border-gray-300 px-4 py-2">{report.type}</td>
-                  <td className="border-b border-gray-300 px-4 py-2">{report.date}</td>
-                  <td className="border-b border-gray-300 px-4 py-2">{report.status}</td>
-                  <td className="border-b border-gray-300 px-4 py-2">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">CSO Name</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Report_Name</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Category</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Submitted_Date</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Updated_Date</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">File</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Status</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentReports.map((report) => (
+                <tr key={report.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-2 border-b border-gray-200">{csoNames[report.registration_id]}</td>
+                  <td className="px-4 py-2 border-b border-gray-200">{report.report_name}</td>
+                  <td className="px-4 py-2 border-b border-gray-200">{categories[report.category_id]}</td>
+                  <td className="px-4 py-2 border-b border-gray-200">
+                    {new Date(report.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 border-b border-gray-200">
+                    {new Date(report.updated_at).toLocaleString()}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                      {report.report_file && report.report_file.endsWith(".pdf") ? (
+                        <embed
+                          src={`http://localhost:5000/user_report/${report.report_file}`}
+                          type="application/pdf"
+                          className="max-h-10 max-w-10"
+                          onError={(e) => {
+                            console.error("Failed to load the file", e);
+                            alert(
+                              "The file could not be loaded. Please try again later."
+                            );
+                          }}
+                        />
+                      ) : (
+                        <img
+                          className="max-h-10 max-w-10"
+                          src={`http://localhost:5000/user_report/${report.report_file}`}
+                          alt={report.pdfFile}
+                        />
+                      )}
+                    </td>
+                  <td className="px-4 py-2 border-b border-gray-200">
+                    <span className={`px-2 py-1 text-sm rounded-full ${report.status === "Approved" ? "bg-green-100 text-green-700" : report.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
+                      {report.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 border-b border-gray-200">
                     <button
-                      onClick={() => handleView(report)} // Pass the specific report to the handleView function
-                      className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                      onClick={() => handleView(report)}
+                      className="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition-colors"
                     >
                       View
                     </button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan="6"
-                  className="text-center border border-gray-300 px-4 py-2"
-                >
-                  No reports found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
- </div>
-        {/* Pagination Buttons */}
-        <div className="mt-4 flex justify-between items-center">
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
           <button
-            onClick={handlePreviousPage}
+            onClick={handlePrevPage}
             disabled={currentPage === 1}
-            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-700"
-            }`}
+            className={`px-4 py-2 text-sm font-medium text-white ${currentPage === 1 ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} rounded-lg`}
           >
             Previous
           </button>
-          <span>
-             {currentPage} of {totalPages}
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-700"
-            }`}
+            className={`px-4 py-2 text-sm font-medium text-white ${currentPage === totalPages ? "bg-gray-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"} rounded-lg`}
           >
             Next
           </button>

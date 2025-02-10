@@ -17,7 +17,7 @@ const Signin = () => {
   //   e.preventDefault();
 
   //   try {
-  //     const response = await axios.post("http://localhost:8000/user/login", 
+  //     const response = await axios.post("http://localhost:8000/user/login",
   //       // const response = await axios.post("https://finance-office.onrender.com/user/login",
   //         {
   //       registrationId,
@@ -61,17 +61,20 @@ const Signin = () => {
   //     );
   //   }
   // };
-  
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       // const response = await axios.post("http://localhost:8000/user/login", {
-        const response = await axios.post("http://localhost:5000/api/users/login", {
-        registrationId,
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/users/login",
+        {
+          registrationId,
+          email,
+          password,
+        }
+      );
 
       if (response.data.success) {
         const { token } = response.data;
@@ -103,81 +106,87 @@ const Signin = () => {
       }
     } catch (error) {
       console.error("Error during login:", error);
-      setMessage(error.response?.data?.message || "An unexpected error occurred.");
+      setMessage(
+        error.response?.data?.message || "An unexpected error occurred."
+      );
     }
   };
 
   return (
-<div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-blue-300 to-blue-500">
-<div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
-      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <label
-            htmlFor="registrationId"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Registration ID
-          </label>
-          <input
-            type="text"
-            id="registrationId"
-            value={registrationId}
-            onChange={(e) => setRegistrationId(e.target.value)}
-            placeholder="Enter your registration ID"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="registrationId"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Email
-          </label>
-          <input
-            type="text"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your registration ID"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-blue-300 to-blue-500">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
           Login
-        </button>
+        </h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label
+              htmlFor="registrationId"
+              className="block text-gray-600 font-medium mb-1"
+            >
+              Registration ID
+            </label>
+            <input
+              type="text"
+              id="registrationId"
+              value={registrationId}
+              onChange={(e) => setRegistrationId(e.target.value)}
+              placeholder="Enter your registration ID"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="registrationId"
+              className="block text-gray-600 font-medium mb-1"
+            >
+              Email
+            </label>
+            <input
+              type="text"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your registration ID"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-gray-600 font-medium mb-1"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter your password"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Login
+          </button>
 
-<Link to="/forgot_password">Forgot Password?</Link>
-        {message && (
-          <p className="text-center text-red-500 font-medium mt-4">{message}</p>
-        )}
-      </form>
+          <Link to="/forgot_password">Forgot Password?</Link>
+          {message && (
+            <p className="text-center text-red-500 font-medium mt-4">
+              {message}
+            </p>
+          )}
+        </form>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Signin;
