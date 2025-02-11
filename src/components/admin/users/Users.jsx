@@ -1,399 +1,276 @@
 import React, { useEffect, useState } from 'react';
-import { jwtDecode } from "jwt-decode"; // Import jwt-decode
+import { jwtDecode } from "jwt-decode";
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import Swal from 'sweetalert2';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
+  const [error, setError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
+  const navigate = useNavigate();
 
-  const [error, setError] = useState(null); // Error state
-  const [users, setUsers] = useState([]); // Error state
+  // Form states
+  const [showEditUserForm, setShowEditUserForm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-  const [showAddUserForm, setShowAddUserForm] = useState(false);
-  const [showViewUserForm, setShowViewUserForm] = useState(false); // State for viewing user details
-  const [showEditUserForm, setShowEditUserForm] = useState(false); // State for edit modal
-
-  const [newUser, setNewUser] = useState({
+  // Form data
+  const [formData, setFormData] = useState({
+    registrationId: '',
+    name: '',
+    userId: '',
     email: '',
     password: '',
-    status: 'Active',
-    role: 'User',
+    role: 'cso',
+    status: 'active'
   });
-  
+
+  // Fetch users from API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          setError("No token found. Please log in.");
-          return;
-        }
+        if (!token) throw new Error("No token found");
 
-        const decodedToken = jwtDecode(token);
-        const { role } = decodedToken;
+        const decoded = jwtDecode(token);
+        if (decoded.role !== "admin") throw new Error("Admin access required");
 
-        // Prevent fetch if the user is not an admin
-        if (role !== "admin") {
-          console.log("eroor")
-          setError("Access denied. Admins only.");
-          return;
-        }
-
-        // Proceed to fetch users only if role is admin
         const response = await fetch("http://localhost:5000/api/users/users", {
           method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`, // Include token in the Authorization header
-          },
+          headers: { Authorization: `Bearer ${token}` }
         });
-        if (!response.ok) {
-          console.log("eroor")
 
-          const errorMessage = await response.json();
-          throw new Error(errorMessage.message || "Failed to fetch user data");
-        }
-        // console.log(token)
+        if (!response.ok) throw new Error("Failed to fetch users");
 
         const data = await response.json();
-        setUsers(data); // Set users if everything goes well
-
+        setUsers(data);
+        setFilteredUsers(data);
       } catch (err) {
-        setError(err.message || "An error occurred while fetching users.");
+        setError(err.message);
       }
     };
 
     fetchUsers();
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
-  const totalPages = Math.ceil(users.length / usersPerPage);
-
-  const [selectedUser, setSelectedUser] = useState(null); // State for the selected user to view
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const handleAddUser = () => {
-    const newId = `CSO-${String(users.length + 1).padStart(3, '0')}`;
-    setUsers([...users, { id: newId, ...newUser }]);
-    setNewUser({ email: '', password: '', status: 'Active', role: 'User' });
-    setShowAddUserForm(false);
-  };
-
-  const handleView = (user) => {
-    setSelectedUser(user); // Set the selected user for viewing
-    setShowViewUserForm(true); // Show the "View User" modal
-  };
-  const handleEditUser = () => {
-    setUsers(
-      users.map((user) =>
-        user.id === selectedUser.id ? { ...user, ...newUser } : user
-      )
+  // Search and filter functionality
+  useEffect(() => {
+    const results = users.filter(user =>
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.registrationId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.userId?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setNewUser({ email: '', password: '', status: 'Active', role: 'User' });
-    setShowEditUserForm(false);
+    setFilteredUsers(results);
+    setCurrentPage(1);
+  }, [searchTerm, users]);
+
+  // Export functionality
+  const exportToExcel = () => {
+    const selectedData = filteredUsers.filter(user =>
+      selectedRows.includes(user.id)
+    );
+    const worksheet = XLSX.utils.json_to_sheet(selectedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users.xlsx");
   };
-  const handleRemove = (id) => {
-    if (window.confirm(`Are you sure you want to remove user with ID: ${id}?`)) {
-      setUsers(users.filter((user) => user.id !== id));
+
+  const exportToPDF = () => {
+    const selectedData = filteredUsers.filter(user =>
+      selectedRows.includes(user.id)
+    );
+    const doc = new jsPDF();
+    doc.autoTable({
+      head: [['ID', 'Name', 'Email', 'Role', 'Status']],
+      body: selectedData.map(user => [
+        user.userId,
+        user.name,
+        user.email,
+        user.role,
+        user.status
+      ]),
+    });
+    doc.save("users.pdf");
+  };
+
+  // CRUD Operations
+  const handleAddUser = () => {
+    navigate("/admin/create_userAccount");
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/update/${selectedUser.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!response.ok) throw new Error("Failed to update user");
+
+      const updatedUser = await response.json();
+      setUsers(users.map(user => user.id === updatedUser.id ? updatedUser : user));
+      setFilteredUsers(filteredUsers.map(user => user.id === updatedUser.id ? updatedUser : user));
+      setShowEditUserForm(false);
+      Swal.fire('Success!', 'User updated successfully.', 'success');
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
     }
   };
 
-  const paginatedUsers = users.slice(
+  const handleDeleteUser = async (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(`http://localhost:5000/api/users/remove/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          });
+
+          if (!response.ok) throw new Error("Failed to delete user");
+
+          setUsers(users.filter(user => user.id !== id));
+          setFilteredUsers(filteredUsers.filter(user => user.id !== id));
+          Swal.fire('Deleted!', 'User has been deleted.', 'success');
+        } catch (err) {
+          Swal.fire('Error', err.message, 'error');
+        }
+      }
+    });
+  };
+
+  // Pagination
+  const paginatedUsers = filteredUsers.slice(
     (currentPage - 1) * usersPerPage,
     currentPage * usersPerPage
   );
 
   return (
-    <div className="container mx-auto p-2 lg:p-4 font-serif">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl lg:text-2xl font-bold">User Management</h1>
+    <div className="container mx-auto p-4">
+      {/* Header and Controls */}
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold mb-4 md:mb-0">User Management</h1>
+        <div className="flex gap-4">
+          <input
+            type="text"
+            placeholder="Search users..."
+            className="p-2 border rounded w-64"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button
+            onClick={handleAddUser}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Add User
+          </button>
+        </div>
+      </div>
+
+      {/* Export Controls */}
+      <div className="mb-4 flex gap-4">
         <button
-          onClick={() => setShowAddUserForm(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          onClick={exportToExcel}
+          disabled={selectedRows.length === 0}
+          className="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-green-600"
         >
-          Add User
+          Export to Excel
+        </button>
+        <button
+          onClick={exportToPDF}
+          disabled={selectedRows.length === 0}
+          className="bg-red-500 text-white px-4 py-2 rounded disabled:opacity-50 hover:bg-red-600"
+        >
+          Export to PDF
         </button>
       </div>
 
-      {/* Add User Modal */}
-      {showAddUserForm && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-3 rounded-lg shadow-lg w-96 lg:w-1/3">
-            <h2 className="text-lg lg:text-xl font-bold mb-4 text-gray-500">Register New User</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAddUser();
-              }}
-            >
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="password" className="block text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={newUser.password}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, password: e.target.value }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="status" className="block text-gray-700">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={newUser.status}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, status: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="role" className="block text-gray-700">
-                  Role
-                </label>
-                <select
-                  id="role"
-                  value={newUser.role}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, role: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowAddUserForm(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                >
-                  Add User
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showEditUserForm && selectedUser && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-96 lg:w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-gray-500">Edit User Details</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleEditUser();
-              }}
-            >
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={newUser.email}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="password" className="block text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={newUser.password}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, password: e.target.value }))
-                  }
-                  required
-                  className="w-full px-3 py-2 border rounded"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="status" className="block text-gray-700">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={newUser.status}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, status: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="role" className="block text-gray-700">
-                  Role
-                </label>
-                <select
-                  id="role"
-                  value={newUser.role}
-                  onChange={(e) =>
-                    setNewUser((prev) => ({ ...prev, role: e.target.value }))
-                  }
-                  className="w-full px-3 py-2 border rounded"
-                >
-                  <option value="User">User</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowEditUserForm(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded mr-2 hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* View User Modal */}
-      {showViewUserForm && selectedUser && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg w-96 lg:w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-gray-500">User Details</h2>
-            <div className="mb-4">
-              <p>
-                <strong>User ID:</strong> {selectedUser.id}
-              </p>
-            </div>
-            <div className="mb-4">
-              <p>
-                <strong>Email:</strong> {selectedUser.email}
-              </p>
-            </div>
-            <div className="mb-4">
-              <p>
-                <strong>Status:</strong> {selectedUser.status}
-              </p>
-            </div>
-            <div className="mb-4">
-              <p>
-                <strong>Role:</strong> {selectedUser.role}
-              </p>
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={() => setShowViewUserForm(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* User Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
+      {/* Users Table */}
+      <div className="overflow-x-auto rounded-lg shadow">
+        <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-4 py-2 border-b">User ID</th>
-              <th className="px-4 py-2 border-b">Email</th>
-              <th className="px-4 py-2 border-b">Password</th>
-              <th className="px-4 py-2 border-b">Status</th>
-              <th className="px-4 py-2 border-b">Role</th>
-              <th className="px-4 py-2 border-b">Actions</th>
+              <th className="px-4 py-3 text-left">
+                <input
+                  type="checkbox"
+                  checked={selectedRows.length === paginatedUsers.length}
+                  onChange={(e) => {
+                    const ids = paginatedUsers.map(u => u.id);
+                    e.target.checked
+                      ? setSelectedRows([...new Set([...selectedRows, ...ids])])
+                      : setSelectedRows(selectedRows.filter(id => !ids.includes(id)));
+                  }}
+                />
+              </th>
+              <th className="px-4 py-3 text-left">Registration ID</th>
+              <th className="px-4 py-3 text-left">Name</th>
+              <th className="px-4 py-3 text-left">User ID</th>
+              <th className="px-4 py-3 text-left">Email</th>
+              <th className="px-4 py-3 text-left">Role</th>
+              <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedUsers.map((user,i) => (
-              <tr key={user.id}>
-                <td className="px-4 py-2 border-b text-center">{i + 1 + (currentPage - 1) * usersPerPage}</td>
-                <td className="px-4 py-2 border-b text-center">{user.email}</td>
-                <td className="px-4 py-2 border-b text-center">{user.password}</td>
-                <td
-                  className={`px-4 py-2 border-b text-center ${user.status === 'Active' ? 'text-green-600' : 'text-red-600'
-                    }`}
-                >
-                  {user.status}
+            {paginatedUsers.map((user) => (
+              <tr key={user.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedRows.includes(user.id)}
+                    onChange={() => setSelectedRows(prev =>
+                      prev.includes(user.id)
+                        ? prev.filter(id => id !== user.id)
+                        : [...prev, user.id]
+                    )}
+                  />
                 </td>
-                <td className="px-4 py-2 border-b text-center">{user.role}</td>
-                <td className="px-4 py-2 text-center flex">
-                  <button
-                    onClick={() => handleView(user)}
-                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 mr-2"
-                  >
-                    View
-                  </button>
+                <td className="px-4 py-3">{user.registrationId}</td>
+                <td className="px-4 py-3">{user.name}</td>
+                <td className="px-4 py-3">{user.userId}</td>
+                <td className="px-4 py-3">{user.email}</td>
+                <td className="px-4 py-3 capitalize">{user.role}</td>
+                <td className="px-4 py-3">
+                  <span className={`px-2 py-1 rounded-full text-sm 
+                    ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {user.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3 flex gap-2">
                   <button
                     onClick={() => {
                       setSelectedUser(user);
-                      setNewUser({
-                        email: user.email,
-                        password: '********',
-                        status: user.status,
-                        role: user.role,
-                      });
+                      setFormData(user);
                       setShowEditUserForm(true);
                     }}
-                    className="bg-yellow-500 text-white px-2 py-1 mr-2 rounded hover:bg-yellow-600"
+                    className="text-blue-500 hover:text-blue-700"
                   >
-                    Edit
+                    <FaEdit />
                   </button>
                   <button
-                    onClick={() => handleRemove(user.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                    onClick={() => handleDeleteUser(user.id)}
+                    className="text-red-500 hover:text-red-700"
                   >
-                    Remove
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -402,32 +279,114 @@ const Users = () => {
         </table>
       </div>
 
-      {/* Pagination Controls */}
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${currentPage === 1
-              ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-700'
-            }`}
-        >
-          Previous
-        </button>
         <span>
-          {currentPage} of {totalPages}
+          Page {currentPage} of {Math.ceil(filteredUsers.length / usersPerPage)}
         </span>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className={`px-2 py-1 lg:px-4 lg:py-2 rounded ${currentPage === totalPages
-              ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-              : 'bg-blue-500 text-white hover:bg-blue-700'
-            }`}
-        >
-          Next
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredUsers.length / usersPerPage), p + 1))}
+            disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300"
+          >
+            Next
+          </button>
+        </div>
       </div>
+
+      {/* Edit User Modal */}
+      {showEditUserForm && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Edit User</h2>
+            <form onSubmit={handleUpdateUser}>
+              <div className="space-y-4">
+                {/* <div>
+                  <label className="block mb-2">Registration ID</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full p-2 border rounded"
+                    value={formData.registrationId}
+                    onChange={(e) => setFormData({ ...formData, registrationId: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2">Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full p-2 border rounded"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2">Email</label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full p-2 border rounded"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block mb-2">Role</label>
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={formData.role}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  >
+                    <option value="cso">CSO</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div> */}
+                <div>
+                  <label className="block mb-2">Status</label>
+                  <select
+                    className="w-full p-2 border rounded"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditUserForm(false)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
     </div>
   );
 };

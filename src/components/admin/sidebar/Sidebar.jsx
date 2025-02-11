@@ -170,7 +170,16 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Users"}</span>
             </Link>
           </li>
-
+          <li
+            className={`menu-item ${
+              isActive("/admin/cso_list") ? "active" : ""
+            }`}
+          >
+            <Link to="/admin/cso_list" className="flex items-center">
+              <FaBox />
+              <span>{!collapsed && "Registered CSO"}</span>
+            </Link>
+          </li>
           <li
             className={`menu-item ${isActive("/admin/create_userAccount") ? "active" : ""}`}
           >

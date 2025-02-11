@@ -50,6 +50,8 @@ import Unauthorized from "../unauthorized/Unauthorized";
 import EditUserPassword from "../user/password/EditUserPassword";
 import ForgotPassword from "../user/auth/forgotPassword/ForgotPassword";
 import ResetPassword from "../user/auth/resetPassword/ResetPassword";
+import CSOLists from "../admin/cso/csoList/CSOLists";
+import EditCSO from "../admin/cso/csoList/EditCSO";
 
 const Routers = createBrowserRouter([
   {
@@ -255,6 +257,14 @@ const Routers = createBrowserRouter([
       {
         path: "create_userAccount",
         element: <CreateAccount />,
+      },
+      {
+        path: "cso_list",
+        element: <CSOLists />,
+      },
+      {
+        path: "cso_edit/:id",
+        element: <EditCSO />,
       },
     ],
   },
