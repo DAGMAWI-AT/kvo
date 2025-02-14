@@ -52,6 +52,11 @@ import ForgotPassword from "../user/auth/forgotPassword/ForgotPassword";
 import ResetPassword from "../user/auth/resetPassword/ResetPassword";
 import CSOLists from "../admin/cso/csoList/CSOLists";
 import EditCSO from "../admin/cso/csoList/EditCSO";
+import StaffRegister from "../admin/staffRegister/StaffRegister";
+import BeneficiaryList from "../admin/beneficiary/BeneficiaryList";
+import ViewBeneficiary from "../admin/beneficiary/ViewBeneficiary";
+import EditBeneficiary from "../admin/beneficiary/EditBeneficiary";
+import AddBeneficiary from "../admin/beneficiary/AddBeneficiary";
 
 const Routers = createBrowserRouter([
   {
@@ -253,7 +258,10 @@ const Routers = createBrowserRouter([
         path: "user_register",
         element: <CsoRegister />,
       },
-
+      {
+        path: "staff_register",
+        element: <StaffRegister />,
+      },
       {
         path: "create_userAccount",
         element: <CreateAccount />,
@@ -265,6 +273,24 @@ const Routers = createBrowserRouter([
       {
         path: "cso_edit/:id",
         element: <EditCSO />,
+      },
+
+      {
+        path: "beneficiary_list",
+        element: <BeneficiaryList />,
+      },
+
+      {
+        path: "view_beneficiary/:id",
+        element: <ViewBeneficiary />,
+      },
+      {
+        path: "edit_beneficiary/:id",
+        element: <EditBeneficiary />,
+      },
+      {
+        path: "add_beneficiary",
+        element: <AddBeneficiary />,
       },
     ],
   },

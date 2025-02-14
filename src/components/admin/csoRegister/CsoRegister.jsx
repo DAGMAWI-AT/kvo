@@ -13,10 +13,17 @@ const CsoRegister = () => {
   const [formData, setFormData] = useState({ role: "cso", status: "active" });
   const [successMessage, setSuccessMessage] = useState("");
   const [error, setError] = useState("");
+  const [showCustomSector, setShowCustomSector] = useState(false); // State to track if "Other" is selected
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
+    if (name === "sector" && value === "Other") {
+      setShowCustomSector(true); // Show custom sector input when "Other" is selected
+    } else if (name === "sector") {
+      setShowCustomSector(false); // Hide custom sector input for other options
+    }
     if (type === "file") {
       setFormData((prevData) => ({
         ...prevData,
@@ -37,7 +44,7 @@ const CsoRegister = () => {
     const formDataObj = new FormData();
     formDataObj.append("csoName", formData.csoName);
     formDataObj.append("repName", formData.repName);
-    formDataObj.append("sector", formData.sector);
+    formDataObj.append("sector", showCustomSector ? formData.customSector : formData.sector); // Use custom sector if "Other" is selected
     formDataObj.append("email", formData.email);
     formDataObj.append("phone", formData.phone);
     formDataObj.append("location", formData.location);
@@ -47,7 +54,6 @@ const CsoRegister = () => {
     formDataObj.append("tin_certificate", formData.tin_certificate);
     formDataObj.append("registration_certificate", formData.registration_certificate);
     formDataObj.append("role", formData.role);
-
     try {
       const response = await fetch("http://localhost:5000/api/cso/register", {
         method: "POST",
@@ -82,7 +88,7 @@ const CsoRegister = () => {
         });
 
         // Navigate after showing the message
-        setTimeout(() => navigate("/admin/dashboard"), 3000);
+        setTimeout(() => navigate("/admin/cso_list"), 3000);
       } else {
         setError(result.message);
       }
@@ -224,9 +230,22 @@ const CsoRegister = () => {
                   <option value="Health">Health</option>
                   <option value="Environment">Environment</option>
                   <option value="Agriculture">Agriculture</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
-
+              {showCustomSector && (
+                <div className="relative">
+                  <label className="block text-gray-600 font-medium mb-2">Custom Sector</label>
+                  <input
+                    type="text"
+                    name="customSector"
+                    value={formData.customSector}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    required
+                  />
+                </div>
+              )}
               {/* Email */}
               <div className="relative">
                 <label className="block text-gray-600 font-medium mb-2">Email</label>

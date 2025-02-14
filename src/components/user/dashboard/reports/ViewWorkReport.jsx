@@ -139,14 +139,14 @@ const ViewWorkReport = () => {
               <h2 className="text-xl font-semibold text-gray-800">Response</h2>
               <p
                 className={`mt-2 text-xl font-medium ${
-                  report.response === "Approved"
+                  report.status === "approved"
                     ? "text-green-600"
-                    : report.response === "Pending"
+                    : report.status === "pending"
                     ? "text-yellow-600"
                     : "text-red-600"
                 }`}
               >
-                {report.response}
+                {report.status}
               </p>
             </div>
             {/* Expire Date */}

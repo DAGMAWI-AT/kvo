@@ -85,10 +85,10 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               </li>{" "}
               <li
                 className={`submenu-item ${
-                  isActive("/admin/expire_date") ? "active" : ""
+                  isActive("/admin/beneficiary_list") ? "active" : ""
                 }`}
               >
-                <Link to={"/admin/expire_date"} className="flex items-center">
+                <Link to={"/admin/beneficiary_list"} className="flex items-center">
                   <FaExpeditedssl />
                   Expire Date
                 </Link>
@@ -185,7 +185,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
           >
             <Link to="/admin/create_userAccount" className="flex items-center">
               <FaUsers />
-              <span>{!collapsed && "Create Account Users"}</span>
+              <span>{!collapsed && "Create Account"}</span>
             </Link>
           </li>
 
@@ -195,6 +195,22 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             <Link to="/admin/user_register" className="flex items-center">
               <FaUsers />
               <span>{!collapsed && "Register CSOs"}</span>
+            </Link>
+          </li>
+          <li
+            className={`menu-item ${isActive("/admin/staff_register") ? "active" : ""}`}
+          >
+            <Link to="/admin/staff_register" className="flex items-center">
+              <FaUsers />
+              <span>{!collapsed && "Register Staff"}</span>
+            </Link>
+          </li>
+          <li
+            className={`menu-item ${isActive("/admin/beneficiary_list") ? "active" : ""}`}
+          >
+            <Link to="/admin/beneficiary_list" className="flex items-center">
+              <FaUsers />
+              <span>{!collapsed && "Beneficiary"}</span>
             </Link>
           </li>
           {/* <li>

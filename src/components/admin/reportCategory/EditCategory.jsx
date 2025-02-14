@@ -6,6 +6,8 @@ const EditCategory = () => {
   const { id } = useParams(); // Retrieve category ID from route parameters
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
   const navigate = useNavigate();
 
 
@@ -23,8 +25,18 @@ const EditCategory = () => {
   // Fetch category details by ID
   useEffect(() => {
     const fetchCategory = async () => {
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("No token found. Please log in.");
+        return;
+      }
       try {
-        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`);
+        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`,
+         { headers :{
+          "Authorization": `Bearer ${token}`,
+          }}
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch category details.');
         }
@@ -46,56 +58,40 @@ const EditCategory = () => {
     fetchCategory();
   }, [id]);
 
-  // Handle category update submission
   const handleEditCategory = async (e) => {
     e.preventDefault();
-
-    // Validate if required fields are provided
-    if (!category || !category.category_name || !category.expire_date) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Error',
-        text: 'Please fill out all fields.',
-        confirmButtonColor: '#fbbf24',
-      });
-      return;
-    }
-
+    const token = localStorage.getItem('token');
+  
+    // Format the date to YYYY-MM-DD
+    const formattedExpireDate = new Date(category.expire_date).toISOString().split('T')[0];
+  
+    const payload = {
+      category_name: category.category_name,
+      expire_date: formattedExpireDate, // Send the formatted date
+    };  
     try {
       const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          name: category.category_name,
-          expire_date: category.expire_date,
-        }),
+        body: JSON.stringify(payload),
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to update category.');
+        const errorData = await response.json(); // Parse error response
+        console.error('Backend error:', errorData);
+        throw new Error(errorData.message || 'Update failed');
       }
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Category Updated',
-        text: 'The category has been updated successfully!',
-        confirmButtonColor: '#3085d6',
-      }).then(() => {
-        navigate('/admin/report_category');
-      });
+  
+      Swal.fire('Success!', 'Category updated successfully', 'success')
+        .then(() => navigate('/admin/report_category'));
     } catch (error) {
-      console.error('Error updating category:', error.message);
-      Swal.fire({
-        icon: 'error',
-        title: 'Update Failed',
-        text: 'Could not update the category. Please try again later.',
-        confirmButtonColor: '#d33',
-      });
+      console.error('Update error:', error);
+      Swal.fire('Error', error.message || 'Failed to update category', 'error');
     }
   };
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -21,6 +21,7 @@ const ShowReport = () => {
   const [authors, setAuthorName] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
+  const [formData, setFormData] = useState({ status: report?.status});
 
   const visibleComments = showAll ? commentData : commentData.slice(0, 3);
 
@@ -49,7 +50,10 @@ const ShowReport = () => {
       [name]: name === "comment_file" ? files[0] : value,
     }));
   };
-
+  const handleChangeStatus = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
   useEffect(() => {
     const fetchCategory = async () => {
       try {
@@ -141,7 +145,33 @@ const ShowReport = () => {
         setError("Failed to download file");
       });
   };
+  const handleSubmitStatus = async (e) => {
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    formDataToSend.append("status", formData.status);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/report/${report.id}`,
+        {
+          method: "PUT",
+          body: formDataToSend,
+        }
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to update report");
+      }
+
+      setSuccessMessage("Report status updated successfully!");
+      setTimeout(() => {
+        setSuccessMessage("");
+        // Optionally refresh data or navigate
+      }, 2000);
+    } catch (error) {
+      console.error("Error updating report status:", error);
+      alert("Failed to update report status. Please try again.");
+    }
+  };
   if (!report) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -177,23 +207,33 @@ const ShowReport = () => {
         {/* Report Details */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
-                Status
-              </h3>
-              <p
-                className={`text-lg font-medium ${
-                  report.response === "Approved"
-                    ? "text-emerald-600"
-                    : report.response === "Pending"
-                    ? "text-amber-500"
-                    : "text-rose-600"
-                }`}
-              >
-                <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50/50 text-emerald-700">
-                  {report.response}
-                </span>
-              </p>
+          <div className="p-4 bg-gray-50 rounded-lg">
+              <form onSubmit={handleSubmitStatus}>
+                <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                  Update Status
+                </h3>
+                <select
+                  name="status"
+                  onChange={handleChangeStatus}
+                  value={formData.status || report.status}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="new">new</option>
+                  <option value="inprogress">Inprogress</option>
+                  <option value="approved">Approved</option>
+                  <option value="reject">Rejected</option>
+
+
+
+                </select>
+                <button
+                  type="submit"
+                  className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+                >
+                  Update Status
+                </button>
+              </form>
             </div>
 
             <div className="p-4 bg-gray-50 rounded-lg">

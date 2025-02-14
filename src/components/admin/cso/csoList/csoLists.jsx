@@ -36,16 +36,20 @@ const CSOLists = () => {
   const [filterInput, setFilterInput] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedRows, setSelectedRows] = useState([]);
+  
   const navigate = useNavigate();
+
   // Fetch all data from the API
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/cso/get');
         setData(response.data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
+        Swal.fire('Error!', 'Failed to fetch data internat Connection.', 'error');
+      } finally {
         setLoading(false);
       }
     };
@@ -71,7 +75,8 @@ const CSOLists = () => {
       { Header: 'Email', accessor: 'email' },
       { Header: 'Sector', accessor: 'sector' },
       { Header: 'Status', accessor: 'status' },
-      { Header: 'Registration Date', accessor: 'date' },
+      { Header: 'Registration Date',   accessor: row => new Date(row.date).toLocaleString() 
+      },
       {
         Header: 'Actions',
         accessor: 'actions',
@@ -117,7 +122,6 @@ const CSOLists = () => {
     });
   }, [data, startDate, endDate]);
 
-
   const handleDelete = async (row) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -154,7 +158,6 @@ const CSOLists = () => {
   const handleView = (row) => {
     navigate(`/admin/cso_profile/${row.id}`);
   };
-  
 
   const {
     getTableProps,
@@ -182,9 +185,14 @@ const CSOLists = () => {
     useRowSelect
   );
 
+  // Update selectedRows state
+  useEffect(() => {
+    setSelectedRows(selectedFlatRows.map((row) => row.original));
+  }, [selectedFlatRows]);
+
   // Handle export to Excel
   const handleExportExcel = (exportAll = false) => {
-    const rowsToExport = exportAll ? filteredData : selectedFlatRows.map((row) => row.original);
+    const rowsToExport = exportAll ? filteredData : selectedRows;
     const worksheet = XLSX.utils.json_to_sheet(rowsToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'CSO Lists');
@@ -192,15 +200,37 @@ const CSOLists = () => {
   };
 
   // Handle export to PDF
-  const handleExportPDF = (exportAll = false) => {
-    const rowsToExport = exportAll ? filteredData : selectedFlatRows.map((row) => row.original);
-    const doc = new jsPDF();
-    doc.autoTable({
-      head: [columns.map((col) => col.Header)],
-      body: rowsToExport.map((row) => columns.map((col) => row[col.accessor])),
-    });
-    doc.save('CSOLists.pdf');
-  };
+// Handle export to PDF
+const handleExportPDF = (exportAll = false) => {
+  const rowsToExport = exportAll ? filteredData : selectedRows;
+  
+  // Filter out selection and actions columns
+  const pdfColumns = columns.filter(col => col.id !== 'selection' && col.accessor !== 'actions');
+  
+  // Prepare headers
+  const headers = pdfColumns.map(col => col.Header);
+
+  // Prepare data
+  const body = rowsToExport.map(row => 
+    pdfColumns.map(col => {
+      // Handle nested objects if needed
+      const value = row[col.accessor];
+      return typeof value === 'object' ? JSON.stringify(value) : value;
+    })
+  );
+
+  const doc = new jsPDF();
+  doc.autoTable({
+    head: [headers],
+    body: body,
+    theme: 'grid',
+    styles: { fontSize: 10 },
+    headerStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    margin: { top: 20 }
+  });
+  
+  doc.save('CSO_List.pdf');
+};
 
   // Handle global search input change
   const handleSearchChange = (e) => {
@@ -214,9 +244,11 @@ const CSOLists = () => {
     const newSize = Number(e.target.value);
     setPageSize(newSize);
   };
+
   const handleRegister = () => {
     navigate("/admin/user_register");
   };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -227,12 +259,12 @@ const CSOLists = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-                <button
-            onClick={handleRegister}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Add User
-          </button>
+      <button
+        onClick={handleRegister}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-2"
+      >
+        Add CSO
+      </button>
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
         <input
           className="w-full md:w-64 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -259,28 +291,27 @@ const CSOLists = () => {
         <div className="flex gap-2">
           <button
             onClick={() => handleExportExcel(false)}
-            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+            disabled={selectedRows.length === 0}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              selectedRows.length > 0
+                ? 'bg-green-600 hover:bg-green-700 text-white font-bold'
+                : 'bg-green-300  text-white opacity-75'
+            }`}
           >
-            Export Selected (Excel)
+            Export(Excel)
           </button>
-          {/* <button
-            onClick={() => handleExportExcel(true)}
-            className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Export All (Excel)
-          </button> */}
+
           <button
             onClick={() => handleExportPDF(false)}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+            disabled={selectedRows.length === 0}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              selectedRows.length > 0
+                ? 'bg-red-600 hover:bg-red-700 text-white font-bold'
+                : 'bg-red-300 text-white  opacity-75 '
+            }`}
           >
-            Export Selected (PDF)
+            Export(PDF)
           </button>
-          {/* <button
-            onClick={() => handleExportPDF(true)}
-            className="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Export All (PDF)
-          </button> */}
         </div>
       </div>
 
@@ -321,7 +352,7 @@ const CSOLists = () => {
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}
-                      className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                      className="px-4 py-3 text-sm"
                     >
                       {cell.render('Cell')}
                     </td>
