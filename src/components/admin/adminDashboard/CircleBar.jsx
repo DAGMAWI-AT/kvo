@@ -3,7 +3,7 @@ import React from "react";
 import { Circle } from "rc-progress";
 import CountUp from "react-countup";
 
-function CircleBar({ usersPercentage, usersCount, proposalsPercentage, proposalsCount, reportsPercentage, reportsCount, projectsPercentage, projectsCount }) {
+function CircleBar({ usersPercentage, usersCount, csoPercentage, csoCount, reportsPercentage, reportsCount, projectsPercentage, projectsCount }) {
   return (
     <section>
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-5">
@@ -31,16 +31,16 @@ function CircleBar({ usersPercentage, usersCount, proposalsPercentage, proposals
           <div className="flex justify-between items-center px-5 py-5">
             <PeopleAltOutlined fontSize="large" className="text-black" />
             <div className="text-center">
-              <Circle percent={proposalsPercentage} strokeWidth={10} strokeColor="green" trailWidth={8} trailColor="red" />
+              <Circle percent={csoPercentage} strokeWidth={10} strokeColor="green" trailWidth={8} trailColor="red" />
               <div>
-                <CountUp enableScrollSpy duration={2} end={proposalsPercentage} />%
+                <CountUp enableScrollSpy duration={2} end={csoPercentage} />%
               </div>
             </div>
           </div>
           <div className="px-5 pb-5">
-            <p className="text-blue-600 font-semibold text-left">Proposals</p>
+            <p className="text-blue-600 font-semibold text-left">CSOs</p>
             <p className="text-2xl text-black font-semibold text-left">
-              <CountUp enableScrollSpy duration={2} end={proposalsCount} />
+              <CountUp enableScrollSpy duration={2} end={csoCount} />
             </p>
           </div>
         </div>

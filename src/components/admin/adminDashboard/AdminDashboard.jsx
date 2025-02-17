@@ -27,8 +27,10 @@ const Dashboard = () => {
   const [data, setData] = useState({
     usersPercentage: 0,
     usersCount: 0,
-    proposalsPercentage: 0,
-    proposalsCount: 0,
+    csoPercentage: 0,
+    csoCount: 0,
+    // proposalsPercentage: 0,
+    // proposalsCount: 0,
     reportsPercentage: 0,
     reportsCount: 0,
     projectsPercentage: 0,
@@ -39,6 +41,7 @@ const Dashboard = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/users/res/dashboard");
         setData(response.data);
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -52,8 +55,10 @@ const Dashboard = () => {
       <CircleBar
         usersPercentage={data.usersPercentage}
         usersCount={data.usersCount}
-        proposalsPercentage={data.proposalsPercentage}
-        proposalsCount={data.proposalsCount}
+        csoPercentage={data.csoPercentage}
+        csoCount={data.csoCount}
+        // proposalsPercentage={data.proposalsPercentage}
+        // proposalsCount={data.proposalsCount}
         reportsPercentage={data.reportsPercentage}
         reportsCount={data.reportsCount}
         projectsPercentage={data.projectsPercentage}

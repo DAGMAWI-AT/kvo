@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FiDownload, FiExternalLink, FiArrowLeft } from 'react-icons/fi';
+import { FiDownload, FiExternalLink, FiArrowLeft, FiPrinter } from 'react-icons/fi';
 
 const ViewBeneficiary = () => {
   const { id } = useParams();
   const [beneficiary, setBeneficiary] = useState(null);
   const [loading, setLoading] = useState(true);
+  // printRef is no longer used in this approach
 
   useEffect(() => {
     const fetchBeneficiary = async () => {
@@ -76,6 +77,65 @@ const ViewBeneficiary = () => {
     );
   };
 
+  const handlePrint = () => {
+    // Prepare the HTML content for printing
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Print ID Card</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .id-card { width: 380px; margin: 20px auto; border: 1px solid #ccc; padding: 20px; text-align: center; }
+            .id-card img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; }
+            .id-card h3 { margin: 10px 0; font-size: 20px; }
+            .id-card p { margin: 5px 0; font-size: 14px; }
+          </style>
+        </head>
+        <body>
+          <div class="id-card">
+            <img src="http://localhost:5000/photoFiles/${beneficiary.photo}" alt="${beneficiary.fullName}" />
+            <h3>${beneficiary.fullName}</h3>
+            <p><strong>ID:</strong> ${beneficiary.id}</p>
+            <p><strong>Phone:</strong> ${beneficiary.phone}</p>
+            <p><strong>Email:</strong> ${beneficiary.email}</p>
+            <p><strong>Kebele:</strong> ${beneficiary.kebele}</p>
+            <p><strong>House No:</strong> ${beneficiary.houseNo}</p>
+            <p><strong>Location:</strong> ${beneficiary.location}</p>
+            <p><strong>Wereda:</strong> ${beneficiary.wereda}</p>
+            <p><strong>Kfleketema:</strong> ${beneficiary.kfleketema}</p>
+            <p><strong>School:</strong> ${beneficiary.school}</p>
+          </div>
+        </body>
+      </html>
+    `;
+    
+    const printWindow = window.open('', '', 'width=600,height=600');
+    if (!printWindow) {
+      alert('Popup blocked! Please allow popups for this website.');
+      return;
+    }
+    
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Wait for the content to fully load before printing
+    printWindow.onload = () => {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
+
+    // Fallback in case onload doesn't fire (after 1 second)
+    setTimeout(() => {
+      if (!printWindow.closed) {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }
+    }, 1000);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -104,6 +164,18 @@ const ViewBeneficiary = () => {
         </Link>
       </div>
 
+      {/* Print Button */}
+      <div className="mb-6">
+        <button
+          onClick={handlePrint}
+          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        >
+          <FiPrinter className="w-5 h-5" />
+          Print ID Card
+        </button>
+      </div>
+
+      {/* Beneficiary Details Section */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6 border-b">
           <h2 className="text-2xl font-bold text-gray-800">Beneficiary Details</h2>

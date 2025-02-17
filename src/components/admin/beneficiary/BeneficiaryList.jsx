@@ -19,10 +19,8 @@ const BeneficiaryList = () => {
   const [endDate, setEndDate] = useState('');
   const [startDate, setStartDate] = useState('');
 
-
   const navigate = useNavigate();
 
-  // Fetch beneficiaries from the backend
   useEffect(() => {
     const fetchBeneficiaries = async () => {
       try {
@@ -37,7 +35,21 @@ const BeneficiaryList = () => {
     fetchBeneficiaries();
   }, []);
 
-  // Handle delete beneficiary with confirmation
+  // Automatically filter beneficiaries when searchTerm, startDate, or endDate changes
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm, startDate, endDate]);
+
+  const handleSearch = () => {
+    let filtered = beneficiaries.filter(beneficiary => {
+      const matchName = beneficiary.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchDate = (!startDate || new Date(beneficiary.createdAt) >= new Date(startDate)) &&
+                        (!endDate || new Date(beneficiary.createdAt) <= new Date(endDate));
+      return matchName && matchDate;
+    });
+    setFilteredBeneficiaries(filtered);
+  };
+
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -62,12 +74,10 @@ const BeneficiaryList = () => {
     }
   };
 
-  // Handle view beneficiary
   const handleView = (id) => {
     navigate(`/admin/view_beneficiary/${id}`);
   };
 
-  // Handle row selection
   const handleRowSelect = (id) => {
     if (selectedRows.includes(id)) {
       setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
@@ -76,30 +86,6 @@ const BeneficiaryList = () => {
     }
   };
 
-  // Handle search by name and registration date
-  // const handleSearch = (e) => {
-  //   const term = e.target.value.toLowerCase();
-  //   setSearchTerm(term);
-  //   const filtered = beneficiaries.filter(
-  //     (beneficiary) =>
-  //       beneficiary.fullName.toLowerCase().includes(term) ||
-  //       beneficiary.createdAt.toLowerCase().includes(term)
-  //   );
-  //   setFilteredBeneficiaries(filtered);
-  // };
-
-  const handleSearch = () => {
-    let filtered = beneficiaries.filter(beneficiary => {
-      const matchName = beneficiary.fullName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchDate = (!startDate || new Date(beneficiary.createdAt) >= new Date(startDate)) &&
-                        (!endDate || new Date(beneficiary.createdAt) <= new Date(endDate));
-      return matchName && matchDate;
-    });
-    setFilteredBeneficiaries(filtered);
-  };
-
-
-  // Handle sorting
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
@@ -115,25 +101,22 @@ const BeneficiaryList = () => {
     setFilteredBeneficiaries(sorted);
   };
 
-  // Handle pagination
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
   const currentRows = filteredBeneficiaries.slice(indexOfFirstRow, indexOfLastRow);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Handle rows per page change
   const handleRowsPerPageChange = (e) => {
     setRowsPerPage(Number(e.target.value));
     setCurrentPage(1);
   };
 
-  // Export to PDF
   const exportToPDF = () => {
     const selectedBeneficiaries = beneficiaries.filter(beneficiary =>
       selectedRows.includes(beneficiary.id)
     );
-  
+
     const doc = new jsPDF();
     doc.autoTable({
       head: [['Photo', 'Full Name', 'Phone', 'Email', 'Registration Date']],
@@ -147,20 +130,18 @@ const BeneficiaryList = () => {
     });
     doc.save('beneficiaries.pdf');
   };
-  
 
-  // Export to Excel
   const exportToExcel = () => {
     const selectedBeneficiaries = beneficiaries.filter(beneficiary =>
       selectedRows.includes(beneficiary.id)
     );
-  
+
     const worksheet = XLSX.utils.json_to_sheet(selectedBeneficiaries);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Beneficiaries');
     XLSX.writeFile(workbook, 'beneficiaries.xlsx');
   };
-  
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
@@ -173,47 +154,46 @@ const BeneficiaryList = () => {
         </Link>
       </div>
 
-      {/* Search and Export Buttons */}
-      <div className="p-4 flex justify-between items-center">
-      <div className="flex gap-2 my-4">
-        <input
-          type="text"
-          placeholder="Search by Name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
-        />
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
-        />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="px-4 py-2 border rounded-lg"
-        />
-        <button onClick={handleSearch} className="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
-      </div>
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 gap-4">
+        <div className="flex gap-2 my-1 p-1">
+          <input
+            type="text"
+            placeholder="Search by Name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-2 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-4 py-2 border rounded-lg"
+          />
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="px-4 py-2 border rounded-lg"
+          />
+        </div>
         <div className="flex gap-2">
           <button
             onClick={exportToPDF}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            disabled={selectedRows.length === 0}
+            className={`bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ${selectedRows.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Export to PDF
           </button>
           <button
             onClick={exportToExcel}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            disabled={selectedRows.length === 0}
+            className={`bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ${selectedRows.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Export to Excel
           </button>
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -236,11 +216,26 @@ const BeneficiaryList = () => {
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                 onClick={() => handleSort('fullName')}
               >
-                Full Name {sortConfig.key === 'fullName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                Full Name {sortConfig.key === 'fullName' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registration Date</th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => handleSort('phone')}
+              >
+                Phone {sortConfig.key === 'phone' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+              </th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => handleSort('email')}
+              >
+                Email {sortConfig.key === 'email' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+              </th>
+              <th
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                onClick={() => handleSort('createdAt')}
+              >
+                Registration Date {sortConfig.key === 'createdAt' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -285,7 +280,6 @@ const BeneficiaryList = () => {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="p-4 flex justify-between items-center">
         <div className="flex gap-2">
           <button
