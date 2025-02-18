@@ -109,7 +109,7 @@ const ViewBeneficiary = () => {
       </html>
     `;
     
-    const printWindow = window.open('', '', 'width=600,height=600');
+    const printWindow = window.open('', '_blank', 'width=600,height=600');
     if (!printWindow) {
       alert('Popup blocked! Please allow popups for this website.');
       return;
