@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const EachCso = () => {
@@ -9,10 +9,12 @@ const EachCso = () => {
   const [report, setReport] = useState([]);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [date, setDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [categories, setCategories] = useState({}); // To store category_id to category_name mapping
-  const reportsPerPage = 5; // Number of reports per page
+  const [categories, setCategories] = useState({});
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default to 10 items per page
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sorting state
   const location = useLocation();
 
   useEffect(() => {
@@ -22,7 +24,6 @@ const EachCso = () => {
   useEffect(() => {
     const fetchCsoData = async () => {
       try {
-        // Fetch report data
         const response = await fetch(`http://localhost:5000/api/report/${id}`);
         if (!response.ok) {
           console.error("Failed to fetch CSO data:", response.status);
@@ -31,11 +32,9 @@ const EachCso = () => {
         const data = await response.json();
         setReport(data.data || []);
 
-        // Fetch category data for all reports
         const categoryIds = data.data.map((item) => item.category_id);
-        const uniqueCategoryIds = [...new Set(categoryIds)]; // Remove duplicates
+        const uniqueCategoryIds = [...new Set(categoryIds)];
 
-        // Fetch category names for all unique category IDs
         const categoryPromises = uniqueCategoryIds.map(async (categoryId) => {
           const categoryResponse = await fetch(
             `http://localhost:5000/api/reportCategory/${categoryId}`
@@ -48,10 +47,7 @@ const EachCso = () => {
           return categoryData;
         });
 
-        // Wait for all category fetches to complete
         const categoryResults = await Promise.all(categoryPromises);
-
-        // Create a mapping of category_id to category_name
         const categoryMap = {};
         categoryResults.forEach((category) => {
           if (category) {
@@ -59,7 +55,6 @@ const EachCso = () => {
           }
         });
 
-        // Set the category mapping in state
         setCategories(categoryMap);
       } catch (error) {
         console.error("Error fetching CSO data:", error);
@@ -77,7 +72,7 @@ const EachCso = () => {
           return;
         }
         const data = await response.json();
-        setCso(data || {}); // Ensure cso is an object
+        setCso(data || {});
       } catch (error) {
         console.error("Error fetching CSO profile:", error);
       }
@@ -85,29 +80,60 @@ const EachCso = () => {
     fetchCsoProfile();
   }, [id]);
 
-  // Filter reports based on search, date, and category
-  const filteredReports = Array.isArray(report)
-    ? report.filter((item) => {
-        const matchesFilter =
-          filter === "all" ||
-          (categories[item.category_id]?.toLowerCase() || "") === filter.toLowerCase();
-        const matchesSearch = (item.report_name?.toLowerCase() || "").includes(
-          search.toLowerCase()
-        );
-        const matchesDate = date ? item.date?.includes(date) : true;
-        return matchesFilter && matchesSearch && matchesDate;
-      })
-    : [];
+  // Sorting functionality
+  const sortedReports = React.useMemo(() => {
+    let sortableReports = [...report];
+    if (sortConfig.key) {
+      sortableReports.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableReports;
+  }, [report, sortConfig]);
+
+  // Handle sorting when a column header is clicked
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Get sorting icon for a column
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === "asc" ? <FaSortUp /> : <FaSortDown />;
+    }
+    return <FaSort />;
+  };
+
+  // Filter reports based on search, start date, end date, and category
+  const filteredReports = sortedReports.filter((item) => {
+    const matchesFilter =
+      filter === "all" ||
+      (categories[item.category_id]?.toLowerCase() || "") === filter.toLowerCase();
+      // item.status?.toLowerCase().includes(searchTerm.toLowerCase())||
+      const matchesSearch = (item.report_name?.toLowerCase() || "").includes(
+      search.toLowerCase()
+    );
+    const matchesDate =
+      (!startDate || item.date >= startDate) && (!endDate || item.date <= endDate);
+    return matchesFilter && matchesSearch && matchesDate;
+  });
 
   // Pagination calculations
-  const indexOfLastReport = currentPage * reportsPerPage;
-  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
-  const currentReports = filteredReports.slice(
-    indexOfFirstReport,
-    indexOfLastReport
-  );
+  const indexOfLastReport = currentPage * itemsPerPage;
+  const indexOfFirstReport = indexOfLastReport - itemsPerPage;
+  const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
 
-  const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
+  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
 
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
@@ -130,11 +156,7 @@ const EachCso = () => {
       <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
         <div className="mb-4 flex justify-between">
           <div>
-            <img
-              src={cso.logo}
-              alt="logo"
-              className="w-16 h-16 rounded-full p-1"
-            />
+            <img src={cso.logo} alt="logo" className="w-16 h-16 rounded-full p-1" />
             <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">
               {cso.csoName}
             </h2>
@@ -152,21 +174,19 @@ const EachCso = () => {
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap gap-4 mb-6 border-2 p-2">
-          {["all", "yearly", "quarterly", "proposal", "projects", "other"].map(
-            (type) => (
-              <button
-                key={type}
-                onClick={() => setFilter(type)}
-                className={`py-2 px-4 rounded ${
-                  filter === type
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300 text-gray-800 hover:bg-gray-400"
-                } transition`}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            )
-          )}
+          {["all", "yearly", "quarterly", "proposal", "projects", "other"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilter(type)}
+              className={`py-2 px-4 rounded ${
+                filter === type
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-300 text-gray-800 hover:bg-gray-400"
+              } transition`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
         </div>
 
         {/* Search and Date Filters */}
@@ -180,10 +200,38 @@ const EachCso = () => {
           />
           <input
             type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            placeholder="Start Date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
             className="p-2 border border-gray-300 rounded"
           />
+          <input
+            type="date"
+            placeholder="End Date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="p-2 border border-gray-300 rounded"
+          />
+        </div>
+
+        {/* Show Entries Dropdown */}
+        <div className="flex items-center gap-4 mb-4">
+          <span>Show:</span>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="p-1 border rounded"
+          >
+            {[10, 20, 30, 50].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+          <span>entries</span>
         </div>
 
         {/* Reports Table */}
@@ -191,12 +239,47 @@ const EachCso = () => {
           <table className="w-full border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2">Report Name</th>
-                <th className="border border-gray-300 px-4 py-2">Type</th>
-                <th className="border border-gray-300 px-4 py-2">Submitted Date</th>
-                <th className="border border-gray-300 px-4 py-2">Updated Date</th>
+                <th
+                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                  onClick={() => requestSort("report_name")}
+                >
+                  <div className="flex items-center gap-2">
+                    Report Name {getSortIcon("report_name")}
+                  </div>
+                </th>
+                <th
+                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                  onClick={() => requestSort("category_id")}
+                >
+                  <div className="flex items-center gap-2">
+                    Type {getSortIcon("category_id")}
+                  </div>
+                </th>
+                <th
+                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                  onClick={() => requestSort("created_at")}
+                >
+                  <div className="flex items-center gap-2">
+                    Submitted Date {getSortIcon("created_at")}
+                  </div>
+                </th>
+                <th
+                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                  onClick={() => requestSort("updated_at")}
+                >
+                  <div className="flex items-center gap-2">
+                    Updated Date {getSortIcon("updated_at")}
+                  </div>
+                </th>
                 <th className="border border-gray-300 px-4 py-2">File</th>
-                <th className="border border-gray-300 px-4 py-2">Status</th>
+                <th
+                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                  onClick={() => requestSort("status")}
+                >
+                  <div className="flex items-center gap-2">
+                    Status {getSortIcon("status")}
+                  </div>
+                </th>
                 <th className="border border-gray-300 px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -204,11 +287,9 @@ const EachCso = () => {
               {currentReports.length > 0 ? (
                 currentReports.map((item, index) => (
                   <tr key={index} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 px-4 py-2">{item.report_name}</td>
                     <td className="border border-gray-300 px-4 py-2">
-                      {item.report_name}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {categories[item.category_id] }
+                      {categories[item.category_id]}
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       {new Date(item.created_at).toLocaleString()}
@@ -224,9 +305,7 @@ const EachCso = () => {
                           className="max-h-10 max-w-10"
                           onError={(e) => {
                             console.error("Failed to load the file", e);
-                            alert(
-                              "The file could not be loaded. Please try again later."
-                            );
+                            alert("The file could not be loaded. Please try again later.");
                           }}
                         />
                       ) : (
@@ -237,9 +316,7 @@ const EachCso = () => {
                         />
                       )}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {item.status}
-                    </td>
+                    <td className="border border-gray-300 px-4 py-2">{item.status}</td>
                     <td className="border border-gray-300 px-4 py-2">
                       <div className="flex space-x-2">
                         <button
@@ -254,10 +331,7 @@ const EachCso = () => {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="6"
-                    className="text-center border border-gray-300 px-4 py-2"
-                  >
+                  <td colSpan="7" className="text-center border border-gray-300 px-4 py-2">
                     No reports found.
                   </td>
                 </tr>
@@ -279,6 +353,9 @@ const EachCso = () => {
           >
             Previous
           </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}

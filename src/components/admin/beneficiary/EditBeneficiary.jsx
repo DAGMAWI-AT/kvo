@@ -8,7 +8,10 @@ import {
   FaMapMarkedAlt,
   FaHome,
   FaFilePdf,
-  FaFileWord
+  FaFileWord,
+  FaBirthdayCake,
+  FaUniversity,
+  FaVenusMars
 } from 'react-icons/fa';
 
 const EditBeneficiary = () => {
@@ -23,111 +26,112 @@ const EditBeneficiary = () => {
     kebele: '',
     location: '',
     wereda: '',
+    age: '',
+    gender: '',
+    school: '',
     kfleketema: '',
     houseNo: '',
     idFile: null,
     photo: null,
   });
 
-  // Fetch beneficiary data by ID
-  useEffect(() => {
-    const fetchBeneficiary = async () => {
-      setError('');
-      setSuccessMessage('');
-      try {
-        const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`);
-        const data = await response.json();
-        setFormData(data.data);
-      } catch (error) {
-        console.error('Error fetching beneficiary:', error);
-        setError('Failed to fetch beneficiary data');
-      }
-    };
+ // Separate state for newly selected files
+ const [newFiles, setNewFiles] = useState({
+  idFile: null,
+  photo: null,
+});
 
-    fetchBeneficiary();
-  }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === 'file') {
-      // If this is the photo field, check if the file is an image
-      if (name === 'photo') {
-        const file = files[0];
-        if (file && !file.type.startsWith('image/')) {
-          setError("Please upload a valid image file for the photo.");
-          return;
-        }
-      }
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: files[0] || null,
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const data = new FormData();
-
-    // Append non-file fields
-    data.append('fullName', formData.fullName);
-    data.append('phone', formData.phone);
-    data.append('email', formData.email);
-    data.append('kebele', formData.kebele);
-    data.append('location', formData.location);
-    data.append('wereda', formData.wereda);
-    data.append('kfleketema', formData.kfleketema);
-    data.append('houseNo', formData.houseNo);
-
-    // Append files if they exist
-    if (formData.idFile) {
-      data.append('idFile', formData.idFile);
-    }
-    if (formData.photo) {
-      data.append('photo', formData.photo);
-    }
-
-    // Debug: log formData entries
-    for (let [key, value] of data.entries()) {
-      console.log(key, value);
-    }
-
+// Fetch beneficiary data by ID on mount
+useEffect(() => {
+  const fetchBeneficiary = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`, {
-        method: 'PUT',
-        body: data, // FormData sets its own Content-Type header
-      });
-
-      if (response.ok) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: 'Beneficiary updated successfully.',
-          confirmButtonText: 'OK',
-        }).then(() => {
-          navigate('/admin/beneficiary_list'); // Redirect after success
-        });
-      } else {
-        // Try to parse the error response as JSON
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update beneficiary');
-      }
+      const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`);
+      const data = await response.json();
+      // Set formData with fetched data (including existing file names)
+      setFormData(data.data);
     } catch (error) {
-      console.error('Error updating beneficiary:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error!',
-        text: error.message || 'Failed to update beneficiary. Please try again.',
-        confirmButtonText: 'OK',
-      });
+      console.error('Error fetching beneficiary:', error);
+      setError('Failed to fetch beneficiary data');
     }
   };
+  fetchBeneficiary();
+}, [id]);
+
+// Handle changes for text and file inputs
+const handleChange = (e) => {
+  const { name, value, type, files } = e.target;
+  if (type === 'file') {
+    // For file inputs, update the newFiles state
+    setNewFiles((prev) => ({
+      ...prev,
+      [name]: files[0] || null,
+    }));
+  } else {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setSuccessMessage('');
+
+  const data = new FormData();
+  
+  // Append text fields from formData
+  for (const key in formData) {
+    if (key !== 'idFile' && key !== 'photo') {
+      data.append(key, formData[key]);
+    }
+  }
+
+  // Append new files only if selected; otherwise, the backend retains existing filenames
+  if (newFiles.idFile) {
+    data.append('idFile', newFiles.idFile);
+  }
+  if (newFiles.photo) {
+    data.append('photo', newFiles.photo);
+  }
+  
+  // Debug: Log FormData entries (note: File objects will appear as [object File])
+  for (let [key, value] of data.entries()) {
+    // console.log(key, value);
+  }
+
+  try {
+    const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`, {
+      method: 'PUT',
+      body: data,
+    });
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Beneficiary updated successfully.',
+        confirmButtonText: 'OK',
+      }).then(() => {
+        navigate('/admin/beneficiary_list');
+      });
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to update beneficiary');
+    }
+  } catch (err) {
+    console.error('Error updating beneficiary:', err);
+    setError(err.message);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: err.message || 'Failed to update beneficiary. Please try again.',
+      confirmButtonText: 'OK',
+    });
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
@@ -191,7 +195,7 @@ const EditBeneficiary = () => {
                 onChange={handleChange}
                 placeholder="Enter email"
                 className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
+                // required
               />
             </div>
 
@@ -240,6 +244,53 @@ const EditBeneficiary = () => {
               />
             </div>
 
+            {/* Age */}
+            <div className="relative">
+              <label className="block text-gray-600 font-medium mb-2">Age</label>
+              <FaBirthdayCake className="absolute left-3 top-10 text-blue-800" />
+              <input
+                type="number"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                placeholder="Enter age"
+                className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                min={0}
+                required
+              />
+            </div>
+
+            {/* Gender */}
+            <div className="relative">
+              <label className="block text-gray-600 font-medium mb-2">Gender</label>
+              <FaVenusMars className="absolute left-3 top-10 text-blue-800" />
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            {/* School (Optional) */}
+            <div className="relative">
+              <label className="block text-gray-600 font-medium mb-2">School (Optional)</label>
+              <FaUniversity className="absolute left-3 top-10 text-blue-800" />
+              <input
+                type="text"
+                name="school"
+                value={formData.school}
+                onChange={handleChange}
+                placeholder="Enter school (optional)"
+                className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
             {/* Kfleketema */}
             <div className="relative">
               <label className="block text-gray-600 font-medium mb-2">Kfleketema</label>
@@ -279,7 +330,7 @@ const EditBeneficiary = () => {
                 <FaFilePdf className="inline mr-2 text-red-500" />
                 ID File
               </label>
-              {formData.idFile && (
+              {formData.idFile && typeof formData.idFile === 'string' && (
                 <a
                   href={`http://localhost:5000/idFiles/${formData.idFile}`}
                   target="_blank"
@@ -291,6 +342,7 @@ const EditBeneficiary = () => {
               )}
               <input
                 type="file"
+                name="idFile"
                 accept=".pdf,.doc,.docx, image/*"
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
@@ -303,7 +355,7 @@ const EditBeneficiary = () => {
                 <FaFileWord className="inline mr-2 text-blue-500" />
                 Photo
               </label>
-              {formData.photo && (
+              {formData.photo && typeof formData.photo === 'string' && (
                 <a
                   href={`http://localhost:5000/photoFiles/${formData.photo}`}
                   target="_blank"
@@ -315,6 +367,7 @@ const EditBeneficiary = () => {
               )}
               <input
                 type="file"
+                name="photo"
                 accept="image/*"
                 onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"

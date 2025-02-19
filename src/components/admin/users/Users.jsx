@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import Swal from 'sweetalert2';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
@@ -14,8 +14,16 @@ const Users = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRows, setSelectedRows] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const usersPerPage = 10;
   const navigate = useNavigate();
+
+  // Sorting state
+  const [sortConfig, setSortConfig] = useState({
+    key: null, // Column to sort by
+    direction: 'asc', // Sorting direction
+  });
 
   // Form states
   const [showEditUserForm, setShowEditUserForm] = useState(false);
@@ -65,11 +73,41 @@ const Users = () => {
     const results = users.filter(user =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.registrationId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.userId?.toLowerCase().includes(searchTerm.toLowerCase())
+      user.userId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (searchTerm.toLowerCase() === "active" && user.status?.toLowerCase() === "active") ||
+      (searchTerm.toLowerCase() === "inactive" && user.status?.toLowerCase() === "inactive")
     );
+
     setFilteredUsers(results);
     setCurrentPage(1);
   }, [searchTerm, users]);
+
+  // Sorting functionality
+  const sortedUsers = React.useMemo(() => {
+    let sortableUsers = [...filteredUsers];
+    if (sortConfig.key) {
+      sortableUsers.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableUsers;
+  }, [filteredUsers, sortConfig]);
+
+  // Handle sorting when a column header is clicked
+  const requestSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
 
   // Export functionality
   const exportToExcel = () => {
@@ -159,11 +197,14 @@ const Users = () => {
   };
 
   // Pagination
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * usersPerPage,
-    currentPage * usersPerPage
+  // const paginatedUsers = sortedUsers.slice(
+  //   (currentPage - 1) * usersPerPage,
+  //   currentPage * usersPerPage
+  // );
+  const paginatedUsers = sortedUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   );
-
   return (
     <div className="container mx-auto p-4">
       {/* Header and Controls */}
@@ -221,13 +262,52 @@ const Users = () => {
                   }}
                 />
               </th>
-              <th className="px-4 py-3 text-left">Registration ID</th>
-              <th className="px-4 py-3 text-left">Name</th>
-              <th className="px-4 py-3 text-left">User ID</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-left">Role</th>
-              <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3 text-left">Actions</th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('registrationId')}
+              >
+
+                Registration ID {sortConfig.key === 'registrationId' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+
+              </th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('name')}
+              >
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+
+              </th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('userId')}
+              >
+                
+                User ID {sortConfig.key === 'userId' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+
+              </th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('email')}
+              >
+                Email {sortConfig.key === 'email' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+              </th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('role')}
+              >
+              Role {sortConfig.key === 'role' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+
+              </th>
+              <th
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort('status')}
+              >
+
+                Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
+
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+              >Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -281,9 +361,27 @@ const Users = () => {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center gap-4">
+          <span>Show:</span>
+          <select 
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value));
+              setCurrentPage(1);
+            }}
+            className="p-1 border rounded"
+          >
+            {[10, 20, 30, 50].map(size => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+          <span>entries</span>
+        </div>
+        
         <span>
-          Page {currentPage} of {Math.ceil(filteredUsers.length / usersPerPage)}
+          Page {currentPage} of {Math.ceil(filteredUsers.length / itemsPerPage)}
         </span>
+        
         <div className="flex gap-2">
           <button
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -293,15 +391,14 @@ const Users = () => {
             Previous
           </button>
           <button
-            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredUsers.length / usersPerPage), p + 1))}
-            disabled={currentPage === Math.ceil(filteredUsers.length / usersPerPage)}
+            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredUsers.length / itemsPerPage), p + 1))}
+            disabled={currentPage === Math.ceil(filteredUsers.length / itemsPerPage)}
             className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300"
           >
             Next
           </button>
         </div>
       </div>
-
       {/* Edit User Modal */}
       {showEditUserForm && selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -309,47 +406,6 @@ const Users = () => {
             <h2 className="text-xl font-bold mb-4">Edit User</h2>
             <form onSubmit={handleUpdateUser}>
               <div className="space-y-4">
-                {/* <div>
-                  <label className="block mb-2">Registration ID</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full p-2 border rounded"
-                    value={formData.registrationId}
-                    onChange={(e) => setFormData({ ...formData, registrationId: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2">Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full p-2 border rounded"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2">Email</label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full p-2 border rounded"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2">Role</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  >
-                    <option value="cso">CSO</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div> */}
                 <div>
                   <label className="block mb-2">Status</label>
                   <select

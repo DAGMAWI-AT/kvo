@@ -202,6 +202,10 @@ const ViewBeneficiary = () => {
                 ['Phone', beneficiary.phone],
                 ['Kebele', beneficiary.kebele],
                 ['House No', beneficiary.houseNo],
+                ['Gender', beneficiary.gender],
+                ['Age', beneficiary.age],
+
+
               ].map(([label, value]) => (
                 <div key={label} className="flex justify-between items-center py-2 border-b">
                   <span className="text-gray-600">{label}</span>

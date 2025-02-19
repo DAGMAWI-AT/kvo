@@ -7,7 +7,9 @@ import {
   FaMapMarkedAlt, 
   FaHome, 
   FaFilePdf, 
-  FaFileWord 
+  FaFileWord,
+  FaBirthdayCake,
+  FaSchool
 } from 'react-icons/fa';
 
 const AddBeneficiary = () => {
@@ -22,6 +24,9 @@ const AddBeneficiary = () => {
     kebele: '',
     location: '',
     wereda: '',
+    age: '',
+    gender: '',
+    school: '',
     kfleketema: '',
     houseNo: '',
   });
@@ -85,14 +90,16 @@ const AddBeneficiary = () => {
     }
   };
 
-  // Array for text fields with icons
+  // Array for text fields with icons (excluding gender, which is handled separately)
   const textFields = [
     { label: 'Full Name', name: 'fullName', type: 'text', icon: FaUserAlt },
     { label: 'Phone', name: 'phone', type: 'tel', icon: FaPhoneAlt },
-    { label: 'Email', name: 'email', type: 'email', icon: FaEnvelope },
+    { label: 'Email', name: 'email', type: 'email', icon: FaEnvelope, optional: true },
     { label: 'Kebele', name: 'kebele', type: 'text', icon: FaHome },
     { label: 'Location', name: 'location', type: 'text', icon: FaMapMarkedAlt },
     { label: 'Wereda', name: 'wereda', type: 'text', icon: FaMapMarkedAlt },
+    { label: 'Age', name: 'age', type: 'number', icon: FaBirthdayCake, min: 0 },
+    { label: 'School', name: 'school', type: 'text', icon: FaSchool, optional: true },
     { label: 'Kfleketema', name: 'kfleketema', type: 'text', icon: FaMapMarkedAlt },
     { label: 'House No', name: 'houseNo', type: 'text', icon: FaHome },
   ];
@@ -150,17 +157,17 @@ const AddBeneficiary = () => {
               <input
                 type="file"
                 name="idFile"
-                accept=".pdf,.doc,.docx, image/*"
+                accept=".pdf,.doc,.docx,image/*"
                 onChange={handleFileChange}
                 className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                required
+                // required
               />
             </div>
           </div>
 
           {/* Text Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {textFields.map(({ label, name, type, icon: Icon }) => (
+            {textFields.map(({ label, name, type, icon: Icon, min, optional }) => (
               <div className="relative" key={name}>
                 <label className="block text-gray-600 font-medium mb-2">
                   {label}
@@ -173,10 +180,30 @@ const AddBeneficiary = () => {
                   onChange={handleChange}
                   placeholder={`Enter ${label.toLowerCase()}`}
                   className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
+                  // required
+                  {...(min !== undefined ? { min } : {})}
+                  {...(!optional && { required: true })}
+
                 />
               </div>
             ))}
+            {/* Gender Select Field */}
+            <div className="relative">
+              <label className="block text-gray-600 font-medium mb-2">
+                Gender
+              </label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="pl-3 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
           </div>
 
           <button
