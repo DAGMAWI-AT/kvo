@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { FaEye, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -8,8 +9,19 @@ const AllCsoReports = () => {
   const [allReport, setAllReport] = useState([]);
   const [csoNames, setCsoNames] = useState({}); // Maps registration_id to csoName
   const [categories, setCategories] = useState({}); // Maps category_id to category_name
+    const [loading, setLoading] = useState(true);
+  
   const reportsPerPage = 5;
   const navigate = useNavigate();
+
+  const statusColors = {
+    new: "bg-blue-100 text-blue-700",
+    approve: "bg-green-100 text-green-700",
+    inprogress: "bg-orange-100 text-orange-700",
+    pending: "bg-yellow-100 text-yellow-700",
+    reject: "bg-red-100 text-red-700",
+    rejected: "bg-red-100 text-red-700",
+  };
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -66,6 +78,8 @@ const AllCsoReports = () => {
         //   text: "Failed to fetch reports. Please try again later.",
         //   confirmButtonColor: "#d33",
         // });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -88,6 +102,35 @@ const AllCsoReports = () => {
   const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
   const totalPages = Math.ceil(filteredReports.length / reportsPerPage);
 
+  const handleDelete = useCallback(async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to recover this report!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:5000/api/report/${id}`, {
+          method: "DELETE",
+        });
+  
+        if (response.ok) {
+          Swal.fire("Deleted!", "The report has been deleted.", "success");
+          setAllReport((prevReports) => prevReports.filter((item) => item.id !== id));
+        } else {
+          Swal.fire("Error!", "Failed to delete the report.", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error!", "Something went wrong.", "error");
+      }
+    }
+  }, []);
+  
   const handleView = (report) => {
     navigate(`/admin/show_report/${report.id}`);
   };
@@ -103,7 +146,13 @@ const AllCsoReports = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-4 font-sans">
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -146,7 +195,7 @@ const AllCsoReports = () => {
                   <td className="border border-gray-300 px-4 py-2">
                       {report.report_file && report.report_file.endsWith(".pdf") ? (
                         <embed
-                          src={`http://localhost:5000/user_report/${report.report_file}`}
+                          src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
                           type="application/pdf"
                           className="max-h-10 max-w-10"
                           onError={(e) => {
@@ -159,24 +208,36 @@ const AllCsoReports = () => {
                       ) : (
                         <img
                           className="max-h-10 max-w-10"
-                          src={`http://localhost:5000/user_report/${report.report_file}`}
+                          src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
                           alt={report.pdfFile}
                         />
                       )}
                     </td>
-                  <td className="px-4 py-2 border-b border-gray-200">
-                    <span className={`px-2 py-1 text-sm rounded-full ${report.status === "Approved" ? "bg-green-100 text-green-700" : report.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
+                    <td className="px-4 py-2 border-b border-gray-200">
+                    <span
+                      className={`px-2 py-1 text-sm rounded-full ${
+                        statusColors[report.status.toLowerCase()] ||
+                        "bg-gray-100 text-gray-700"
+                      }`}
+                    >
                       {report.status}
                     </span>
                   </td>
-                  <td className="px-4 py-2 border-b border-gray-200">
-                    <button
-                      onClick={() => handleView(report)}
-                      className="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 transition-colors"
-                    >
-                      View
-                    </button>
-                  </td>
+                  <td className="px-4 py-2 border border-gray-200 whitespace-nowrap gap-2">
+  <button
+    onClick={() => handleView(report)}
+    className="bg-blue-500 text-white py-1 px-3 rounded-lg hover:bg-blue-600 mr-2"
+  >
+    <FaEye/>
+  </button>
+  <button
+    onClick={() => handleDelete(report.id)}
+    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600"
+  >
+    <FaTrashAlt />
+  </button>
+</td>
+
                 </tr>
               ))}
             </tbody>

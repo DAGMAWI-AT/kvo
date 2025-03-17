@@ -1,59 +1,175 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { FaEdit, FaEye, FaTrashAlt } from "react-icons/fa";
+import { FaEdit, FaEye, FaTrashAlt, FaSort } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
-import { ClipLoader } from "react-spinners"; // Import a spinner library
+import { ClipLoader } from "react-spinners";
 import Swal from "sweetalert2";
+import styled from "styled-components";
+import debounce from "lodash.debounce";
+import axios from "axios";
+
+// Environment Variables
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
+// Styled Components for CSS-in-JS
+const TableContainer = styled.div`
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+`;
+
+const StatusBadge = styled.span`
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  ${({ status }) =>
+    status === "approve"
+      ? "background: #dcfce7; color: #16a34a;"
+      : status === "reject"
+      ? "background: #fee2e2; color: #dc2626;"
+      : status === "pending"
+      ? "background: #fef9c3; color: #ca8a04;"
+      : status === "inprogress"
+      ? "background: #dbeafe; color: #2563eb;"
+      : "background: #f3f4f6; color: #4b5563;"}
+`;
 
 const WorkReport = () => {
   const navigate = useNavigate();
   const [report, setReport] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [dataLoaded, setDataLoaded] = useState(false); // State to track if data is fully loaded
-  const [categoryMap, setCategoryMap] = useState(new Map()); // Map to store category details
-  const itemsPerPage = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
-  const currentDate = new Date();
+  const [loading, setLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ field: null, direction: "asc" });
+  const [filters, setFilters] = useState({
+    search: "",
+    startDate: null,
+    endDate: null,
+  });
+  const [pagination, setPagination] = useState({
+    pageSize: 10,
+    currentPage: 1,
+  });
 
-  const filteredReports = Array.isArray(report)
-    ? report.filter((item) =>
-        item.report_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
 
-  const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
-  const currentData = filteredReports.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+
+  // Fetch all reports
+  const fetchProfileData = useCallback(async () => {
+    try {
+      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        withCredentials: true,
+      });
+      if (!meResponse.data.success) {
+        throw new Error(`${meResponse.statusText}`);
+      }
+      const { id } = meResponse.data;
+      if (!id) throw new Error(`${meResponse.statusText}`);
+      // console.log(id)
+      const response = await fetch(`${API_BASE_URL}/api/report/user/${id}`);
+  
+      const data = await response.json();
+  
+      // Check if data is empty or null
+      if (!data?.data || data.data.length === 0) {
+        setReport([]); // Set report to an empty array
+        return; // Exit the function without showing SweetAlert
+      }
+      setReport(data.data);
+
+      if (!response.ok) throw new Error(`${response.statusText}`);
+
+      // Set report data
+    } catch (error) {
+      // Show SweetAlert only for actual fetch errors
+      if (error.message === "Failed to fetch internal connection") {
+        Swal.fire("Error!", error.message, "error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProfileData();
+  }, [fetchProfileData]);
+
+  // Sorting functionality
+  const sortedReports = useMemo(() => {
+    return [...report].sort((a, b) => {
+      if (!sortConfig.field) return 0;
+      if (a[sortConfig.field] < b[sortConfig.field]) return sortConfig.direction === "asc" ? -1 : 1;
+      if (a[sortConfig.field] > b[sortConfig.field]) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [report, sortConfig]);
+
+  // Filtering functionality with debounced search
+  const filteredReports = useMemo(() => {
+    return sortedReports.filter((item) => {
+      const matchesSearch = item.report_name?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        item.category_name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        item.status?.toLowerCase().includes(filters.search.toLowerCase());
+
+      const withinDateRange =
+        (!filters.startDate || new Date(item.created_at) >= filters.startDate) &&
+        (!filters.endDate || new Date(item.created_at) <= filters.endDate);
+
+      return matchesSearch && withinDateRange;
+    });
+  }, [sortedReports, filters]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredReports.length / pagination.pageSize);
+  const currentData = useMemo(() => {
+    return filteredReports.slice(
+      (pagination.currentPage - 1) * pagination.pageSize,
+      pagination.currentPage * pagination.pageSize
+    );
+  }, [filteredReports, pagination]);
+
+  // Handle sorting
+  const handleSort = useCallback((field) => {
+    setSortConfig((prev) => ({
+      field,
+      direction: prev.field === field && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  }, []);
+
+  // Handle filter changes with debouncing
+  const handleFilterChange = useCallback(
+    debounce((e) => {
+      const { name, value } = e.target;
+      setFilters((prev) => ({ ...prev, [name]: value }));
+    }, 300),
+    []
   );
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  // Handle date changes
+  const handleDateChange = useCallback((date, field) => {
+    setFilters((prev) => ({ ...prev, [field]: date }));
+  }, []);
 
-  const handlePrevious = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+  // Handle page size changes
+  const handlePageSizeChange = useCallback((e) => {
+    setPagination((prev) => ({
+      ...prev,
+      pageSize: Number(e.target.value),
+      currentPage: 1,
+    }));
+  }, []);
 
-  const isExpired = (expireDate) => {
-    if (!expireDate) return false; // If no expiry date, assume not expired
-    return new Date(expireDate) < currentDate;
-  };
-
-  const handleViewReport = (id) => {
+  // Handle viewing a report
+  const handleViewReport = useCallback((id) => {
     navigate(`/user/viewworkreport/${id}`);
-  };
+  }, [navigate]);
 
-  const handleUploadReport = () => {
-    navigate(`/user/upload_report`);
-  };
-
-  const handleUpdateReport = (id) => {
+  // Handle updating a report
+  const handleUpdateReport = useCallback((id) => {
     navigate(`/user/update_report/${id}`);
-  };
+  }, [navigate]);
 
-  const handleDelete = async (id) => {
+  // Handle deleting a report
+  const handleDelete = useCallback(async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to delete this!",
@@ -63,13 +179,13 @@ const WorkReport = () => {
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
     });
-  
+
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:5000/api/report/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/report/${id}`, {
           method: "DELETE",
         });
-  
+
         if (response.ok) {
           Swal.fire("Deleted!", "Your report has been deleted.", "success");
           setReport((prevReports) => prevReports.filter((item) => item.id !== id));
@@ -80,273 +196,215 @@ const WorkReport = () => {
         Swal.fire("Error!", "Something went wrong.", "error");
       }
     }
-  };
-  
-  // Fetch category details for a given category_id
-  const fetchCategoryDetails = async (categoryId) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/reportCategory/${categoryId}`
-      );
-      if (response.ok) {
-        const jsonData = await response.json();
-        return jsonData; // Return category details
-      } else {
-        console.error("Failed to fetch category data");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching category data:", error);
-      return null;
-    }
-  };
-
-  // Fetch all reports and their category details
-  const fetchProfileData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        setLoading(false); // Stop loading if no token
-        return;
-      }
-
-      const decodedToken = jwtDecode(token);
-      const { registrationId } = decodedToken;
-
-      if (!registrationId) {
-        console.error("Invalid token: registrationId not found");
-        setLoading(false); // Stop loading if registrationId is missing
-        return;
-      }
-
-      const response = await fetch(
-        `http://localhost:5000/api/report/${registrationId}`
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.data) {
-          setReport(data.data);
-
-          // Fetch category details for each report
-          const categoryDetailsMap = new Map();
-          for (const item of data.data) {
-            const categoryId = item.category_id;
-            if (categoryId && !categoryDetailsMap.has(categoryId)) {
-              const categoryDetails = await fetchCategoryDetails(categoryId);
-              if (categoryDetails) {
-                categoryDetailsMap.set(categoryId, categoryDetails);
-              }
-            }
-          }
-
-          setCategoryMap(categoryDetailsMap); // Store category details in a Map
-        } else {
-          console.error("Unexpected profile response format:", data);
-        }
-      } else {
-        console.error("Failed to fetch profile data");
-      }
-    } catch (error) {
-      console.error("Error fetching profile data:", error);
-    } finally {
-      setLoading(false); // Stop loading after fetching data
-      setDataLoaded(true); // Mark data as fully loaded
-    }
-  };
-
-  useEffect(() => {
-    fetchProfileData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <ClipLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-2">
+    <div className="p-1 lg:p-4 bg-gray-50 min-h-screen">
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-400 font-serif">
-          Work Report
-        </h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 className="text-2xl font-bold text-gray-800">Work Reports</h1>
         <button
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
-          onClick={handleUploadReport}
+          onClick={() => navigate("/user/upload_report")}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
         >
-          + Add Report
+          <span>+ New Report</span>
         </button>
       </div>
 
-      {/* Search Section */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search"
-          className="border border-gray-300 rounded px-2 py-2 lg:w-60 md:w-40 w-40 focus:outline-none focus:ring focus:ring-blue-300"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Filters Section */}
+      <div className="bg-white p-1 lg:p-4 rounded-lg shadow-sm mb-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          {/* Search Filter */}
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Search Reports
+            </label>
+            <input
+              type="text"
+              name="search"
+              placeholder="Search reports..."
+              className="w-60 px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              onChange={handleFilterChange}
+            />
+          </div>
+
+          {/* Date Filter */}
+          <div className="flex space-x-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                onChange={(e) => handleDateChange(new Date(e.target.value), "startDate")}
+                className="w-40 px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                End Date
+              </label>
+              <input
+                type="date"
+                onChange={(e) => handleDateChange(new Date(e.target.value), "endDate")}
+                className="w-40 px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border-collapse border border-gray-300 bg-white box-decoration-slice shadow-2xl shadow-blue-gray-900">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 p-2">ID</th>
-              <th className="border border-gray-300 p-2">Report name</th>
-              <th className="border border-gray-300 p-2">Type</th>
-              <th className="border border-gray-300 p-2">Comment</th>
-              <th className="border border-gray-300 p-2">File</th>
-              <th className="border border-gray-300 p-2">Status</th>
-              <th className="border border-gray-300 p-2">Expire date</th>
-              <th className="border border-gray-300 p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? ( // Show loader if data is being fetched
+      <TableContainer>
+        <div className="flex justify-between items-center p-4 border-b">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">Show:</span>
+            <select
+              value={pagination.pageSize}
+              onChange={handlePageSizeChange}
+              className="px-3 py-2 border rounded-md focus:ring-2 focus:ring-indigo-500"
+            >
+              {[10, 20, 30, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size} entries
+                </option>
+              ))}
+            </select>
+          </div>
+          <span className="text-sm text-gray-600">
+            Showing {((pagination.currentPage - 1) * pagination.pageSize) + 1} to{" "}
+            {Math.min(pagination.currentPage * pagination.pageSize, filteredReports.length)} of{" "}
+            {filteredReports.length} entries
+          </span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
               <tr>
-                <td colSpan="8" className="text-center p-4">
-                  <div className="flex justify-center items-center">
-                    <ClipLoader color="#4A90E2" size={30} /> {/* Circular loader */}
-                  </div>
-                </td>
+                {["ID", "Report Name", "Type", "Status", "Expiry Date", "Actions"].map((header) => (
+                  <th
+                    key={header}
+                    className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                    onClick={() => header !== "Actions" && handleSort(header.toLowerCase().replace(" ", "_"))}
+                  >
+                    <div className="flex items-center gap-2">
+                      {header}
+                      {sortConfig.field === header.toLowerCase().replace(" ", "_") && (
+                        <FaSort className={`transform ${sortConfig.direction === "desc" ? "rotate-180" : ""}`} />
+                      )}
+                    </div>
+                  </th>
+                ))}
               </tr>
-            ) : currentData.length > 0 ? ( // Show data if available
-              currentData.map((item, i) => {
-                const categoryDetails = categoryMap.get(item.category_id);
+            </thead>
+
+            <tbody className="divide-y divide-gray-200">
+              {currentData.map((item, index) => {
+                const isExpired = new Date(item.expire_date) < new Date();
+
                 return (
-                  <tr key={item.id}>
-                    <td className="border-b border-gray-300 p-2 text-center">
-                      {i + 1 + (currentPage - 1) * itemsPerPage}
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-700">
+                      {(pagination.currentPage - 1) * pagination.pageSize + index + 1}
                     </td>
-                    <td className="border-b border-gray-300 p-2">
-                      {item.report_name}
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.report_name}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">{item.category_name || "N/A"}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={item.status}>{item.status}</StatusBadge>
                     </td>
-                    <td className="border-b border-gray-300 p-2 text-center">
-                      {categoryDetails?.category_name || "N/A"}
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {/* {category?.expire_date ? new Date(category.expire_date).toLocaleDateString() : "N/A"} */}
+                       {new Date(item.expire_date).toLocaleDateString()}
                     </td>
-                    <td className="border-b border-gray-300 p-2">
-                      {item.comment}
-                    </td>
-                    <td className="border-b border-gray-300 p-2">
-                      {item.report_file && item.report_file.endsWith(".pdf") ? (
-                        <embed
-                          src={`http://localhost:5000/user_report/${item.report_file}`}
-                          type="application/pdf"
-                          className="max-h-10 max-w-10"
-                          onError={(e) => {
-                            console.error("Failed to load the file", e);
-                            alert("The file could not be loaded. Please try again later.");
-                          }}
-                        />
-                      ) : (
-                        <img
-                          className="max-h-10 max-w-10"
-                          src={`http://localhost:5000/user_report/${item.report_file}`}
-                          alt={item.report_file}
-                        />
-                      )}
-                    </td>
-                    <td className="border-b border-gray-300 p-2 text-center">
-                      <span
-                        className={`px-2 py-1 rounded ${
-                          item.remark === "Approved"
-                            ? "bg-green-100 text-green-800"
-                            : item.remark === "Pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : item.remark === "Rejected"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="border-b border-gray-300 p-2 text-center">
-                      {new Date(categoryDetails?.expire_date).toLocaleString()
-                      }
-                    </td>
-                    <td className="border-b border-gray-300 p-2 flex justify-around">
+                    <td className="px-4 py-3 flex gap-2">
                       <button
-                        className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700"
                         onClick={() => handleViewReport(item.id)}
+                        className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
                       >
-                        <FaEye />
+                        <FaEye className="w-5 h-5" />
                       </button>
-                      {dataLoaded && ( // Only show Edit and Delete buttons after data is fully loaded
-                        <>
-                          <button
-                            className={`${
-                              isExpired(categoryDetails?.expire_date)
-                                ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
-                                : "bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-700"
-                            }`}
-                            onClick={() =>
-                              !isExpired(categoryDetails?.expire_date) &&
-                              handleUpdateReport(item.id)
-                            }
-                            disabled={isExpired(categoryDetails?.expire_date)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            className={`${
-                              isExpired(categoryDetails?.expire_date)
-                                ? "bg-gray-300 text-gray-600 px-2 py-1 rounded cursor-not-allowed"
-                                : "bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                            }`}
-                            onClick={() =>
-                              !isExpired(categoryDetails?.expire_date) &&
-                              (handleDelete(item.id))
-                            }
-                            disabled={isExpired(categoryDetails?.expire_date)}
-                          >
-                            <FaTrashAlt />
-                          </button>
-                        </>
-                      )}
+                      <button
+                        onClick={() => !isExpired && handleUpdateReport(item.id)}
+                        className={`p-2 rounded-lg ${
+                          isExpired ? "text-gray-400 cursor-not-allowed" : "text-yellow-600 hover:bg-yellow-50"
+                        }`}
+                        disabled={isExpired}
+                      >
+                        <FaEdit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => !isExpired && handleDelete(item.id)}
+                        className={`p-2 rounded-lg ${
+                          isExpired ? "text-gray-400 cursor-not-allowed" : "text-red-600 hover:bg-red-50"
+                        }`}
+                        disabled={isExpired}
+                      >
+                        <FaTrashAlt className="w-5 h-5" />
+                      </button>
                     </td>
                   </tr>
                 );
-              })
-            ) : ( // Show "No reports found" if no data is available
-              <tr>
-                <td colSpan="8" className="text-center p-4">
-                  No reports found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              })}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <button
-          className={`px-4 py-2 rounded ${
-            currentPage === 1
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
-          onClick={handlePrevious}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </button>
-        <span className="text-gray-700">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          className={`px-4 py-2 rounded ${
-            currentPage === totalPages
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-700"
-          }`}
-          onClick={handleNext}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+        {/* Pagination */}
+        <div className="flex justify-between items-center p-4 border-t">
+          <button
+            onClick={() =>
+              setPagination((prev) => ({ ...prev, currentPage: prev.currentPage - 1 }))
+            }
+            disabled={pagination.currentPage === 1}
+            className={`px-4 py-2 rounded-md ${
+              pagination.currentPage === 1
+                ? "bg-gray-100 text-gray-400"
+                : "bg-white text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Previous
+          </button>
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, currentPage: i + 1 }))
+                }
+                className={`px-3 py-1 rounded-md ${
+                  pagination.currentPage === i + 1
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() =>
+              setPagination((prev) => ({ ...prev, currentPage: prev.currentPage + 1 }))
+            }
+            disabled={pagination.currentPage === totalPages}
+            className={`px-4 py-2 rounded-md ${
+              pagination.currentPage === totalPages
+                ? "bg-gray-100 text-gray-400"
+                : "bg-white text-gray-700 hover:bg-gray-50"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </TableContainer>
     </div>
   );
 };

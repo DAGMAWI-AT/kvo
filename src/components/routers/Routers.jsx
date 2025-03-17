@@ -17,7 +17,6 @@ import Category from "../admin/reportCategory/Category";
 import ExpireDate from "../admin/expireDate/ExpireDate";
 import Csos from "../admin/cso/Csos";
 import EachCso from "../admin/cso/each/EachCso";
-import YearlyReport from "../admin/cso/reports/yearly/YearlyReport";
 import Users from "../admin/users/Users";
 import UploadCategory from "../admin/reportCategory/UploadCategory";
 import EditCategory from "../admin/reportCategory/EditCategory";
@@ -33,7 +32,6 @@ import News from "../news/News";
 import Abouts from "../about/Abouts";
 import Meeting from "../admin/webContent/meeting/Meeting";
 import AddMeeting from "../admin/webContent/meeting/AddMeeting";
-import QuarterlyReport from "../admin/cso/reports/quarterly/QuarterlyReport";
 import EditMeeting from "../admin/webContent/meeting/EditMeeting";
 import ViewMeeting from "../admin/webContent/meeting/ViewMeeting";
 import Contact from "../contact/Contact";
@@ -57,6 +55,20 @@ import BeneficiaryList from "../admin/beneficiary/BeneficiaryList";
 import ViewBeneficiary from "../admin/beneficiary/ViewBeneficiary";
 import EditBeneficiary from "../admin/beneficiary/EditBeneficiary";
 import AddBeneficiary from "../admin/beneficiary/AddBeneficiary";
+import Notifications from "../user/notifications/Notifications";
+import Notification from "../admin/notifications/Notifications";
+import CreateProjectProposal from "../admin/file/CreateProjectProposal";
+import ListProjectProposal from "../admin/file/ListProjectProposal";
+import ViewProject from "../admin/file/ViewProject";
+import EditProject from "../admin/file/EditProject";
+import StaffRegistration from "../admin/auth/StaffRegistration";
+import EmailVerification from "../admin/auth/EmailVerification";
+import Login from "../admin/auth/Login";
+import ForgotPasswordStaff from "../admin/auth/ForgotPassword";
+import ResetPasswordStaff from "../admin/auth/ResetPassword";
+import LetterManagement from "../letterManagement/LetterManagement";
+
+
 
 const Routers = createBrowserRouter([
   {
@@ -113,12 +125,6 @@ const Routers = createBrowserRouter([
       {
         path: "viewworkreport/:id",
         element: <ViewWorkReport />,
-        loader: async ({ params }) =>
-          fetch(`http://localhost:5000/api/report/byId/${params.id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is sent
-            },
-          }).then((res) => res.json()),
       },
       
       {
@@ -145,6 +151,10 @@ const Routers = createBrowserRouter([
         path: "edit_user_password",
         element: <EditUserPassword />,
       },
+      {
+        path: "notifications",
+        element: <Notifications />,
+      },
 
     ],
   },
@@ -152,10 +162,11 @@ const Routers = createBrowserRouter([
   {
     path: "/admin",
     // <PrivateRoute><AdminLayout /></PrivateRoute>
-    element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
+    // element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
+    element:<PrivateRoute roleRequired={["admin", "sup_admin"]} element={<AdminLayout />} />,
     children: [
       {
-        path: "/admin/dashboard",
+        path: "dashboard",
         element: <AdminDashboard />,
       },
       {
@@ -260,8 +271,9 @@ const Routers = createBrowserRouter([
       },
       {
         path: "staff_register",
-        element: <StaffRegister />,
+        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffRegister />} />,
       },
+      
       {
         path: "create_userAccount",
         element: <CreateAccount />,
@@ -292,6 +304,30 @@ const Routers = createBrowserRouter([
         path: "add_beneficiary",
         element: <AddBeneficiary />,
       },
+      {
+        path: "notifications",
+        element: <Notification />,
+      },
+      {
+        path: "project",
+        element: <CreateProjectProposal />,
+      },
+      {
+        path: "listPP",
+        element: <ListProjectProposal />,
+      },
+      {
+        path: "view/:id",
+        element: <ViewProject />,
+      },
+      {
+        path: "edit/:id",
+        element: <EditProject />,
+      },
+      {
+        path: "letter",
+        element: <LetterManagement />,
+      },
     ],
   },
   //login rout
@@ -309,9 +345,29 @@ const Routers = createBrowserRouter([
     element: <ResetPassword />,
   },
   // //register rout
-  // {
-  //     path: "/user/register",
-  //     element: <SignUp />,
-  // },
+  {
+      path: "/staff/register",
+      element: <StaffRegistration />,
+  },
+  {
+    path: "/verify/:token",
+    element: <EmailVerification />,
+},
+{
+  path: "/login",
+  element: <Login />,
+},
+{
+  path: "/forgetPassword",
+  element: <ForgotPasswordStaff />,
+},
+{
+  path: "/resetPassword/:token",
+  element: <ResetPasswordStaff />,
+},
+{
+  path: "create_userAccount",
+  element: <CreateAccount />,
+},
 ]);
 export default Routers;

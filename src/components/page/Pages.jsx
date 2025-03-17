@@ -1,32 +1,36 @@
+// Pages.js
 import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Home from '../home/Home';
-import { Routes, Route } from "react-router-dom";
 import Footer from '../common/Footer';
 import Header from '../common/Header';
 import News from '../news/News';
-import Abouts from '../about/Abouts';
+import About from '../about/Abouts';
 import Contact from '../contact/Contact';
 import BlogDetails from '../news/BlogDetails';
-import Service from '../service/Service';
+import Services from '../service/Service';
 
-function Pages() {
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
-            <div style={{ flex: 1 }}> {/* Main content flex area */}
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/news" element={<News />} />
-                    <Route path="/news/blogdetails/:id" element={<BlogDetails />} />
-                    <Route path="/about" element={<Abouts />} />
-                    <Route path="/service" element={<Service />} />
+const Pages = () => {
+  return (
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
+      <Header />
+      
+      <main className="flex-1">
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/news" element={<News />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
 
-                    <Route path="/contact" element={<Contact />} />
-                </Routes>
-            </div>
-            <Footer />
-        </div>
-    );
-}
+      <Footer />
+    </div>
+  );
+};
 
 export default Pages;

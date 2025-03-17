@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -6,26 +6,17 @@ const EditCategory = () => {
   const { id } = useParams(); // Retrieve category ID from route parameters
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-  
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-
+  // Updated formatDate using ISO string to avoid timezone issues
   const formatDate = (date) => {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
+    return new Date(date).toISOString().split('T')[0];
   };
+
   // Fetch category details by ID
   useEffect(() => {
     const fetchCategory = async () => {
-
       const token = localStorage.getItem("token");
       if (!token) {
         setError("No token found. Please log in.");
@@ -33,8 +24,8 @@ const EditCategory = () => {
       }
       try {
         const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`,
-         { headers :{
-          "Authorization": `Bearer ${token}`,
+         { headers: {
+            "Authorization": `Bearer ${token}`,
           }}
         );
         if (!response.ok) {
@@ -62,8 +53,8 @@ const EditCategory = () => {
     e.preventDefault();
     const token = localStorage.getItem('token');
   
-    // Format the date to YYYY-MM-DD
-    const formattedExpireDate = new Date(category.expire_date).toISOString().split('T')[0];
+    // Format the date to YYYY-MM-DD using the new formatDate function
+    const formattedExpireDate = formatDate(category.expire_date);
   
     const payload = {
       category_name: category.category_name,
@@ -92,6 +83,7 @@ const EditCategory = () => {
       Swal.fire('Error', error.message || 'Failed to update category', 'error');
     }
   };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">

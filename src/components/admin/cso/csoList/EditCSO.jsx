@@ -11,6 +11,7 @@ import {
   FaFilePdf,
   FaFileWord
 } from 'react-icons/fa';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
 
 const EditCSO = () => {
   const { id } = useParams();
@@ -275,7 +276,7 @@ const EditCSO = () => {
               </label>
               {formData.tin_certificate && (
                 <a
-                  href={formData.tin_certificate}
+                  href={`${API_BASE_URL}/${formData.tin_certificate}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline block mb-2"
@@ -285,7 +286,7 @@ const EditCSO = () => {
               )}
               <input
                 type="file"
-                accept=".pdf,.doc,.docx"
+                accept="image/*, application/pdf"
                 onChange={(e) => handleFileChange(e, setTinCertificateFile)}
                 className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />
@@ -298,7 +299,7 @@ const EditCSO = () => {
               </label>
               {formData.registration_certificate && (
                 <a
-                  href={formData.registration_certificate}
+                  href={`${API_BASE_URL}/${formData.registration_certificate}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline block mb-2"
@@ -308,7 +309,7 @@ const EditCSO = () => {
               )}
               <input
                 type="file"
-                accept=".pdf,.doc,.docx"
+                accept="image/*, application/pdf"
                 onChange={(e) => handleFileChange(e, setRegistrationCertificateFile)}
                 className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
               />

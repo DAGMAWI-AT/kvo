@@ -209,3 +209,16 @@ export const newArticles = [
       list: "Scientific Skills For getting a better result,Communication Skills to getting in touch",
     },
   ];
+
+  export const navLinks = [
+    { text: "Home", path: "/" },
+    { text: "About", path: "/about" },
+    { text: "Services", path: "/service" },
+    { text: "News", path: "/news" },
+  
+    { text: "All CSAs", path: "/csas" },
+    { text: "Contact", path: "/contact" },
+  
+    { text: "Login", path: "/user/login" },
+  ];
+  

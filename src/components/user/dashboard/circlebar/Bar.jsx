@@ -1,39 +1,81 @@
-import React from "react";
-import { FaEnvelopeSquare, FaRProject, FaTasks, FaTruckLoading } from "react-icons/fa";
-import "./Bar.css"; // Ensure your CSS file is imported
+import React, { useState, useEffect } from "react";
+import { FaCheckCircle, FaClock, FaTimesCircle, FaPlusCircle, FaSpinner } from "react-icons/fa";
+import axios from "axios";
 
 const Bar = ({ darkMode }) => {
-  // Data for the report bars
+  const [statusCounts, setStatusCounts] = useState({
+    approve: 0,
+    pending: 0,
+    reject: 0,
+    new: 0,
+    inprogress: 0,
+    total: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchStatusCounts = async () => {
+      try {
+       const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+               withCredentials: true,
+             });
+             if (!meResponse.data.success) {
+               throw new Error("Failed to get user details");
+             }
+             const { id } = meResponse.data;
+        if (!id) throw new Error("Invalid token: ID not found");
+
+        const response = await axios.get(`http://localhost:5000/api/report/status-counts/${id}`);
+
+        if (response.data) {
+          setStatusCounts(response.data);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (error) {
+        console.error("Error fetching status counts:", error);
+        setError("Failed to load data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatusCounts();
+  }, []);
+
   const reports = [
-    { title: "Approval Report", progress: "10/50", icons: <FaRProject /> },
-    { title: "Pending Approvals", progress: "5/20", icons: <FaTruckLoading /> },
-    { title: "Completed Tasks", progress: "25/25", icons: <FaEnvelopeSquare /> },
-    { title: "Open Tasks", progress: "15/40", icons: <FaTasks /> },
+    { title: "Approved Requests", count: statusCounts.approve, icon: <FaCheckCircle className="text-green-500" /> },
+    { title: "Pending Approvals", count: statusCounts.pending, icon: <FaClock className="text-yellow-500" /> },
+    { title: "Rejected Requests", count: statusCounts.reject, icon: <FaTimesCircle className="text-red-500" /> },
+    { title: "New Requests", count: statusCounts.new, icon: <FaPlusCircle className="text-blue-500" /> },
+    { title: "In Progress", count: statusCounts.inprogress, icon: <FaSpinner className="text-purple-500" /> },
   ];
 
   return (
-    <div
-      className={`flex flex-col justify-between md:flex-row lg:flex-row gap-4 mx-auto p-2`}
-    >
-      {reports.map((report, index) => (
-        <div
-          key={index}
-          className={`flex flex-col justify-between items-start p-5 w-64 h-40 rounded-xl shadow-lg hover:scale-105 transition-transform duration-200 ${
-            darkMode ? "dark" : "light"
-          }`}
-        >
-          {/* Icon */}
-          <div className="text-blue-500 text-2xl mb-3">{report.icons}</div>
+    <div className="container mx-auto p-4">
+      <h2 className="text-xl font-bold text-center text-gray-400 uppercase mb-6">Request Status Overview</h2>
 
-          {/* Title */}
-          <h1 className="text-lg font-extrabold mb-2">{report.title}</h1>
-
-          {/* Progress */}
-          <span className="text-2xl font-bold text-blue-600">
-            {report.progress}
-          </span>
+      {/* {loading ? (
+        // <p className="text-center text-gray-500">Loading...</p>
+      ) : error ? (
+        <p className="text-center text-red-500">{error}</p>
+      ) : ( */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          {reports.map((report, index) => (
+            <div
+              key={index}
+              className={`flex flex-col items-center justify-center p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105 ${
+                darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+              }`}
+            >
+              <div className="text-4xl mb-3">{report.icon}</div>
+              <h3 className="text-sm font-semibold mb-2">{report.title}</h3>
+              <span className="text-xl font-bold">{report.count} / {statusCounts.total}</span>
+            </div>
+          ))}
         </div>
-      ))}
+      {/* )} */}
     </div>
   );
 };

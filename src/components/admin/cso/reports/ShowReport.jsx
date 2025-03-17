@@ -17,12 +17,17 @@ const ShowReport = () => {
   const [commentData, setCommentData] = useState([]);
   const [categories, setCategories] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [statusSuccessMessage, setStatusSuccessMessage] = useState("");
   const [error, setError] = useState("");
+  const [statusError, setStatusError] = useState("");
+
   const [authors, setAuthorName] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
-  const [formData, setFormData] = useState({ status: report?.status});
-
+  const [formData, setFormData] = useState({ status: report?.status });
+  const [formExpireDate, setFormExpireDate] = useState({
+    expire_date: report?.expire_date ? new Date(report.expire_date).toISOString().split('T')[0] : "",
+  });
   const visibleComments = showAll ? commentData : commentData.slice(0, 3);
 
   useEffect(() => {
@@ -54,6 +59,11 @@ const ShowReport = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  const handleChangeExpireDate = (e) => {
+    const { name, value } = e.target;
+    setFormExpireDate((prev) => ({ ...prev, [name]: value }));
+  };
+
   useEffect(() => {
     const fetchCategory = async () => {
       try {
@@ -129,7 +139,7 @@ const ShowReport = () => {
   };
 
   const handleDownload = () => {
-    const fileUrl = `http://localhost:5000/user_report/${report.report_file}`;
+    const fileUrl = `http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`;
     fetch(fileUrl)
       .then((response) => response.blob())
       .then((blob) => {
@@ -147,11 +157,20 @@ const ShowReport = () => {
   };
   const handleSubmitStatus = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) return console.error("No token found");
+
+    const decodedToken = jwtDecode(token);
+    const { registrationId } = decodedToken;
+
     const formDataToSend = new FormData();
     formDataToSend.append("status", formData.status);
+    formDataToSend.append("author_id", registrationId);
+    formDataToSend.append("registration_id", report.registration_id);
+
     try {
       const response = await fetch(
-        `http://localhost:5000/api/report/${report.id}`,
+        `http://localhost:5000/api/report/status/${report.id}`,
         {
           method: "PUT",
           body: formDataToSend,
@@ -162,14 +181,57 @@ const ShowReport = () => {
         throw new Error("Failed to update report");
       }
 
-      setSuccessMessage("Report status updated successfully!");
+      setStatusSuccessMessage("Report status updated successfully!");
       setTimeout(() => {
-        setSuccessMessage("");
+        setStatusSuccessMessage("");
         // Optionally refresh data or navigate
-      }, 2000);
+      }, 5000);
     } catch (error) {
       console.error("Error updating report status:", error);
-      alert("Failed to update report status. Please try again.");
+      setStatusError("Failed to update report status. Please try again.");
+      setTimeout(() => {
+        setStatusError("");
+        // Optionally refresh data or navigate
+      }, 2000);
+    }
+  };
+  const handleSubmitExpireDate = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    const { registrationId } = decodedToken;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/report/expire_date/${report.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            expire_date: formExpireDate.expire_date,
+            author_id: registrationId,
+            registration_id: report.registration_id,
+          }),
+        }
+      );   if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update expire date.");
+      }
+
+      setStatusSuccessMessage("Expire date updated successfully!");
+      setTimeout(() => setStatusSuccessMessage(""), 5000);
+    } catch (error) {
+      console.error("Error updating expire date:", error);
+      setStatusError(error.message || "Failed to update expire date.");
+      setTimeout(() => setStatusError(""), 5000);
     }
   };
   if (!report) {
@@ -206,8 +268,18 @@ const ShowReport = () => {
 
         {/* Report Details */}
         <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
+          {statusError && (
+            <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg">
+              {statusError}
+            </div>
+          )}
+          {statusSuccessMessage && (
+            <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg">
+              {statusSuccessMessage}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg">
               <form onSubmit={handleSubmitStatus}>
                 <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
                   Update Status
@@ -219,13 +291,10 @@ const ShowReport = () => {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="pending">Pending</option>
-                  <option value="new">new</option>
+                  <option value="new">New</option>
                   <option value="inprogress">Inprogress</option>
-                  <option value="approved">Approved</option>
+                  <option value="approve">Approved</option>
                   <option value="reject">Rejected</option>
-
-
-
                 </select>
                 <button
                   type="submit"
@@ -235,7 +304,26 @@ const ShowReport = () => {
                 </button>
               </form>
             </div>
-
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <form onSubmit={handleSubmitExpireDate}>
+                <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                  Update Expire Date
+                </h3>
+                <input
+                  type="date"
+                  name="expire_date"
+                  value={formExpireDate.expire_date}
+                  onChange={handleChangeExpireDate}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="submit"
+                  className="mt-4 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+                >
+                  Update Expire Date
+                </button>
+              </form>
+            </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
                 Submitted
@@ -272,7 +360,29 @@ const ShowReport = () => {
               </h3>
               <p className="text-gray-900 font-medium">{categories}</p>
             </div>
-
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
+                Expire Date
+              </h3>
+              <p
+                className={`text-gray-900 font-medium ${
+                  new Date(report.expire_date) < new Date()
+                    ? "text-red-600" // Expired
+                    : new Date(report.expire_date) <
+                      new Date(new Date().setDate(new Date().getDate() + 3))
+                    ? "text-yellow-600" // Expiring in less than 3 days
+                    : "text-green-600" // Not expired
+                }`}
+              >
+                {new Date(report.expire_date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
             <div className="md:col-span-2 xl:col-span-4 pt-6">
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wider">
@@ -285,6 +395,7 @@ const ShowReport = () => {
             </div>
           </div>
         </div>
+        
         {/* File Section */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -305,7 +416,7 @@ const ShowReport = () => {
               <span>Download File</span>
             </button>
             <a
-              href={`http://localhost:5000/user_report/${report.report_file}`}
+              href={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg"
@@ -319,7 +430,7 @@ const ShowReport = () => {
           {showFile && (
             <div className="mt-6">
               <embed
-                src={`http://localhost:5000/user_report/${report.report_file}`}
+                src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
                 type="application/pdf"
                 className="w-full min-h-[500px] rounded-lg shadow-md"
               />

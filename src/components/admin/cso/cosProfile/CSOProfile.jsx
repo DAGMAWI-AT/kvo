@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import { FaFileAlt, FaDownload, FaChevronDown } from "react-icons/fa";
+import { FaFileAlt, FaDownload, FaChevronDown, FaUserAlt } from "react-icons/fa";
 
 const CSOProfile = () => {
   const { id } = useParams();
@@ -8,6 +8,7 @@ const CSOProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -90,11 +91,17 @@ const CSOProfile = () => {
       <div className="bg-white p-8 rounded-xl shadow-lg">
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-          <img
-            src={profileData.logo}
-            alt="logo"
-            className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
-          />
+        {!imgError && profileData.logo ? (
+        <img
+          src={`http://localhost:5000/${profileData.logo}`}
+          alt="Profile logo"
+          onError={() => setImgError(true)}
+          className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+        />
+      ) : (
+        <FaUserAlt className="w-24 h-24 text-green-300" />
+      )}
+    
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold text-gray-800">
               {profileData.csoName}
@@ -137,10 +144,10 @@ const CSOProfile = () => {
                 className="w-full appearance-none bg-white border-2 border-gray-200 rounded-xl py-3 px-4 pr-10 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">Select a document to view</option>
-                <option value={profileData.tin_certificate}>
+                <option value={`http://localhost:5000/${profileData.tin_certificate}`}>
                   Tax Identification Certificate
                 </option>
-                <option value={profileData.registration_certificate}>
+                <option value={`http://localhost:5000/${profileData.registration_certificate}`}>
                   Registration Certificate
                 </option>
               </select>

@@ -1,129 +1,64 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import { Link, useNavigate } from "react-router-dom";
-import "./Signin.css";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-// import jwt_decode from "jwt-decode";
 
 const Signin = () => {
   const [registrationId, setRegistrationId] = useState("");
-  const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState(""); // For displaying messages
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // Track loading state
   const navigate = useNavigate();
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const response = await axios.post("http://localhost:8000/user/login",
-  //       // const response = await axios.post("https://finance-office.onrender.com/user/login",
-  //         {
-  //       registrationId,
-  //       password,
-  //     });
-
-  //     // Log full server response for debugging
-  //     // console.log("Server response:", response.data);
-
-  //     if (response.data.success) {
-  //       const { token } = response.data;
-
-  //       // Save the token in localStorage
-  //       localStorage.setItem("token", token);
-
-  //       // Decode token to extract role
-  //       const decoded = jwtDecode(token);
-
-  //       if (!decoded || !decoded.role) {
-  //         setMessage("Failed to retrieve role from the token.");
-  //         return;
-  //       }
-
-  //       const { role } = decoded;
-
-  //       // Navigate based on role
-  //       if (role === "admin") {
-  //         navigate("/admin/dashboard");
-  //       } else if (role === "cso") {
-  //         navigate("/user/dashboard");
-  //       } else {
-  //         setMessage("Unknown role: " + role);
-  //       }
-  //     } else {
-  //       setMessage(response.data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during login:", error);
-  //     setMessage(
-  //       error.response?.data?.message || "An unexpected error occurred."
-  //     );
-  //   }
-  // };
+  axios.defaults.withCredentials = true;
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading animation
+    setMessage("");
 
     try {
-      // const response = await axios.post("http://localhost:8000/user/login", {
-      const response = await axios.post(
+      const loginResponse = await axios.post(
         "http://localhost:5000/api/users/login",
-        {
-          registrationId,
-          email,
-          password,
-        }
+        { registrationId, email, password },
+        { withCredentials: true }
       );
 
-      if (response.data.success) {
-        const { token } = response.data;
+      if (loginResponse.data.success) {
+        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+          withCredentials: true,
+        });
 
-        // Save token and expiration time in localStorage
-        const decoded = jwtDecode(token);
-        const expirationTime = decoded.exp * 1000; // Convert to milliseconds
-        localStorage.setItem("token", token);
-        // localStorage.setItem("tokenExpiry", expirationTime);
-
-        // Set auto logout timer
-        setTimeout(() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("expirationTime");
-          navigate("/user/login");
-        }, expirationTime - Date.now());
-
-        // Redirect based on role
-        const { role } = decoded;
-        if (role === "admin") {
-          navigate("/admin/dashboard");
-        } else if (role === "cso") {
-          navigate("/user/dashboard");
+        if (meResponse.data.success) {
+          const { role } = meResponse.data;
+          if (role === "admin") {
+            navigate("/admin/dashboard");
+          } else if (role === "cso") {
+            navigate("/user/dashboard");
+          } else {
+            setMessage("Unknown role: " + role);
+          }
         } else {
-          setMessage("Unknown role: " + role);
+          setMessage("Failed to fetch user details.");
         }
       } else {
-        setMessage(response.data.message);
+        setMessage(loginResponse.data.message);
       }
     } catch (error) {
       console.error("Error during login:", error);
-      setMessage(
-        error.response?.data?.message || "An unexpected error occurred."
-      );
+      setMessage(error.response?.data?.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false); // Stop loading animation
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-blue-300 to-blue-500">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
-          Login
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label
-              htmlFor="registrationId"
-              className="block text-gray-600 font-medium mb-1"
-            >
+            <label htmlFor="registrationId" className="block text-gray-600 font-medium mb-1">
               Registration ID
             </label>
             <input
@@ -137,27 +72,21 @@ const Signin = () => {
             />
           </div>
           <div>
-            <label
-              htmlFor="registrationId"
-              className="block text-gray-600 font-medium mb-1"
-            >
+            <label htmlFor="email" className="block text-gray-600 font-medium mb-1">
               Email
             </label>
             <input
-              type="text"
+              type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your registration ID"
+              placeholder="Enter your email"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-gray-600 font-medium mb-1"
-            >
+            <label htmlFor="password" className="block text-gray-600 font-medium mb-1">
               Password
             </label>
             <input
@@ -170,18 +99,31 @@ const Signin = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
+          
+          {/* Button with Loading Animation */}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            disabled={loading}
+            className={`w-full text-white font-bold py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+            }`}
           >
-            Login
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <span className="animate-spin rounded-full h-5 w-5 border-2 border-t-white border-blue-300 mr-2"></span>
+                Logging in...
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
 
-          <Link to="/forgot_password">Forgot Password?</Link>
+          <Link to="/forgot_password" className="block text-center text-blue-500 hover:underline">
+            Forgot Password?
+          </Link>
+
           {message && (
-            <p className="text-center text-red-500 font-medium mt-4">
-              {message}
-            </p>
+            <p className="text-center text-red-500 font-medium mt-4">{message}</p>
           )}
         </form>
       </div>

@@ -199,6 +199,7 @@ const ViewBeneficiary = () => {
                 Personal Information
               </h4>
               {[
+                ['Beneficiary ID', beneficiary.beneficiary_id],
                 ['Phone', beneficiary.phone],
                 ['Kebele', beneficiary.kebele],
                 ['House No', beneficiary.houseNo],

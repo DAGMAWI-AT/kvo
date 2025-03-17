@@ -1,12 +1,13 @@
-
 import React, { useEffect, useState } from "react";
 import {
   FaSortAlphaDown,
   FaSortAlphaUp,
   FaThLarge,
   FaList,
+  FaUserAlt,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router";
+import { ClipLoader } from "react-spinners";
 
 const Csos = () => {
   const navigate = useNavigate();
@@ -17,11 +18,39 @@ const Csos = () => {
   const [dateFilter, setDateFilter] = useState({ start: "", end: "" });
   const [displayMode, setDisplayMode] = useState("gallery");
   const [currentPage, setCurrentPage] = useState(1);
+  const [imgError, setImgError] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // new error state
   const itemsPerPage = 6;
   const location = useLocation();
+
+  // Scroll to top on location change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOffline = () => {
+      setError("No internet connection. Please check your connection.");
+    };
+
+    const handleOnline = () => {
+      setError(null);
+      // Optionally, you can re-fetch data when connection is restored
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    // Cleanup event listeners on unmount
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
+  // Fetch data from API
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -30,17 +59,24 @@ const Csos = () => {
           const data = await response.json();
           setCsos(data || []);
         } else {
-          console.error(
-            "Failed to fetch profile data. Response:",
-            response.status
-          );
+          setError(`Failed to fetch profile data. Status: ${response.status}`);
+          // console.error("Failed to fetch profile data. Response:", response.status);
         }
       } catch (error) {
-        console.error("Error fetching profile data:", error);
+        setError("Error fetching profile data. Please check your internet connection.");
+        // console.error("Error fetching profile data:", error);
+      }finally {
+        setLoading(false);
       }
     };
 
-    fetchProfileData();
+    // Only fetch if online
+    if (navigator.onLine) {
+      fetchProfileData();
+    } else {
+      setLoading(false);
+      setError("No internet connection. Please check your connection.");
+    }
   }, []);
 
   const handleClick = (id) => {
@@ -57,6 +93,7 @@ const Csos = () => {
       })
     );
   };
+
   const handleDateFilterChange = (e) => {
     const { name, value } = e.target;
     setDateFilter((prev) => ({ ...prev, [name]: value }));
@@ -71,9 +108,7 @@ const Csos = () => {
       cso.csoName.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter((cso) => {
-      const startDate = dateFilter.start
-        ? new Date(dateFilter.start)
-        : new Date(0);
+      const startDate = dateFilter.start ? new Date(dateFilter.start) : new Date(0);
       const endDate = dateFilter.end ? new Date(dateFilter.end) : new Date();
       const csoDate = new Date(cso.date);
       return csoDate >= startDate && csoDate <= endDate;
@@ -98,6 +133,28 @@ const Csos = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <ClipLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <p className="text-red-500 text-lg mb-4">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="p-2 lg:p-8 md:p-6 mx-auto max-w-6xl bg-white rounded-xl shadow-lg">
       <h2 className="text-2xl md:text-4xl lg:text-4x1 p-2 lg:p-4 md:p-4 font-thin text-gray-600 mb-6 text-center">
@@ -105,10 +162,9 @@ const Csos = () => {
       </h2>
 
       {/* Filters */}
-      <div className="flex border-2 p-2  sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+      <div className="flex border-2 p-2 sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
         <div className="flex items-center space-x-2 lg:space-x-4 md:space-x-3">
           <label className="text-gray-600 font-semibold">
-            {/* Sort By: */}
             <div className="flex mt-4 lg:mt-0 md:mt-0 space-x-2 items-center">
               <button
                 onClick={() => handleSortChange("asc")}
@@ -125,7 +181,7 @@ const Csos = () => {
             </div>
           </label>
         </div>
-        <div className="flex items-center space-x-1 lg:space-x-4 ">
+        <div className="flex items-center space-x-1 lg:space-x-4">
           <input
             type="date"
             name="start"
@@ -187,15 +243,30 @@ const Csos = () => {
                   {cso.notifications}
                 </span>
               )}
-              <img
-                src={cso?.logo || "/logo.png"}
-                alt={cso.csoName}
-                className={`${
+              <div
+                className={
                   displayMode === "list"
-                    ? "w-16 h-16 rounded-full"
-                    : "w-20 h-20 rounded-full mx-auto mb-4"
-                }`}
-              />
+                    ? "w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-gray-100"
+                    : "w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden flex items-center justify-center bg-gray-100"
+                }
+              >
+                {!imgError[cso.registrationId] && cso.logo ? (
+                  <img
+                    src={`http://localhost:5000/${cso.logo}`}
+                    alt="CSO logo"
+                    onError={() =>
+                      setImgError((prev) => ({
+                        ...prev,
+                        [cso.registrationId]: true,
+                      }))
+                    }
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FaUserAlt className="text-gray-400 text-2xl" />
+                )}
+              </div>
+
               <div
                 className={`${
                   displayMode === "list" ? "flex-1" : "text-center"

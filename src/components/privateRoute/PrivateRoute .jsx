@@ -1,102 +1,113 @@
-// import React from "react";
+// import React, { useState, useEffect } from "react";
 // import { Navigate } from "react-router-dom";
-// import { jwtDecode } from "jwt-decode";
+// import axios from "axios";
 
 // const PrivateRoute = ({ element, roleRequired }) => {
-//   const token = localStorage.getItem("token");
-//   if (!token) {
-//     return <Navigate to="/user/login" />;
+//   const [loading, setLoading] = useState(true);
+//   const [redirectPath, setRedirectPath] = useState(null);
+
+//   useEffect(() => {
+//     const checkAuth = async () => {
+//       try {
+//         const response = await axios.get("http://localhost:5000/api/users/me", {
+//           withCredentials: true,
+//         });
+
+//         if (response.data.success) {
+//           const { role } = response.data;
+//           // If the user's role doesn't match, redirect them to their dashboard
+//           if (role !== roleRequired) {
+//             setRedirectPath(role === "admin" || role ===  "sup_admin" ? "/admin/dashboard" : "/user/dashboard");
+//           }
+//         } else {
+//           setRedirectPath("/user/login");
+//         }
+//       } catch (error) {
+//         console.error("Authentication check error:", error);
+//         setRedirectPath("/user/login");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     checkAuth();
+//   }, [roleRequired]);
+
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen flex items-center justify-center bg-gray-200">
+//         <p className="text-xl font-bold">Loading...</p>
+//       </div>
+//     );
 //   }
 
-//   try {
-//     const decoded = jwtDecode(token);
-//     const expirationTime = decoded.exp * 1000; // Convert to milliseconds
-//     if (Date.now() > expirationTime) {
-//       localStorage.removeItem("token"); // Remove expired token
-//       return <Navigate to="/user/login" />;
-//     }
-
-//     if (decoded.role !== roleRequired) {
-//       return decoded.role === "admin" ? (
-//         <Navigate to="/admin/dashboard" />
-//       ) : (
-//         <Navigate to="/user/dashboard" />
-//       );
-//     }
-
-//     return element;
-//   } catch (error) {
-//     console.error("Error decoding token:", error);
-//     localStorage.removeItem("token"); // Remove malformed token
-//     return <Navigate to="/user/login" />;
+//   if (redirectPath) {
+//     return <Navigate to={redirectPath} />;
 //   }
+
+//   return element;
 // };
 
 // export default PrivateRoute;
 
-
-
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
+import axios from "axios";
 
 const PrivateRoute = ({ element, roleRequired }) => {
-  const [isLoading, setIsLoading] = useState(true); // State for loader
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [redirectPath, setRedirectPath] = useState(null); // Path for redirection if needed
+  const [loading, setLoading] = useState(true);
+  const [redirectPath, setRedirectPath] = useState(null);
 
   useEffect(() => {
-    const checkToken = () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        setRedirectPath("/user/login");
-        return;
-      }
-
+    const checkAuth = async () => {
       try {
-        const decoded = jwtDecode(token);
-        const expirationTime = decoded.exp * 1000; // Convert to milliseconds
+        const response = await axios.get("http://localhost:5000/api/users/me", {
+          withCredentials: true,
+        });
 
-        if (Date.now() > expirationTime) {
-          localStorage.removeItem("token"); // Remove expired token
-          setRedirectPath("/user/login");
-          return;
+        if (response.data.success) {
+          const { role } = response.data;
+
+          if (role !== roleRequired) {
+            // Redirect users to their respective dashboard
+            if (role === "admin" || role === "sup_admin") {
+              setRedirectPath("/admin/dashboard");
+            } else if (role === "cso") {
+              setRedirectPath("/user/dashboard");
+            } else {
+              setRedirectPath("/");
+            }
+          }
+        } else {
+          // If not authenticated, redirect to the correct login page
+          handleLoginRedirect(roleRequired);
         }
-
-        if (decoded.role !== roleRequired) {
-          setRedirectPath(
-            decoded.role === "admin" ? "/admin/dashboard" : "/user/dashboard"
-          );
-          return;
-        }
-
-        setIsAuthenticated(true); // Valid token and role
       } catch (error) {
-        console.error("Error decoding token:", error);
-        localStorage.removeItem("token"); // Remove malformed token
-        setRedirectPath("/user/login");
+        console.error("Authentication check error:", error);
+        handleLoginRedirect(roleRequired);
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Run token validation immediately
-    checkToken();
-
-    // Show loader for at least 10 seconds
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000); // 10 seconds
-
-    return () => clearTimeout(timer); // Cleanup the timer on unmount
+    checkAuth();
   }, [roleRequired]);
 
-  if (isLoading) {
+  // Function to handle login redirection for expired sessions
+  const handleLoginRedirect = (role) => {
+    if (role === "admin" || role === "sup_admin") {
+      setRedirectPath("/login"); // Shared login for admin & sup_admin
+    } else if (role === "cso") {
+      setRedirectPath("/user/login"); // Default user login
+    }else{
+      setRedirectPath("/"); // Default user login
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-        <div className="loader mb-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
-        </div>
-        <h1 className="text-2xl font-bold">Loading Your App...</h1>
+      <div className="min-h-screen flex items-center justify-center bg-gray-200">
+        <p className="text-xl font-bold">Loading...</p>
       </div>
     );
   }
@@ -105,7 +116,8 @@ const PrivateRoute = ({ element, roleRequired }) => {
     return <Navigate to={redirectPath} />;
   }
 
-  return isAuthenticated ? element : null;
+  return element;
 };
 
 export default PrivateRoute;
+

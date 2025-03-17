@@ -1,140 +1,133 @@
+// Footer.js
 import React from "react";
-import {
-  FaFacebookF,
-  FaTwitter,
-  FaInstagram,
-  FaLinkedinIn,
+import { Link } from "react-router-dom";
+import { 
+  FaFacebook, 
+  FaTwitter, 
+  FaInstagram, 
+  FaLinkedin,
+  FaMapMarkerAlt,
+  FaEnvelope,
+  FaPhoneAlt
 } from "react-icons/fa";
-import "./Footer.css"
-import { HiOutlineLocationMarker, HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
-import { FaX } from "react-icons/fa6";
 
 const Footer = () => {
+  const links = [
+    {
+      title: "Company",
+      items: [
+        { name: "About Us", path: "/about" },
+        { name: "Services", path: "/services" },
+        { name: "CSAs", path: "/csas" },
+        { name: "News", path: "/news" },
+      ]
+    },
+    {
+      title: "Support",
+      items: [
+        { name: "FAQ", path: "/faq" },
+        { name: "Privacy Policy", path: "/privacy" },
+        { name: "Terms", path: "/terms" },
+        { name: "Contact", path: "/contact" },
+      ]
+    }
+  ];
+
   return (
-    <footer className="bg-gray-100 text-gray-600">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Logo and Description */}
-          <div>
-            <a href="/" className="inline-flex items-center space-x-2">
-              <img src="/logo3.png" alt="Logo" className="h-10" />
-              <span className="text-xl font-semibold text-gray-800">Finance Office</span>
-            </a>
-            <p className="mt-4 text-sm">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
+      <div className="container mx-auto px-4 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <div className="space-y-4">
+            <Link to="/" className="flex items-center space-x-3">
+              <img
+                src="/logo3.png"
+                alt="Logo"
+                className="w-10 h-10 rounded-lg shadow-lg"
+              />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Bishoftu Finance
+              </span>
+            </Link>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              Empowering financial transparency and community development through 
+              innovative governance solutions.
             </p>
           </div>
 
-          {/* Company Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="/about/" className="hover:text-gray-800">About Us</a>
-              </li>
-              <li>
-                <a href="/services/" className="hover:text-gray-800">Services</a>
-              </li>
-              <li>
-                <a href="/features/" className="hover:text-gray-800">Features</a>
-              </li>
-              <li>
-                <a href="/csos/" className="hover:text-gray-800">All CSAs</a>
-              </li>
-              <li>
-                <a href="/blog/" className="hover:text-gray-800">Latest News</a>
-              </li>
-            </ul>
-          </div>
+          {links.map((section) => (
+            <div key={section.title} className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                {section.title}
+              </h3>
+              <div className="space-y-2">
+                {section.items.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
 
-          {/* Support Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Support</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="/faq/" className="hover:text-gray-800">FAQ's</a>
-              </li>
-              <li>
-                <a href="/privacy-policy/" className="hover:text-gray-800">Privacy Policy</a>
-              </li>
-              <li>
-                <a href="/terms-conditions/" className="hover:text-gray-800">Terms & Conditions</a>
-              </li>
-              <li>
-                <a href="/team/" className="hover:text-gray-800">Team</a>
-              </li>
-              <li>
-                <a href="/contact/" className="hover:text-gray-800">Contact Us</a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Address and Social Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Address</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-center">
-                <HiOutlineLocationMarker className="text-gray-500 mr-2" />
-                Bishoftu, Oromia, Ethiopia
-              </li>
-              <li className="flex items-center">
-                <HiOutlineMail className="text-gray-500 mr-2" />
-                <a href="mailto:startp@gmail.com" className="hover:text-gray-800">
-                  csos@gmail.com
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Contact
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start space-x-3">
+                <FaMapMarkerAlt className="w-5 h-5 text-gray-500 dark:text-gray-400 mt-1" />
+                <span className="text-gray-600 dark:text-gray-400">
+                  Bishoftu, Oromia, Ethiopia
+                </span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <FaEnvelope className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <a href="mailto:info@example.com" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                  csos@bishoftu.gov
                 </a>
-              </li>
-              <li className="flex items-center">
-                <HiOutlinePhone className="text-gray-500 mr-2" />
-                <a href="tel:+321984754" className="hover:text-gray-800">
-                  + (251) 000 0000
+              </div>
+              <div className="flex items-center space-x-3">
+                <FaPhoneAlt className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <a href="tel:+2510000000" className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                  +251 000 0000
                 </a>
-              </li>
-            </ul>
-            <div className="flex mt-4 space-x-4">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-400 hover:text-blue-500"
-              >
-                <FaFacebookF />
+              </div>
+            </div>
+            
+            <div className="flex space-x-4 pt-4">
+              <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <FaFacebook className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </a>
-              <a
-                href="https://X.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-gray-900 hover:text-black"
-              >
-                <FaX />
+              <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <FaTwitter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </a>
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-gray-500 hover:text-pink-500"
-              >
-                <FaInstagram />
+              <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <FaInstagram className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <FaLinkedinIn />
+              <a href="#" className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors">
+                <FaLinkedin className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </a>
             </div>
           </div>
         </div>
-      </div>
-      <div className="bg-gray-200 text-gray-600 text-center py-4">
-        <p>
-          © 2024 CSOs. All rights reserved. Powered by{" "}
-          <a href="https://dagmawiamare.netlify.app" target="_blank" rel="noreferrer" className="hover:text-gray-800">
-            KVO
-          </a>
-        </p>
+
+        <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            © {new Date().getFullYear()} Bishoftu Finance Office. All rights reserved.
+            <br />
+            Developed by{" "}
+            <a 
+              href="https://dagmawiamare.netlify.app" 
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              korean international organization (KVO)
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -8,6 +8,7 @@ import {
   FaTags,
   FaExpeditedssl,
   FaHome,
+  FaBell,
 } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -85,16 +86,6 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               </li>{" "}
               <li
                 className={`submenu-item ${
-                  isActive("/admin/beneficiary_list") ? "active" : ""
-                }`}
-              >
-                <Link to={"/admin/beneficiary_list"} className="flex items-center">
-                  <FaExpeditedssl />
-                  Expire Date
-                </Link>
-              </li>
-              <li
-                className={`submenu-item ${
                   isActive("/admin/report_category/all_cso_reports")
                     ? "active"
                     : ""
@@ -124,9 +115,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             <ul className="submenu">
               <li
                 className={`submenu-item ${
-                  isActive("/admin/web_content/hero_content")
-                    ? "active"
-                    : ""
+                  isActive("/admin/web_content/hero_content") ? "active" : ""
                 }`}
               >
                 <Link
@@ -181,16 +170,19 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             </Link>
           </li>
           <li
-            className={`menu-item ${isActive("/admin/create_userAccount") ? "active" : ""}`}
+            className={`menu-item ${
+              isActive("/admin/create_userAccount") ? "active" : ""
+            }`}
           >
             <Link to="/admin/create_userAccount" className="flex items-center">
               <FaUsers />
               <span>{!collapsed && "Create Account"}</span>
             </Link>
           </li>
-
           <li
-            className={`menu-item ${isActive("/admin/user_register") ? "active" : ""}`}
+            className={`menu-item ${
+              isActive("/admin/user_register") ? "active" : ""
+            }`}
           >
             <Link to="/admin/user_register" className="flex items-center">
               <FaUsers />
@@ -198,7 +190,9 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             </Link>
           </li>
           <li
-            className={`menu-item ${isActive("/admin/staff_register") ? "active" : ""}`}
+            className={`menu-item ${
+              isActive("/admin/staff_register") ? "active" : ""
+            }`}
           >
             <Link to="/admin/staff_register" className="flex items-center">
               <FaUsers />
@@ -206,19 +200,25 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             </Link>
           </li>
           <li
-            className={`menu-item ${isActive("/admin/beneficiary_list") ? "active" : ""}`}
+            className={`menu-item ${
+              isActive("/admin/beneficiary_list") ? "active" : ""
+            }`}
           >
             <Link to="/admin/beneficiary_list" className="flex items-center">
               <FaUsers />
               <span>{!collapsed && "Beneficiary"}</span>
             </Link>
           </li>
-          {/* <li>
-            <FaMoneyBill />
-            <span>{!collapsed && "Expenses"}</span>
-          </li> */}
-
-
+          <li
+            className={`submenu-item ${
+              isActive("/admin/notifications") ? "active" : ""
+            }`}
+          >
+            <Link to="/admin/notifications" className="flex items-center">
+              <FaBell />
+              <span className="ml-2">Notifications</span>
+            </Link>
+          </li>
           <li>
             <FaCog />
             <span>{!collapsed && "Settings"}</span>

@@ -20,15 +20,15 @@ const ViewUserProfile = () => {
 
         // Decode the token to extract user information
         const decodedToken = jwtDecode(token);
-        const { registrationId } = decodedToken;
+        const { id } = decodedToken;
 
-        if (!registrationId) {
-          console.error("Invalid token: registrationId not found");
+        if (!id) {
+          console.error("Invalid token: id not found");
           return;
         }
 
         // Fetch user profile using registrationId
-        const response = await fetch(`http://localhost:5000/api/staff/byId/${registrationId}`
+        const response = await fetch(`http://localhost:5000/api/staff/staff/${id}`
         );
 
         if (response.ok) {
@@ -90,7 +90,7 @@ const ViewUserProfile = () => {
           <div className="bg-gradient-to-r from-gray-800 to-indigo-600 p-8 text-center">
             <div className="relative inline-block group">
               <img
-                src={`http://localhost:5000/staff/${profileData.photo}`}
+                src={`http://localhost:5000/staff/${profileData.photo}` || ""}
                 alt="Profile"
                 className="w-32 h-32 rounded-full border-4 border-white/80 shadow-xl transform group-hover:scale-105 transition-transform duration-300"
               />

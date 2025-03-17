@@ -1,150 +1,94 @@
-import React from "react";
-import "./what.css"
-const What_We_Do = () => {
+// WhatWeDo.js
+import React from 'react';
+import { motion } from 'framer-motion';
+import { FaBuilding, FaChartLine, FaHandsHelping } from 'react-icons/fa';
+
+const services = [
+  {
+    icon: <FaBuilding className="w-12 h-12" />,
+    title: 'CSO Governance',
+    description: 'Strengthening institutional capacity through comprehensive financial frameworks and policy development',
+    link: '/services/cso-governance'
+  },
+  {
+    icon: <FaChartLine className="w-12 h-12" />,
+    title: 'Financial Advisory',
+    description: 'Expert guidance on fiscal responsibility, budget optimization, and transparent reporting systems',
+    link: '/services/financial-advisory'
+  },
+  {
+    icon: <FaHandsHelping className="w-12 h-12" />,
+    title: 'Community Development',
+    description: 'Sustainable initiatives fostering economic growth and resource management in local communities',
+    link: '/services/community-development'
+  }
+];
+
+const ServiceCard = ({ service, index }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 50 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ delay: index * 0.2 }}
+    className="p-8 bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 group"
+  >
+    <div className="text-blue-600 dark:text-blue-400 mb-6 transition-transform group-hover:-translate-y-2">
+      {service.icon}
+    </div>
+    <h3 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
+      {service.title}
+    </h3>
+    <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+      {service.description}
+    </p>
+    <a
+      href={service.link}
+      className="inline-flex items-center font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+    >
+      Discover More
+      <svg
+        className="w-4 h-4 ml-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M17 8l4 4m0 0l-4 4m4-4H3"
+        />
+      </svg>
+    </a>
+  </motion.div>
+);
+
+const WhatWeDo = () => {
   return (
-    <div class="what-we-do-area ptb-80 mt-32 ">
-      <div class="container">
-        <div class="section-title">
-          <h2>What We Do</h2>
-          <div class="bar"></div>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
+    <section className="py-24 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 md:px-6">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Our Strategic Services
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Delivering transformative financial solutions that empower organizations and drive community progress
           </p>
-        </div>
-        <div class="row flex-wrap flex justify-content-center">
-          <div
-            class="col-lg-4 col-md-6 col-sm-6 aos-init aos-animate"
-            data-aos="fade-up"
-            data-aos-delay="100"
-            data-aos-duration="500"
-            data-aos-once="true"
-          >
-            <div class="single-what-we-do-box">
-              <div class="icon">
-                <i class="flaticon-monitor"></i>
-              </div>
-              <h3>
-                <a href="/services/service-details/">ALL CSOs</a>
-              </h3>
-              <p>
-                Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-                sed do eiusmod tempor incididunt.
-              </p>
-              <a class="link" href="/services/service-details/">
-                Civic Society assosoceion 
-              </a>
-              <a class="link" href="/services/service-details/">
-                Finace office
-              </a>
-              <a class="read-more-btn" href="/services/service-details/">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>{" "}
-                Read More
-              </a>
-            </div>
-          </div>
-          <div
-            class="col-lg-4 col-md-6 col-sm-6 aos-init aos-animate"
-            data-aos="fade-up"
-            data-aos-delay="200"
-            data-aos-duration="500"
-            data-aos-once="true"
-          >
-            <div class="single-what-we-do-box">
-              <div class="icon">
-                <i class="flaticon-idea"></i>
-              </div>
-              <h3>
-                <a href="/services/service-details/">News</a>
-              </h3>
-              <p>
-                Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-                sed do eiusmod tempor incididunt.
-              </p>
-              <a class="link" href="/services/service-details/">
-                
-              </a>
-              <a class="link" href="/services/service-details/">
-              </a>
-              <a class="read-more-btn" href="/services/service-details/">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>{" "}
-                Read More
-              </a>
-            </div>
-          </div>
-          <div
-            class="col-lg-4 col-md-6 col-sm-6 aos-init aos-animate"
-            data-aos="fade-up"
-            data-aos-delay="300"
-            data-aos-duration="500"
-            data-aos-once="true"
-          >
-            <div class="single-what-we-do-box">
-              <div class="icon">
-                <i class="flaticon-software"></i>
-              </div>
-              <h3>
-                <a href="/services/service-details/"></a>
-              </h3>
-              <p>
-                Lorem ipsum dolor sit consectetur, consectetur adipiscing elit,
-                sed do eiusmod tempor incididunt.
-              </p>
-              <a class="link" href="/services/service-details/">
-                ALL CSO
-              </a>
-              <a class="link" href="/services/service-details/">
-                Finace OFFICE
-              </a>
-              <a class="read-more-btn" href="/services/service-details/">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>{" "}
-                Read More
-              </a>
-            </div>
-          </div>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service, index) => (
+            <ServiceCard key={index} service={service} index={index} />
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
-export default What_We_Do;
+export default WhatWeDo;

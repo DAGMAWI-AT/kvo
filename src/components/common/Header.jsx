@@ -1,114 +1,164 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import "./nav.css";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import { FaMoon, FaSun } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaTimes, FaBars } from "react-icons/fa";
+import { navLinks } from "./../data";
 
-export const navLinks = [
-  { text: "Home", path: "/" },
-  { text: "About", path: "/about" },
-  { text: "Services", path: "/service" },
-  { text: "News", path: "/news" },
-
-  { text: "All CSAs", path: "/csas" },
-  { text: "Contact", path: "/contact" },
-
-  { text: "Login", path: "/user/login" },
-];
-
-function Header() {
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("theme") === "dark"
-  );
+const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isDarkBackground, setIsDarkBackground] = useState(false);
+  const headerRef = useRef(null);
+  const location = useLocation();
 
-  // Apply theme changes and store the preference
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
-  }, [darkMode]);
-
-  // Handle scrolling
-  useEffect(() => {
-    const handleScroll = () => {
-      const header = document.querySelector(".nav-bar");
-      if (window.scrollY > 100) {
-        header.classList.add("header_scroll");
-      } else {
-        header.classList.remove("header_scroll");
-      }
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Toggle the menu visibility
-  const toggleMenu = () => {
-    setIsMenuOpen((prevState) => !prevState);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const bgColor = getComputedStyle(entry.target).backgroundColor;
+            setIsDarkBackground(isColorDark(bgColor));
+          }
+        });
+      },
+      { root: null, rootMargin: "0px", threshold: 0.1 }
+    );
+
+    const firstSection = document.querySelector("#hero-section");
+    if (firstSection) observer.observe(firstSection);
+
+    return () => {
+      if (firstSection) observer.unobserve(firstSection);
+    };
+  }, []);
+
+  const isColorDark = (rgbColor) => {
+    const [r, g, b] = rgbColor.match(/\d+/g).map(Number);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance <= 0.5;
   };
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    setDarkMode((prevMode) => !prevMode);
-  };
+  const textColor = isScrolled || !isDarkBackground ? "text-gray-500" : "text-gray-800";
+  const iconColor = isScrolled || !isDarkBackground ? "text-gray-700" : "text-gray-300";
+
+  const menuButtonHover = isScrolled
+    ? "hover:bg-gray-100"
+    : isDarkBackground
+    ? "hover:bg-white/20"
+    : "hover:bg-gray-900/20";
 
   return (
-    <nav
-      className={`nav-bar ${isScrolled ? "scrolled" : "transparent"} ${
-        darkMode ? "dark" : "light"
+    <header
+      ref={headerRef}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        isScrolled ? "bg-white bg-opacity-90 backdrop-blur-sm shadow-lg" : "bg-transparent"
       }`}
     >
-      <div className="nav-logo mt-4 pr-0 pl-0 lg:pr-10 lg:pl-10">
-        <img
-          src="/logo3.png"
-          alt="Logo"
-          className="logo"
-          style={{ width: "40px", height: "40px" }}
-        />
-        <h2 className="mb-4 text-sm lg:text-2xl md:text-xl">Bissoftu Finance Office</h2>
-      </div>
-      <div className="menu-icon" onClick={toggleMenu}>
-        {isMenuOpen ? (
-          <i
-            className="fa fa-times"
-            style={{ zIndex: 20, cursor: "pointer", fontSize: "24px" }}
-          ></i>
-        ) : (
-          <i
-            className="fa fa-bars"
-            style={{ cursor: "pointer", fontSize: "24px" }}
-          ></i>
-        )}
-      </div>
-
-      {isMenuOpen && <div className="overlay" onClick={toggleMenu}></div>}
-
-      <div className={`nav-links ${isMenuOpen ? "show" : ""}`}>
-        {navLinks.map((link, index) => (
-          <Link
-            key={index}
-            to={link.path}
-            className="nav-link"
-            onClick={toggleMenu}
-          >
-            {link.text}
+      <div className="container mx-auto flex justify-between items-center p-4">
+        <div className="flex items-center space-x-3">
+          <Link to="/" className="flex items-center">
+            <img src="/logo3.png" alt="Company Logo" className="h-12" />
           </Link>
-        ))}
-        <div className="mode">
-          <button onClick={toggleDarkMode}>
-            {darkMode ? <FaSun /> : <FaMoon />}
-          </button>
+          <span className={`text-xl font-bold ${textColor}`}>Bishoftu Finance</span>
         </div>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex space-x-6 relative">
+          {navLinks.map((link, index) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <div key={index} className="relative">
+                <Link
+                  to={link.path}
+                  className={`font-medium text-lg relative ${
+                    location.pathname === link.path
+                      ? "text-blue-500 font-semibold"
+                      : "text-gray-400 hover:text-gray-500"
+                  }`}                >
+                  {link.text}
+                </Link>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className="absolute left-0 bottom-[-4px] h-[2px] bg-blue-500 w-full"
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`md:hidden p-2 rounded-full transition-colors ${menuButtonHover}`}
+          aria-label="Toggle Menu"
+        >
+          {isMenuOpen ? (
+            <FaTimes className={`w-5 h-5 ${iconColor}`} />
+          ) : (
+            <FaBars className={`w-5 h-5 ${iconColor}`} />
+          )}
+        </button>
       </div>
-    </nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.nav
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={{
+              open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+              closed: { x: "100%", transition: { duration: 0.3 } },
+            }}
+            className="fixed top-0 right-0 h-full w-64 bg-white shadow-lg md:hidden"
+          >
+            <div className="p-4">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                aria-label="Close Menu"
+              >
+                <FaTimes className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+            <ul className="flex flex-col space-y-4 p-4">
+              {navLinks.map((link, index) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <li key={index} className="relative">
+                    <Link
+                      to={link.path}
+                      className={`font-medium text-sm bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent hover:from-blue-600 hover:to-purple-600 transition-colors`}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.text}
+                    </Link>
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeIndicatorMobile"
+                        className="absolute left-0 bottom-[-2px] h-[2px] bg-blue-500 w-full"
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
   );
-}
+};
 
 export default Header;

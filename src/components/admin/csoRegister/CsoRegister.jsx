@@ -149,9 +149,9 @@ const CsoRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-6">
+    <div className="min-h-screen bg-gray-100 lg:px-0">
+      <div className="min-h-screen mx-auto bg-gray-50 rounded-lg shadow-md p-8">
+        <h2 className="text-2xl font-semibold text-gray-700 text-center mb-8">
           Register Civic Society Organization (CSO)
         </h2>
 
@@ -168,7 +168,7 @@ const CsoRegister = () => {
         )}
 
         {/* Role Selector */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <label className="block text-gray-600 font-medium mb-2">Choose Role</label>
           <select
             name="role"
@@ -180,7 +180,7 @@ const CsoRegister = () => {
             <option value="cso">CSO</option>
             <option value="admin">Staff</option>
           </select>
-        </div>
+        </div> */}
 
         {formData.role === "cso" ? (
           <form onSubmit={handleSubmitCSO} encType="multipart/form-data" className="space-y-6">
@@ -296,6 +296,7 @@ const CsoRegister = () => {
                 <input
                   type="file"
                   name="logo"
+                  accept="image/*"
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                   required
@@ -307,6 +308,7 @@ const CsoRegister = () => {
                 <input
                   type="file"
                   name="tin_certificate"
+                  accept="image/*, application/pdf"
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />
@@ -317,6 +319,7 @@ const CsoRegister = () => {
                 <input
                   type="file"
                   name="registration_certificate"
+                  accept="image/*, application/pdf"
                   onChange={handleChange}
                   className="w-full px-3 py-2 border rounded-lg file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                 />

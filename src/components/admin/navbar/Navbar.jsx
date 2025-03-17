@@ -46,10 +46,11 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
         }
   
         // Fetch notifications
-        const response = await axios.get("http://localhost:5000/api/notifications");
+        const response = await fetch("http://localhost:5000/api/notifications");
+    
         // const response = await axios.get("https://finance-office.onrender.com/notifications");
-  
-        const notificationsData = response.data; // Assuming this is an array of notifications
+        // await response.json();
+        const notificationsData = await response.json(); // Assuming this is an array of notifications
         // console.log("Notifications Data:", notificationsData);
   
         // Filter notifications where the author is not the logged-in user
@@ -77,6 +78,18 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+    useEffect(() => {
+      const handleClickOutside = (event) => {
+        const notificationWrapper = document.querySelector('.notification-wrapper');
+        if (notificationWrapper && !notificationWrapper.contains(event.target)) {
+          setShowNotifications(false);
+        }
+      };
+    
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
   // Toggle the notification dropdown
   const toggleNotificationDropdown = () => {
     setShowNotifications(!showNotifications);
@@ -96,11 +109,11 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/users/logout");
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/staff/logout`);
       // await axios.post("https://finance-office.onrender.com/user/logout");
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      window.location.href = "/user/login";
+      window.location.href = "/login";
     } catch (error) {
       console.error("Error logging out:", error);
     }
@@ -160,6 +173,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                           onClick={() => {
                             viewReportDetails(notif.report_id);
                             markAsRead(notif.id);
+                            // setShowNotifications(false); // Add this line to close dropdown
+
                           }}
                           className="px-2 py-0 bg-green-600 rounded text-white text-sm"
                         >

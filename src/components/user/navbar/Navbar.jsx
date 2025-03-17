@@ -32,15 +32,13 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Fetch notifications from the server
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found");
-        return;
+      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        withCredentials: true,
+      });
+      if (!meResponse.data.success) {
+        throw new Error("Failed to get user details");
       }
-
-      // Decode the token to extract user information
-      const decodedToken = jwtDecode(token);
-      const { registrationId } = decodedToken;
+      const { registrationId } = meResponse.data;
 
       if (!registrationId) {
         console.error("Invalid token: registrationId not found");
@@ -48,12 +46,11 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
       }
 
       // Fetch notifications
-      const response = await axios.get(
+      const response = await fetch(
         `http://localhost:5000/api/notifications/notification/${registrationId}`
       );
-      const notificationsData = Array.isArray(response.data?.data)
-      ? response.data.data
-      : [];  // Default to an empty array if data is not an array
+      const notificationsData = await response.json();
+      // Default to an empty array if data is not an array
         // Filter notifications where the author is not the logged-in user
         const filteredNotifications = notificationsData.filter((notif) => {
           return notif.author_id !== registrationId;
@@ -75,7 +72,17 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   useEffect(() => {
     fetchNotifications();
   }, []);
-
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const notificationWrapper = document.querySelector('.notification-wrapper');
+      if (notificationWrapper && !notificationWrapper.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+  
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   // Toggle the notification dropdown
   const toggleNotificationDropdown = () => {
     setShowNotifications(!showNotifications);
@@ -172,6 +179,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                           onClick={() => {
                             viewReportDetails(notif.report_id);
                             markAsRead(notif.id);
+                            setShowNotifications(false); // Add this line to close dropdown
+
                           }}
                           className="px-2 py-0 bg-green-600 rounded text-white text-sm"
                         >

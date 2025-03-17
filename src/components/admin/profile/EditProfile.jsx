@@ -34,7 +34,7 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
       const response = await fetch(
         `http://localhost:5000/api/staff/update/${formData.id}`,
         {
-          method: "PATCH",
+          method: "PUT",
           body: updatedData,
         }
       );

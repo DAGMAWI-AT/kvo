@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaEye, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const EachCso = () => {
@@ -13,10 +13,19 @@ const EachCso = () => {
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState({});
+  const [imgError, setImgError] = useState(false);
   const [itemsPerPage, setItemsPerPage] = useState(10); // Default to 10 items per page
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sorting state
   const location = useLocation();
 
+  const statusColors = {
+    new: "bg-blue-100 text-blue-700",
+    approve: "bg-green-100 text-green-700",
+    inprogress: "bg-orange-100 text-orange-700",
+    pending: "bg-yellow-100 text-yellow-700",
+    reject: "bg-red-100 text-red-700",
+    rejected: "bg-red-100 text-red-700",
+  };
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
@@ -106,27 +115,27 @@ const EachCso = () => {
     setSortConfig({ key, direction });
   };
 
-  // Get sorting icon for a column
-  const getSortIcon = (key) => {
-    if (sortConfig.key === key) {
-      return sortConfig.direction === "asc" ? <FaSortUp /> : <FaSortDown />;
-    }
-    return <FaSort />;
-  };
-
-  // Filter reports based on search, start date, end date, and category
   const filteredReports = sortedReports.filter((item) => {
-    const matchesFilter =
+    // Category filter (if filter is not "all")
+    const matchesCategory =
       filter === "all" ||
       (categories[item.category_id]?.toLowerCase() || "") === filter.toLowerCase();
-      // item.status?.toLowerCase().includes(searchTerm.toLowerCase())||
-      const matchesSearch = (item.report_name?.toLowerCase() || "").includes(
-      search.toLowerCase()
-    );
+
+    // Search filter on report name (partial match)
+    const matchesSearch = (item.report_name?.toLowerCase() || "").includes(
+      search.toLowerCase() 
+    ) || item.status?.toLowerCase().includes(search.toLowerCase()|| "") || categories[item.category_id]?.toLowerCase().includes(search.toLowerCase()|| "");
+
+    // Date filtering using created_at (convert to Date objects)
+    const reportDate = new Date(item.created_at);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
     const matchesDate =
-      (!startDate || item.date >= startDate) && (!endDate || item.date <= endDate);
-    return matchesFilter && matchesSearch && matchesDate;
+      (!start || reportDate >= start) && (!end || reportDate <= end);
+
+    return matchesCategory && matchesSearch && matchesDate;
   });
+
 
   // Pagination calculations
   const indexOfLastReport = currentPage * itemsPerPage;
@@ -156,7 +165,13 @@ const EachCso = () => {
       <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
         <div className="mb-4 flex justify-between">
           <div>
-            <img src={cso.logo} alt="logo" className="w-16 h-16 rounded-full p-1" />
+            {/* <img src={`http://localhost:5000/${cso.logo}`} alt="logo" className="w-16 h-16 rounded-full p-1" /> */}
+            {!imgError && cso.logo ? (
+                <img src={`http://localhost:5000/${cso.logo}`} onError={() => setImgError(true)} alt="Profile logo"
+                className="w-16 h-16 rounded-full p-1" />
+              ) : (
+                <img src="/logo.png" className="w-16 h-16 rounded-full p-1" />
+              )}
             <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">
               {cso.csoName}
             </h2>
@@ -240,47 +255,57 @@ const EachCso = () => {
             <thead>
               <tr className="bg-gray-200">
                 <th
-                  className="border border-gray-300 px-4 py-2 cursor-pointer"
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+
                   onClick={() => requestSort("report_name")}
                 >
                   <div className="flex items-center gap-2">
-                    Report Name {getSortIcon("report_name")}
+                    Report Name{" "}
+                    {sortConfig.key === "report_name" &&
+                      (sortConfig.direction === "asc" ? "▲" : "▼")}
                   </div>
                 </th>
                 <th
-                  className="border border-gray-300 px-4 py-2 cursor-pointer"
-                  onClick={() => requestSort("category_id")}
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort("category_id")}
                 >
                   <div className="flex items-center gap-2">
-                    Type {getSortIcon("category_id")}
+                    Type{" "}
+                    {sortConfig.key === "category_id" &&
+                      (sortConfig.direction === "asc" ? "▲" : "▼")}
                   </div>
                 </th>
                 <th
-                  className="border border-gray-300 px-4 py-2 cursor-pointer"
-                  onClick={() => requestSort("created_at")}
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort("created_at")}
                 >
                   <div className="flex items-center gap-2">
-                    Submitted Date {getSortIcon("created_at")}
+                    Submitted Date{" "}
+                    {sortConfig.key === "created_at" &&
+                      (sortConfig.direction === "asc" ? "▲" : "▼")}
                   </div>
                 </th>
                 <th
-                  className="border border-gray-300 px-4 py-2 cursor-pointer"
-                  onClick={() => requestSort("updated_at")}
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort("updated_at")}
                 >
                   <div className="flex items-center gap-2">
-                    Updated Date {getSortIcon("updated_at")}
+                    Updated Date{" "}
+                    {sortConfig.key === "updated_at" &&
+                      (sortConfig.direction === "asc" ? "▲" : "▼")}
                   </div>
                 </th>
-                <th className="border border-gray-300 px-4 py-2">File</th>
+                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                >File</th>
                 <th
-                  className="border border-gray-300 px-4 py-2 cursor-pointer"
-                  onClick={() => requestSort("status")}
+                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                onClick={() => requestSort("status")}
                 >
-                  <div className="flex items-center gap-2">
-                    Status {getSortIcon("status")}
-                  </div>
+                Status{sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
                 </th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
+               
+                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+                >Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -300,7 +325,7 @@ const EachCso = () => {
                     <td className="border border-gray-300 px-4 py-2">
                       {item.report_file && item.report_file.endsWith(".pdf") ? (
                         <embed
-                          src={`http://localhost:5000/user_report/${item.report_file}`}
+                          src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
                           type="application/pdf"
                           className="max-h-10 max-w-10"
                           onError={(e) => {
@@ -311,21 +336,28 @@ const EachCso = () => {
                       ) : (
                         <img
                           className="max-h-10 max-w-10"
-                          src={`http://localhost:5000/user_report/${item.report_file}`}
+                          src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
                           alt={item.pdfFile}
                         />
                       )}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">{item.status}</td>
                     <td className="border border-gray-300 px-4 py-2">
-                      <div className="flex space-x-2">
+                      <span
+                        className={`px-2 py-1 text-sm rounded-full ${
+                          statusColors[item.status.toLowerCase()] ||
+                          "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>                    
+                    <td className="border border-gray-300 px-4 py-2">
                         <button
                           onClick={() => handleView(item)}
-                          className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600"
+                          className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 cursor-pointer"
                         >
                           <FaEye />
                         </button>
-                      </div>
                     </td>
                   </tr>
                 ))

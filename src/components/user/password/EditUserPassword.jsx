@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 const EditUserPassword = () => {
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -26,9 +25,15 @@ const EditUserPassword = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-  const decodedToken = jwtDecode(token);
-        const { id } = decodedToken;      
+ 
+  const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+    withCredentials: true,
+  });
+
+  if (!meResponse.data.success) {
+    navigate("/user/login");
+    return;
+  }   
         const response = await axios.put(
             `http://localhost:5000/api/users/update-password`, // Ensure the correct path
             {
@@ -36,10 +41,7 @@ const EditUserPassword = () => {
               newPassword: formData.newPassword
             },
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
+              withCredentials: true,
             }
           );          
 

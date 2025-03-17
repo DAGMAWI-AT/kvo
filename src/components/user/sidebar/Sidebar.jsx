@@ -5,6 +5,11 @@ import {
   FaDochub,
   FaClipboardList,
   FaHome,
+  FaFonticonsFi,
+  FaBell,
+  FaCommentAlt,
+  FaAccessibleIcon,
+  FaFolderMinus,
 } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -45,7 +50,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
           </li>
          
           <li className="menu-item" onClick={toggleReportsSubmenu}>
-            <FaDochub />
+            <FaFolderMinus />
             <span>{!collapsed && "Reports"}</span>
             {!collapsed &&
               (isReportsOpen ? (
@@ -66,21 +71,26 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
                   className="flex items-center"
                 >
                   <FaClipboardList />
-                  <span className="ml-2">Work Report</span>
+                  <span className="ml-2">Reported</span>
                 </Link>
               </li>{" "}
               <li className="submenu-item">
-                <FaClipboardList />
-                Leads Report
+                <FaCommentAlt className="" />
+                Comments
               </li>
-              <li className="submenu-item">
-                <FaClipboardList />
-                Project Report
-              </li>
-              <li className="submenu-item">
-                <FaClipboardList />
-                Proposal Report
-              </li>
+              <li
+                className={`submenu-item ${
+                  isActive("/user/notifications") ? "active" : ""
+                }`}
+              >
+                <Link
+                  to="/user/notifications"
+                  className="flex items-center"
+                >
+                <FaBell />
+                <span className="ml-2">Notifications</span>
+                </Link>
+              </li>{" "}
             </ul>
           )}
 
