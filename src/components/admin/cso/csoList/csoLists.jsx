@@ -45,10 +45,13 @@ const CSOLists = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/cso/get');
+        if(response.succuss){
+        }
         setData(response.data);
+       
       } catch (error) {
         console.error('Error fetching data:', error);
-        Swal.fire('Error!', 'Failed to fetch data internat Connection.', 'error');
+        Swal.fire('Error!', error, 'error');
       } finally {
         setLoading(false);
       }

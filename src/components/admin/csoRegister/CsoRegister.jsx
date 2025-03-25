@@ -291,6 +291,18 @@ const CsoRegister = () => {
 
             {/* File Uploads */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="relative">
+                <label className="block text-gray-600 font-medium mb-2">Office</label>
+                <FaMapMarkedAlt className="absolute left-3 top-10 text-blue-800" />
+                <input
+                  type="text"
+                  name="office"
+                  value={formData.office}
+                  onChange={handleChange}
+                  className="pl-10 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-gray-600 font-medium mb-2">Logo</label>
                 <input

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { BarLoader } from "react-spinners";
 
 const EachCso = () => {
   const { id } = useParams();
@@ -14,8 +15,11 @@ const EachCso = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState({});
   const [imgError, setImgError] = useState(false);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Default to 10 items per page
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" }); // Sorting state
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [loading, setLoading] = useState(true);
+  const [availableCategories, setAvailableCategories] = useState([]);
+
   const location = useLocation();
 
   const statusColors = {
@@ -26,6 +30,7 @@ const EachCso = () => {
     reject: "bg-red-100 text-red-700",
     rejected: "bg-red-100 text-red-700",
   };
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
@@ -58,15 +63,22 @@ const EachCso = () => {
 
         const categoryResults = await Promise.all(categoryPromises);
         const categoryMap = {};
+        const uniqueCategories = [];
         categoryResults.forEach((category) => {
           if (category) {
             categoryMap[category.id] = category.category_name;
+            if (!uniqueCategories.includes(category.category_name)) {
+              uniqueCategories.push(category.category_name);
+            }
           }
         });
 
         setCategories(categoryMap);
+        setAvailableCategories(uniqueCategories);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching CSO data:", error);
+        setLoading(false);
       }
     };
     fetchCsoData();
@@ -82,14 +94,15 @@ const EachCso = () => {
         }
         const data = await response.json();
         setCso(data || {});
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching CSO profile:", error);
+        setLoading(false);
       }
     };
     fetchCsoProfile();
   }, [id]);
 
-  // Sorting functionality
   const sortedReports = React.useMemo(() => {
     let sortableReports = [...report];
     if (sortConfig.key) {
@@ -106,7 +119,6 @@ const EachCso = () => {
     return sortableReports;
   }, [report, sortConfig]);
 
-  // Handle sorting when a column header is clicked
   const requestSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -116,17 +128,14 @@ const EachCso = () => {
   };
 
   const filteredReports = sortedReports.filter((item) => {
-    // Category filter (if filter is not "all")
     const matchesCategory =
       filter === "all" ||
       (categories[item.category_id]?.toLowerCase() || "") === filter.toLowerCase();
 
-    // Search filter on report name (partial match)
     const matchesSearch = (item.report_name?.toLowerCase() || "").includes(
-      search.toLowerCase() 
-    ) || item.status?.toLowerCase().includes(search.toLowerCase()|| "") || categories[item.category_id]?.toLowerCase().includes(search.toLowerCase()|| "");
+      search.toLowerCase()
+    ) || item.status?.toLowerCase().includes(search.toLowerCase() || "") || categories[item.category_id]?.toLowerCase().includes(search.toLowerCase() || "");
 
-    // Date filtering using created_at (convert to Date objects)
     const reportDate = new Date(item.created_at);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
@@ -136,8 +145,6 @@ const EachCso = () => {
     return matchesCategory && matchesSearch && matchesDate;
   });
 
-
-  // Pagination calculations
   const indexOfLastReport = currentPage * itemsPerPage;
   const indexOfFirstReport = indexOfLastReport - itemsPerPage;
   const currentReports = filteredReports.slice(indexOfFirstReport, indexOfLastReport);
@@ -160,211 +167,221 @@ const EachCso = () => {
     navigate(`/admin/cso_profile/${cso.id}`);
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
+
+ 
+  
+  
   return (
-    <div className="bg-gray-100 p-2 lg:p-6 md:p-4">
-      <div className="bg-white p-2 lg:p-6 md:p-4 rounded-lg shadow-lg">
-        <div className="mb-4 flex justify-between">
-          <div>
-            {/* <img src={`http://localhost:5000/${cso.logo}`} alt="logo" className="w-16 h-16 rounded-full p-1" /> */}
-            {!imgError && cso.logo ? (
-                <img src={`http://localhost:5000/${cso.logo}`} onError={() => setImgError(true)} alt="Profile logo"
-                className="w-16 h-16 rounded-full p-1" />
+    <div className="p-4 lg:p-8 bg-gray-50 min-h-screen">
+      <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              {!imgError && cso.logo ? (
+                <img
+                  src={`http://localhost:5000/${cso.logo}`}
+                  onError={() => setImgError(true)}
+                  alt="Profile logo"
+                  className="w-16 h-16 rounded-xl border-2 border-gray-100 shadow-md object-cover"
+                />
               ) : (
-                <img src="/logo.png" className="w-16 h-16 rounded-full p-1" />
+                <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
               )}
-            <h2 className="text-xl font-serif md:text-2xl lg:text-2xl font-bold text-gray-500">
-              {cso.csoName}
-            </h2>
-            <p className="text-gray-600 mb-4">ID: {cso.registrationId}</p>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-500 font-sans touch-pan-up">{cso.csoName}</h1>
+              <p className="text-gray-600 font-medium mt-1">ID: {cso.registrationId}</p>
+            </div>
           </div>
-          <div>
-            <button
-              onClick={handleProfile}
-              className="bg-blue-500 font-serif hover:bg-blue-800 py-1 px-2 text-white rounded-lg"
-            >
-              Profile
-            </button>
-          </div>
-        </div>
-
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-4 mb-6 border-2 p-2">
-          {["all", "yearly", "quarterly", "proposal", "projects", "other"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilter(type)}
-              className={`py-2 px-4 rounded ${
-                filter === type
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-300 text-gray-800 hover:bg-gray-400"
-              } transition`}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Search and Date Filters */}
-        <div className="flex space-x-8 mb-4">
-          <input
-            type="text"
-            placeholder="Search by Name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="p-2 border border-gray-300 rounded w-1/3"
-          />
-          <input
-            type="date"
-            placeholder="Start Date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
-          />
-          <input
-            type="date"
-            placeholder="End Date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
-          />
-        </div>
-
-        {/* Show Entries Dropdown */}
-        <div className="flex items-center gap-4 mb-4">
-          <span>Show:</span>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="p-1 border rounded"
+          <button
+            onClick={handleProfile}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2.5 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
-            {[10, 20, 30, 50].map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-          <span>entries</span>
+            View Profile
+          </button>
         </div>
 
-        {/* Reports Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th
-                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
+        {/* Filter Section */}
+        <div className="mb-8 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="p-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700 bg-white shadow-sm font-medium"
+            >
+              <option value="all">All Categories</option>
+              {availableCategories.map((category) => (
+                <option key={category} value={category.toLowerCase()}>
+                  {category}
+                </option>
+              ))}
+            </select>
+            
+            <input
+              type="text"
+              placeholder="Search reports..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="p-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700 placeholder-gray-400 shadow-sm font-medium"
+            />
+            
+            <div className="flex gap-2 items-center col-span-2">
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="p-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700 w-full shadow-sm"
+                />
+                <span className="text-gray-500">–</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="p-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700 w-full shadow-sm"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 font-medium">Show:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="p-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-700 shadow-sm font-medium"
+                >
+                  {[10, 20, 30, 50].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                  onClick={() => requestSort("report_name")}
-                >
-                  <div className="flex items-center gap-2">
-                    Report Name{" "}
-                    {sortConfig.key === "report_name" &&
-                      (sortConfig.direction === "asc" ? "▲" : "▼")}
-                  </div>
-                </th>
-                <th
-                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("category_id")}
-                >
-                  <div className="flex items-center gap-2">
-                    Type{" "}
-                    {sortConfig.key === "category_id" &&
-                      (sortConfig.direction === "asc" ? "▲" : "▼")}
-                  </div>
-                </th>
-                <th
-                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("created_at")}
-                >
-                  <div className="flex items-center gap-2">
-                    Submitted Date{" "}
-                    {sortConfig.key === "created_at" &&
-                      (sortConfig.direction === "asc" ? "▲" : "▼")}
-                  </div>
-                </th>
-                <th
-                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("updated_at")}
-                >
-                  <div className="flex items-center gap-2">
-                    Updated Date{" "}
-                    {sortConfig.key === "updated_at" &&
-                      (sortConfig.direction === "asc" ? "▲" : "▼")}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                >File</th>
-                <th
-                className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("status")}
-                >
-                Status{sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '▲' : '▼')}
-                </th>
-               
-                <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider cursor-pointer"
-                >Actions</th>
+        {/* Table Section */}
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="w-full text-left">
+            <thead className="bg-gray-50 border-b border-gray-200 whitespace-nowrap uppercase">
+              <tr>
+                {[
+                  { key: "report_name", label: "File Name" },
+                  { key: "category_id", label: "Type" },
+                  { key: "created_at", label: "Submitted Date" },
+                  { key: "updated_at", label: "Updated Date" },
+                  { key: null, label: "File" },
+                  { key: "status", label: "Status" },
+                  { key: null, label: "Actions" },
+                ].map((header) => (
+                  <th
+                    key={header.key || header.label}
+                    className="px-5 py-4 text-sm font-semibold text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors group"
+                    onClick={() => header.key && requestSort(header.key)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {header.label}
+                      {header.key && (
+                        <span className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {sortConfig.key === header.key ? (
+                            sortConfig.direction === "asc" ? (
+                              <FaSortUp className="w-3.5 h-3.5" />
+                            ) : (
+                              <FaSortDown className="w-3.5 h-3.5" />
+                            )
+                          ) : (
+                            <FaSort className="w-3.5 h-3.5" />
+                          )}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
+            
+            <tbody className="bg-white divide-y divide-gray-200">
               {currentReports.length > 0 ? (
                 currentReports.map((item, index) => (
-                  <tr key={index} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-4 py-2">{item.report_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {categories[item.category_id]}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {new Date(item.created_at).toLocaleString()}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {new Date(item.updated_at).toLocaleString()}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {item.report_file && item.report_file.endsWith(".pdf") ? (
-                        <embed
-                          src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
-                          type="application/pdf"
-                          className="max-h-10 max-w-10"
-                          onError={(e) => {
-                            console.error("Failed to load the file", e);
-                            alert("The file could not be loaded. Please try again later.");
-                          }}
-                        />
-                      ) : (
-                        <img
-                          className="max-h-10 max-w-10"
-                          src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
-                          alt={item.pdfFile}
-                        />
+                  <tr 
+                    key={index} 
+                    className="hover:bg-gray-50 transition-colors group"
+                    onClick={() => handleView(item)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td className="px-5 py-4 text-gray-700 font-medium">{item.report_name}</td>
+                    <td className="px-5 py-4 text-gray-700">{categories[item.category_id]}</td>
+                    <td className="px-5 py-4 text-gray-600">{new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                    <td className="px-5 py-4 text-gray-600">{new Date(item.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                    <td className="px-5 py-4">
+                      {item.report_file && (
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden shadow-sm">
+                          {item.report_file.endsWith(".pdf") ? (
+                            <span className="text-blue-600 font-medium text-sm">PDF</span>
+                          ) : (
+                            <img
+                              src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
+                              alt="Report"
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                        </div>
                       )}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">
+                    <td className="px-5 py-4">
                       <span
-                        className={`px-2 py-1 text-sm rounded-full ${
+                        className={`px-3 py-1.5 text-sm rounded-full font-medium ${
                           statusColors[item.status.toLowerCase()] ||
                           "bg-gray-100 text-gray-700"
                         }`}
                       >
                         {item.status}
                       </span>
-                    </td>                    
-                    <td className="border border-gray-300 px-4 py-2">
-                        <button
-                          onClick={() => handleView(item)}
-                          className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-600 cursor-pointer"
-                        >
-                          <FaEye />
-                        </button>
+                    </td>
+                    <td className="px-5 py-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleView(item);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 transition-colors p-2 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      >
+                        <FaEye className="w-5 h-5" />
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center border border-gray-300 px-4 py-2">
-                    No reports found.
+                  <td colSpan="7" className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center gap-3 text-gray-500">
+                      <svg 
+                        className="w-16 h-16 text-gray-400" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p className="text-gray-600 font-medium mt-2">No matching reports found</p>
+                      <p className="text-sm text-gray-500 max-w-xs text-center">
+                        Try adjusting your filters or search terms to find what you're looking for
+                      </p>
+                    </div>
                   </td>
                 </tr>
               )}
@@ -372,33 +389,38 @@ const EachCso = () => {
           </table>
         </div>
 
-        {/* Pagination Buttons */}
-        <div className="flex justify-between mt-4">
-          <button
-            onClick={handlePrevious}
-            disabled={currentPage === 1}
-            className={`py-2 px-4 rounded ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={handleNext}
-            disabled={currentPage === totalPages}
-            className={`py-2 px-4 rounded ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }`}
-          >
-            Next
-          </button>
+        {/* Pagination Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center mt-8 gap-4">
+          <div className="text-gray-600 font-medium">
+            Showing {indexOfFirstReport + 1} to {Math.min(indexOfLastReport, filteredReports.length)} of {filteredReports.length} entries
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handlePrevious}
+              disabled={currentPage === 1}
+              className={`px-4 py-2.5 rounded-xl font-medium ${
+                currentPage === 1
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+              } transition-all focus:outline-none focus:ring-2 focus:ring-blue-200`}
+            >
+              Previous
+            </button>
+            <span className="text-gray-600 font-medium px-4">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNext}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2.5 rounded-xl font-medium ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+              } transition-all focus:outline-none focus:ring-2 focus:ring-blue-200`}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

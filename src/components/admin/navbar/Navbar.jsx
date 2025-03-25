@@ -30,15 +30,27 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Fetch notifications from the server
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
+        // const token = localStorage.getItem("token");
+        // if (!token) {
+        //   console.error("No token found");
+        //   return;
+        // }
   
-        // Decode the token to extract user information
-        const decodedToken = jwtDecode(token);
-        const { registrationId } = decodedToken;
+        // // Decode the token to extract user information
+        // const decodedToken = jwtDecode(token);
+        // const { registrationId } = decodedToken;
+  
+        // if (!registrationId) {
+        //   console.error("Invalid token: registrationId not found");
+        //   return;
+        // }
+        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+          withCredentials: true,
+        });
+        if (!meResponse.data.success) {
+          throw new Error("Failed to get user details");
+        }
+        const { registrationId } = meResponse.data;
   
         if (!registrationId) {
           console.error("Invalid token: registrationId not found");

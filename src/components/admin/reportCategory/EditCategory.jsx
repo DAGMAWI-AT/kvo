@@ -1,40 +1,41 @@
-import React, { useState, useEffect } from 'react'; 
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ClipLoader, PulseLoader } from 'react-spinners';
 import Swal from 'sweetalert2';
 
 const EditCategory = () => {
-  const { id } = useParams(); // Retrieve category ID from route parameters
+  const { id } = useParams();
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [updating, setUpdating] = useState(false);
   const navigate = useNavigate();
 
-  // Updated formatDate using ISO string to avoid timezone issues
   const formatDate = (date) => {
     return new Date(date).toISOString().split('T')[0];
   };
 
-  // Fetch category details by ID
   useEffect(() => {
     const fetchCategory = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("No token found. Please log in.");
-        return;
-      }
       try {
-        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`,
-         { headers: {
-            "Authorization": `Bearer ${token}`,
-          }}
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch category details.');
+        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+          withCredentials: true,
+        });
+
+        if (!meResponse.data || !meResponse.data.success) {
+          navigate("/login");
+          return;
         }
+
+        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
+          credentials: 'include',
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch category details.');
+
         const data = await response.json();
         setCategory(data);
       } catch (error) {
-        console.error('Error fetching category:', error.message);
         Swal.fire({
           icon: 'error',
           title: 'Error',
@@ -47,47 +48,55 @@ const EditCategory = () => {
     };
 
     fetchCategory();
-  }, [id]);
+  }, [id, navigate]);
 
   const handleEditCategory = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-  
-    // Format the date to YYYY-MM-DD using the new formatDate function
-    const formattedExpireDate = formatDate(category.expire_date);
-  
-    const payload = {
-      category_name: category.category_name,
-      expire_date: formattedExpireDate, // Send the formatted date
-    };  
+    setUpdating(true);
+
     try {
+      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        withCredentials: true,
+      });
+
+      if (!meResponse.data || !meResponse.data.success) {
+        navigate("/login");
+        return;
+      }
+
+      const formattedExpireDate = formatDate(category.expire_date);
+      const payload = {
+        category_name: category.category_name,
+        expire_date: formattedExpireDate,
+      };
+
       const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
-  
+
       if (!response.ok) {
-        const errorData = await response.json(); // Parse error response
-        console.error('Backend error:', errorData);
+        const errorData = await response.json();
         throw new Error(errorData.message || 'Update failed');
       }
-  
+
       Swal.fire('Success!', 'Category updated successfully', 'success')
         .then(() => navigate('/admin/report_category'));
     } catch (error) {
-      console.error('Update error:', error);
       Swal.fire('Error', error.message || 'Failed to update category', 'error');
+    } finally {
+      setUpdating(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-lg text-gray-700">Loading...</p>
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <ClipLoader color="#4F46E5" size={50} />
       </div>
     );
   }
@@ -142,9 +151,10 @@ const EditCategory = () => {
 
           <button
             type="submit"
-            className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors"
+            className="w-full bg-green-500 text-white py-2 rounded flex justify-center items-center gap-2 hover:bg-green-600 transition-colors"
+            disabled={updating}
           >
-            Update Category
+            {updating ? <PulseLoader color="#fff" size={8} /> : 'Update Category'}
           </button>
         </form>
       </div>

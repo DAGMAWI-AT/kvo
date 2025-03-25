@@ -2,48 +2,44 @@ import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import EditProfile from "./EditProfile";
 import { FaCalendarAlt, FaCalendarTimes, FaCircle, FaEnvelope, FaFileAlt, FaIdCard, FaKey, FaMobileAlt, FaPhoneAlt } from "react-icons/fa";
+import axios from "axios";
+import { BarLoader } from "react-spinners";
 
 const ViewUserProfile = () => {
   // ... [keep existing state and logic the same] ...
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        // Get the token from localStorage
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
-
-        // Decode the token to extract user information
-        const decodedToken = jwtDecode(token);
-        const { id } = decodedToken;
-
-        if (!id) {
-          console.error("Invalid token: id not found");
-          return;
-        }
-
-        // Fetch user profile using registrationId
-        const response = await fetch(`http://localhost:5000/api/staff/staff/${id}`
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setProfileData(data);
-        } else {
-          console.error("Failed to fetch profile data");
-        }
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
+  const fetchProfileData = async () => {
+    try {
+      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        withCredentials: true,
+      });
+  
+      if (!meResponse.data.success) {
+        throw new Error("Failed to get user details");
       }
-    };
-
+      const { id } = meResponse.data;
+  
+      const response = await fetch(`http://localhost:5000/api/staff/staff/${id}`);
+  
+      if (response.ok) {
+        const data = await response.json();
+        setProfileData(data);
+      } else {
+        console.error("Failed to fetch profile data");
+      }
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+  };
+  
+  useEffect(() => {
     fetchProfileData();
   }, []);
+  
+
+  
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -53,34 +49,41 @@ const ViewUserProfile = () => {
     setIsModalOpen(false);
   };
 
-  const handleProfileUpdate = (updatedData) => {
+  const handleProfileUpdate = async (updatedData) => {
     setProfileData(updatedData);
     closeModal();
+    await fetchProfileData();
   };
 
 
 
 
-  if (!profileData) {
-    return <div className="flex justify-center items-center h-screen">Loading profile...</div>;
-  }
-
+  // if (!profileData) {
+  //   return <div className="flex justify-center items-center h-screen">Loading profile...</div>;
+  // }
   if (!profileData) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-blue-200 h-12 w-12"></div>
-          <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-blue-200 rounded w-3/4"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-blue-200 rounded"></div>
-              <div className="h-4 bg-blue-200 rounded w-5/6"></div>
-            </div>
-          </div>
-        </div>
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
       </div>
     );
   }
+  // if (!profileData) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+  //       <div className="animate-pulse flex space-x-4">
+  //         <div className="rounded-full bg-blue-200 h-12 w-12"></div>
+  //         <div className="flex-1 space-y-4 py-1">
+  //           <div className="h-4 bg-blue-200 rounded w-3/4"></div>
+  //           <div className="space-y-2">
+  //             <div className="h-4 bg-blue-200 rounded"></div>
+  //             <div className="h-4 bg-blue-200 rounded w-5/6"></div>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">

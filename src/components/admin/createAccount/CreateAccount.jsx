@@ -12,11 +12,15 @@ const CreateAccount = () => {
   const [error, setError] = useState();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found. Please log in.");
+
+    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      withCredentials: true,
+  });
+
+  if (!meResponse.data || !meResponse.data.success) {
+      navigate("/login");
       return;
-    }
+  }
 
     // Validate if passwords match
     if (password !== confirmPassword) {
@@ -37,11 +41,8 @@ const CreateAccount = () => {
           password,
         },
         {
-          headers: {
-            "Authorization": `Bearer ${token}`, // Include token in Authorization header
-            "Content-Type": "application/json", // Ensure proper content type
-          },
-        }
+          withCredentials: true,
+      }
       );
 
       if (response.data?.success) {
@@ -72,7 +73,7 @@ const CreateAccount = () => {
     <div className="flex items-center justify-center bg-gray-100">
       <div className="bg-white m-6 p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-center text-2xl font-bold mb-6">
-          Create User Account
+          Create User Account For Registered CSOs
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

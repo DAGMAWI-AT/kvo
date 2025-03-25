@@ -23,10 +23,13 @@ const UploadReports = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch user details (cookies are automatically included)
         const meResponse = await fetch("http://localhost:5000/api/users/me", {
-          credentials: "include", // Include cookies in the request
+          credentials: "include",
         });
+        if (meResponse.status === 401) {
+          navigate("/user/login");
+          return; // Stop execution after redirection
+        }
         const meResult = await meResponse.json();
         if (!meResponse.ok) {
           throw new Error(`${meResponse.statusText}`, navigate("/user/login"));
@@ -40,36 +43,33 @@ const UploadReports = () => {
 
         // Fetch report categories
         const categoriesResponse = await fetch(
-          `http://localhost:5000/api/reportCategory?user_id=${id}`, // Pass user_id
+          `http://localhost:5000/api/reportCategory/category?user_id=${id}`, // Pass user_id
           { credentials: "include" } // Include cookies if needed
         );
         const categoriesResult = await categoriesResponse.json();
-        if (!categoriesResponse.ok) {
-          throw new Error(categoriesResult.message || "Failed to fetch report categories.");
-        }
+        if (categoriesResponse.ok) {
+       
         setReportCategories(categoriesResult);
-
-        // Fetch user's report history
+      }
         const reportsResponse = await fetch(
           `http://localhost:5000/api/report/user/${id}`,
-          // {
-          //   credentials: "include", // Include cookies in the request
-          // }
+          {
+            credentials: "include", // Include cookies in the request
+          }
         );
         const reportsResult = await reportsResponse.json();
-        if (!reportsResponse.ok) {
-          throw new Error(reportsResult.message || "Failed to fetch user reports.");
-        }
+        if (reportsResponse.ok) {
         setUserReports(reportsResult.data || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error.message || "An error occurred while fetching data.",
-        });
-       
       }
+    }catch (error) {
+            if (error.response?.status === 401) {
+              navigate("/user/login");
+            } else {
+              Swal.fire("Error!", error.message, "error");
+            }
+          } finally {
+            setLoading(false);
+          }
     };
 
     fetchData();
@@ -92,7 +92,7 @@ const UploadReports = () => {
     }
     return userReports.some(
       (report) =>
-        report.category_id.toString() === categoryId.toString() &&
+        report.category_id === categoryId &&
         report.expire_date === categoryExpireDate
     );
   };
@@ -115,9 +115,15 @@ const UploadReports = () => {
     const meResponse = await fetch("http://localhost:5000/api/users/me", {
       credentials: "include", // Include cookies in the request
     });
+    if (meResponse.status === 401) {
+      navigate("/user/login");
+      return; // Stop execution after redirection
+    }
     const meResult = await meResponse.json();
     if (!meResponse.ok) {
-      throw new Error(meResult.message || "Failed to fetch user details.");
+      throw new Error(meResult.message, `${meResult.statusText}` || "Failed to fetch user details.");
+      // throw new Error(`${meResult.statusText}`);
+
     }
 
     const { registrationId, id } = meResult;
@@ -170,7 +176,6 @@ const UploadReports = () => {
           icon: "success",
           title: "Success!",
           text: "Report uploaded successfully!",
-          // confirmButtonText: "OK",
           showConfirmButton: false,
           timer: 1500,
         });
@@ -195,12 +200,16 @@ const UploadReports = () => {
         navigate("/user/work_report");
       } else {
         console.error("Upload failed:", result.message);
-        throw new Error(`${result.statusText}`);
+        throw new Error(result.message || `${result.statusText}`);
 
       }
     } catch (error) {
-      // console.error("Error submitting report:", error);
+      console.error("Error submitting report:", error);
       // setError(error.message); 
+    if (error.message.includes("401") || error.response?.status === 401) {
+        navigate("/user/login");
+        return;
+      } 
       await Swal.fire({
         icon: "error",
         title: "error",

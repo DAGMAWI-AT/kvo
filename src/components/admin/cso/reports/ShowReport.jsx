@@ -7,7 +7,11 @@ import {
   FaEye,
   FaCommentDots,
   FaArrowLeft,
+  FaTrash,
 } from "react-icons/fa";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { BarLoader } from "react-spinners";
 
 const ShowReport = () => {
   const navigate = useNavigate();
@@ -20,34 +24,90 @@ const ShowReport = () => {
   const [statusSuccessMessage, setStatusSuccessMessage] = useState("");
   const [error, setError] = useState("");
   const [statusError, setStatusError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const [authors, setAuthorName] = useState("");
+  const [registration_id, setRegistrationId] = useState();
+
   const [showAll, setShowAll] = useState(false);
   const [expandedComments, setExpandedComments] = useState({});
   const [formData, setFormData] = useState({ status: report?.status });
   const [formExpireDate, setFormExpireDate] = useState({
-    expire_date: report?.expire_date ? new Date(report.expire_date).toISOString().split('T')[0] : "",
+    expire_date: report?.expire_date
+      ? new Date(report.expire_date).toISOString().split("T")[0]
+      : "",
   });
   const visibleComments = showAll ? commentData : commentData.slice(0, 3);
+
+  // useEffect(() => {
+  //   if (report?.id) {
+  //     const fetchComments = async () => {
+  //       const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+  //         withCredentials: true,
+  //       });
+    
+  //       if (!meResponse.data || !meResponse.data.success) {
+  //         navigate("/login");
+  //         return;
+  //       }
+    
+  //       const {id, registrationId } = meResponse.data;
+  //       setRegistrationId(registrationId);
+
+  //       try {
+  //         const response = await fetch(
+  //           `http://localhost:5000/api/comments/comment/${report.id}`
+  //         );
+  //         if (!response.ok) throw new Error(`Error: ${response.status}`);
+  //         const data = await response.json();
+  //         setCommentData(data.comments || []);
+  //         setLoading(false);
+
+  //       } catch (error) {
+  //         console.error("Error fetching comments:", error);
+  //         setLoading(false);
+
+  //       }
+  //     };
+  //     fetchComments();
+  //   }
+  // }, [report?.id]);
 
   useEffect(() => {
     if (report?.id) {
       const fetchComments = async () => {
         try {
+          const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+            withCredentials: true,
+          });
+  
+          if (!meResponse.data?.success) {
+            navigate("/login");
+            return;
+          }
+  
+          const { id, registrationId } = meResponse.data;
+          setRegistrationId(registrationId);
+  
           const response = await fetch(
             `http://localhost:5000/api/comments/comment/${report.id}`
           );
           if (!response.ok) throw new Error(`Error: ${response.status}`);
           const data = await response.json();
           setCommentData(data.comments || []);
+          setLoading(false);
         } catch (error) {
-          console.error("Error fetching comments:", error);
+          if (error.response?.status === 401) {
+            navigate("/login");
+          } else {
+            console.error("Error fetching comments:", error);
+          }
+          setLoading(false);
         }
       };
       fetchComments();
     }
   }, [report?.id]);
-
   const handleChange = (e) => {
     const { name, files, value } = e.target;
     setComment((prev) => ({
@@ -73,8 +133,12 @@ const ShowReport = () => {
         if (!response.ok) throw new Error("Failed to fetch category");
         const data = await response.json();
         setCategories(data.category_name);
+        setLoading(false);
+
       } catch (error) {
         console.error("Error fetching category:", error);
+        setLoading(false);
+
       }
     };
     fetchCategory();
@@ -82,20 +146,21 @@ const ShowReport = () => {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) return console.error("No token found");
+    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      withCredentials: true,
+    });
 
+    if (!meResponse.data || !meResponse.data.success) {
+      navigate("/login");
+      return;
+    }
+
+    const { id } = meResponse.data;
+    const { registrationId } = meResponse.data;
+    setRegistrationId(registrationId);
     try {
-      const decodedToken = jwtDecode(token);
-      const { registrationId } = decodedToken;
-
-      if (!registrationId) {
-        setError("Author information missing in token");
-        return;
-      }
-
       const staffResponse = await fetch(
-        `http://localhost:5000/api/staff/byid/${registrationId}`
+        `http://localhost:5000/api/staff/staff/${id}`
       );
       if (!staffResponse.ok) throw new Error(`Error: ${staffResponse.status}`);
       const staffData = await staffResponse.json();
@@ -103,7 +168,6 @@ const ShowReport = () => {
       const name = staffData.name || staffData[0]?.name;
       if (!name) throw new Error("Staff name not found");
       setAuthorName(name);
-
       const formData = new FormData();
       formData.append("comment", comments.comment);
       formData.append("comment_file", comments.comment_file);
@@ -116,7 +180,10 @@ const ShowReport = () => {
         method: "POST",
         body: formData,
       });
-
+      if (!meResponse.data || !meResponse.data.success) {
+        navigate("/login");
+        return;
+      }
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to submit comment");
@@ -127,7 +194,7 @@ const ShowReport = () => {
       );
       const newData = await newResponse.json();
       setCommentData(newData.comments || []);
-
+    
       setSuccessMessage("Comment submitted successfully!");
       setTimeout(() => setSuccessMessage(""), 3000);
       setComment({ comment: "", comment_file: null });
@@ -157,11 +224,16 @@ const ShowReport = () => {
   };
   const handleSubmitStatus = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) return console.error("No token found");
+    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      withCredentials: true,
+    });
 
-    const decodedToken = jwtDecode(token);
-    const { registrationId } = decodedToken;
+    if (!meResponse.data || !meResponse.data.success) {
+      navigate("/login");
+      return;
+    }
+
+    const { registrationId } = meResponse.data;
 
     const formDataToSend = new FormData();
     formDataToSend.append("status", formData.status);
@@ -198,15 +270,16 @@ const ShowReport = () => {
   const handleSubmitExpireDate = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found. Please log in.");
+    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      withCredentials: true,
+    });
+
+    if (!meResponse.data || !meResponse.data.success) {
+      navigate("/login");
       return;
     }
 
-    const decodedToken = jwtDecode(token);
-    const { registrationId } = decodedToken;
-
+    const { registrationId } = meResponse.data;
     try {
       const response = await fetch(
         `http://localhost:5000/api/report/expire_date/${report.id}`,
@@ -221,7 +294,8 @@ const ShowReport = () => {
             registration_id: report.registration_id,
           }),
         }
-      );   if (!response.ok) {
+      );
+      if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Failed to update expire date.");
       }
@@ -234,6 +308,47 @@ const ShowReport = () => {
       setTimeout(() => setStatusError(""), 5000);
     }
   };
+  const handleDeleteComment = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        const response = await axios.delete(`http://localhost:5000/api/comments/${id}`, {
+          withCredentials: true,
+        });
+  
+        if (response.status === 200) {
+          // Update the correct state: commentData
+          setCommentData((prevComments) => 
+            prevComments.filter((comment) => comment.id !== id)
+          );
+  
+          Swal.fire('Deleted!', 'Your comment has been deleted.', 'success');
+        } else {
+          Swal.fire('Error!', 'Something went wrong with the deletion.', 'error');
+        }
+      } catch (err) {
+        Swal.fire('Error!', `Failed to delete comment: ${err.message}`, 'error');
+        setError(err.message);
+      }
+    }
+  };
+  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
   if (!report) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -358,7 +473,9 @@ const ShowReport = () => {
               <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
                 Category
               </h3>
-              <p className="text-gray-900 font-medium">{categories}</p>
+              {/* <p className="text-gray-900 font-medium">{categories}</p> */}
+              <p className="text-gray-700 font-medium">{report.category_name}</p>
+
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
               <h3 className="text-sm font-semibold text-gray-500 mb-1 uppercase tracking-wider">
@@ -395,7 +512,7 @@ const ShowReport = () => {
             </div>
           </div>
         </div>
-        
+
         {/* File Section */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <div className="flex flex-wrap items-center gap-4 mb-6">
@@ -456,65 +573,72 @@ const ShowReport = () => {
             </div>
           )}
 
-          <div className="space-y-6 mb-8">
-            {commentData.length > 0 ? (
-              <>
-                {visibleComments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="border-l-4 border-blue-500 pl-6 py-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <span className="font-semibold text-gray-800">
-                          {comment.author}
-                        </span>
-                        <span className="text-gray-500 text-sm ml-2">
-                          {new Date(comment.commented_time).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-gray-700">
-                      {expandedComments[comment.id]
-                        ? comment.comment
-                        : comment.comment.slice(0, 200)}
-                      {comment.comment.length > 200 && (
-                        <button
-                          onClick={() => toggleExpand(comment.id)}
-                          className="text-indigo-600 hover:underline ml-2"
-                        >
-                          {expandedComments[comment.id]
-                            ? "Read Less"
-                            : "Read More"}
-                        </button>
-                      )}
-                    </p>
-                    {comment.comment_file &&
-                      comment.comment_file !== "null" && (
-                        <a
-                          href={`http://localhost:5000/comment/${comment.comment_file}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline mt-2 inline-block"
-                        >
-                          View attached file
-                        </a>
-                      )}
-                  </div>
-                ))}
-                {commentData.length > 3 && (
-                  <button
-                    onClick={() => setShowAll(!showAll)}
-                    className="text-indigo-600 mt-2 hover:underline"
-                  >
-                    {showAll ? "Show Less" : "Show More"}
-                  </button>
-                )}
-              </>
-            ) : (
-              <p className="text-gray-500">No comments yet</p>
+<div className="space-y-6 mb-8">
+  {commentData.length > 0 ? (
+    <>
+      {visibleComments.map((comment) => (
+        <div
+          key={comment.id}
+          className="border-l-4 border-blue-500 pl-6 py-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow"
+        >
+          <div className="flex justify-between items-start mb-3">
+            <div>
+              <span className="font-semibold text-gray-800">
+                {comment.author}
+              </span>
+              <span className="text-gray-500 text-sm ml-2">
+                {new Date(comment.commented_time).toLocaleString()}
+              </span>
+            </div>
+            {/* Optionally, you can add the delete button to the right */}
+            {registration_id === comment.author_id && (
+              <button
+                onClick={() => handleDeleteComment(comment.id)}
+                className="px-3 py-1.5 text-sm rounded-md transition-colors text-red-400 ml-2 self-start"
+              >
+                <FaTrash className="inline mr-1" /> Delete
+              </button>
             )}
           </div>
+          <p className="text-gray-700">
+            {expandedComments[comment.id]
+              ? comment.comment
+              : comment.comment.slice(0, 200)}
+            {comment.comment.length > 200 && (
+              <button
+                onClick={() => toggleExpand(comment.id)}
+                className="text-indigo-600 hover:underline ml-2"
+              >
+                {expandedComments[comment.id] ? "Read Less" : "Read More"}
+              </button>
+            )}
+          </p>
+          {comment.comment_file && comment.comment_file !== "null" && (
+            <a
+              href={`http://localhost:5000/comments/${comment.comment_file}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline mt-2 inline-block"
+            >
+              View attached file
+            </a>
+          )}
+        </div>
+      ))}
+      {commentData.length > 3 && (
+        <button
+          onClick={() => setShowAll(!showAll)}
+          className="text-indigo-600 mt-2 hover:underline"
+        >
+          {showAll ? "Show Less" : "Show More"}
+        </button>
+      )}
+    </>
+  ) : (
+    <p className="text-gray-500">No comments yet</p>
+  )}
+</div>
+
 
           {/* Comment Form */}
           <form onSubmit={handleSubmitComment} className="border-t pt-6">

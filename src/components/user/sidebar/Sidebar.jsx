@@ -10,6 +10,7 @@ import {
   FaCommentAlt,
   FaAccessibleIcon,
   FaFolderMinus,
+  FaUserAlt,
 } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdKeyboardArrowRight } from "react-icons/md";
 
@@ -48,7 +49,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Dashboard"}</span>
             </Link>
           </li>
-         
+
           <li className="menu-item" onClick={toggleReportsSubmenu}>
             <FaFolderMinus />
             <span>{!collapsed && "Reports"}</span>
@@ -66,10 +67,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
                   isActive("/user/work_report") ? "active" : ""
                 }`}
               >
-                <Link
-                  to="/user/work_report"
-                  className="flex items-center"
-                >
+                <Link to="/user/work_report" className="flex items-center">
                   <FaClipboardList />
                   <span className="ml-2">Reported</span>
                 </Link>
@@ -83,21 +81,25 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
                   isActive("/user/notifications") ? "active" : ""
                 }`}
               >
-                <Link
-                  to="/user/notifications"
-                  className="flex items-center"
-                >
-                <FaBell />
-                <span className="ml-2">Notifications</span>
+                <Link to="/user/notifications" className="flex items-center">
+                  <FaBell />
+                  <span className="ml-2">Notifications</span>
                 </Link>
               </li>{" "}
             </ul>
           )}
 
-         
-          <li>
-            <FaHistory />
-            <span>{!collapsed && "History"}</span>
+          <li className={`menu-item ${isActive("/user/form") ? "active" : ""}`}>
+            <Link to="/user/form" className="flex items-center">
+              <FaUserAlt />
+              <span>{!collapsed && "Form"}</span>
+            </Link>
+          </li>
+          <li className={`menu-item ${isActive("/user/submitted") ? "active" : ""}`}>
+            <Link to="/user/submitted" className="flex items-center">
+              <FaHistory />
+              <span>{!collapsed && "History"}</span>
+            </Link>
           </li>
           <li>
             <FaCog />

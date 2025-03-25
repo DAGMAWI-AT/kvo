@@ -39,9 +39,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
         throw new Error("Failed to get user details");
       }
       const { registrationId } = meResponse.data;
-
       if (!registrationId) {
-        console.error("Invalid token: registrationId not found");
+        console.error("Invalid : registrationId not found");
         return;
       }
 
@@ -127,7 +126,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // View report details
   const viewReportDetails = async (report_id) => {
   try {
-      navigate(`/user/viewworkreport/${report_id}`);
+      navigate(`/user/view_submitted/${report_id}`);
     } catch (error) {
       console.error("Error fetching report details:", error);
     }

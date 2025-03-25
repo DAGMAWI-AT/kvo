@@ -53,14 +53,10 @@ const Bar = ({ darkMode }) => {
   ];
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-xl font-bold text-center text-gray-400 uppercase mb-6">Request Status Overview</h2>
+    <div className=" mx-auto p-4">
+      <h2 className="text-xl font-bold text-center text-gray-500 uppercase mb-6">Request Status Overview</h2>
 
-      {/* {loading ? (
-        // <p className="text-center text-gray-500">Loading...</p>
-      ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
-      ) : ( */}
+    
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {reports.map((report, index) => (
             <div
@@ -75,7 +71,6 @@ const Bar = ({ darkMode }) => {
             </div>
           ))}
         </div>
-      {/* )} */}
     </div>
   );
 };

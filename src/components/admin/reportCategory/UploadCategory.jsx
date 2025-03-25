@@ -12,9 +12,12 @@ const UploadCategory = () => {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found. Please log in.");
+    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      withCredentials: true,
+    });
+
+    if (!meResponse.data || !meResponse.data.success) {
+      navigate("/login");
       return;
     }
     try {
@@ -23,12 +26,8 @@ const UploadCategory = () => {
         {
           category_name: categoryName,
           expire_date: expireDate,
-        },
-        {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        },{
+          credentials: "include", // Include cookies in the request
         }
       );
 

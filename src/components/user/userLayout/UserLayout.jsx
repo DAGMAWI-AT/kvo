@@ -4,6 +4,8 @@ import Sidebar from "../sidebar/Sidebar";
 import Navbar from "../navbar/Navbar";
 import "./UserLayout.css";
 // import Footer from "../footer/Footer";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserLayout = () => {
   const [darkMode, setDarkMode] = useState(false); // Dark mode state
@@ -27,6 +29,8 @@ const UserLayout = () => {
           toggleSidebar={toggleSidebar} // Pass toggleSidebar to Navbar
         />
         <main className="main-content">
+        <ToastContainer position="top-right" autoClose={5000} />
+
           <Outlet context={{ darkMode }} />
         </main>
         {/* <Footer/> */}

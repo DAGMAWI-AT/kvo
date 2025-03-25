@@ -39,6 +39,7 @@ const StatusBadge = styled.span`
 const WorkReport = () => {
   const navigate = useNavigate();
   const [report, setReport] = useState([]);
+  const [categories, setCategories] = useState({});
   const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({ field: null, direction: "asc" });
   const [filters, setFilters] = useState({
@@ -54,44 +55,47 @@ const WorkReport = () => {
 
 
   // Fetch all reports
-  const fetchProfileData = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
-        withCredentials: true,
-      });
-      if (!meResponse.data.success) {
-        throw new Error(`${meResponse.statusText}`);
-      }
-      const { id } = meResponse.data;
-      if (!id) throw new Error(`${meResponse.statusText}`);
-      // console.log(id)
-      const response = await fetch(`${API_BASE_URL}/api/report/user/${id}`);
-  
-      const data = await response.json();
-  
-      // Check if data is empty or null
-      if (!data?.data || data.data.length === 0) {
-        setReport([]); // Set report to an empty array
-        return; // Exit the function without showing SweetAlert
-      }
-      setReport(data.data);
+      const [meResponse, categoriesResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/users/me`, { withCredentials: true }),
+        axios.get(`${API_BASE_URL}/api/reportCategory/cat`)
+      ]);
 
-      if (!response.ok) throw new Error(`${response.statusText}`);
+      if (!meResponse.data?.success) {
+        navigate("/user/login");
+        return;
+      }
 
-      // Set report data
+      const reportsResponse = await axios.get(
+        `${API_BASE_URL}/api/report/user/${meResponse.data.id}`
+      );
+
+      const categoryMap = categoriesResponse.data.reduce((acc, category) => {
+        acc[category.id] = category;
+        return acc;
+      }, {});
+
+      setReport(reportsResponse.data.data || []);
+      setCategories(categoryMap);
     } catch (error) {
-      // Show SweetAlert only for actual fetch errors
-      if (error.message === "Failed to fetch internal connection") {
+      if (error.response?.status === 401) {
+        navigate("/user/login");
+      } else {
         Swal.fire("Error!", error.message, "error");
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
-    fetchProfileData();
-  }, [fetchProfileData]);
+    fetchData();
+  }, [fetchData]);
+
+  // useEffect(() => {
+  //   fetchProfileData();
+  // }, [fetchProfileData]);
 
   // Sorting functionality
   const sortedReports = useMemo(() => {
@@ -309,20 +313,26 @@ const WorkReport = () => {
 
             <tbody className="divide-y divide-gray-200">
               {currentData.map((item, index) => {
-                const isExpired = new Date(item.expire_date) < new Date();
-
-                return (
+                // const isExpired = new Date(categories.expire_date) < new Date();
+                const category = categories[item.category_id] || {} ;
+                const now = new Date();
+                const isExpired = (
+                  (new Date(category.expire_date) < now && new Date(item.expire_date) < now) ||
+                  (new Date(item.expire_date) < now && item.category_id === null) ||
+                  (category && Object.keys(category).length === 0)
+                );                return (
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {(pagination.currentPage - 1) * pagination.pageSize + index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.report_name}</td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{item.category_name || "N/A"}</td>
+                    {/* <td className="px-4 py-3 text-sm text-gray-600">{category.category_name}</td> */}
+                    <td className="px-4 py-3 text-sm text-gray-600">{item.category_name}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={item.status}>{item.status}</StatusBadge>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
-                      {/* {category?.expire_date ? new Date(category.expire_date).toLocaleDateString() : "N/A"} */}
+                      {/* {new Date(category.expire_date).toLocaleDateString() } */}
                        {new Date(item.expire_date).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 flex gap-2">

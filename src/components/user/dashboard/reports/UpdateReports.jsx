@@ -4,6 +4,16 @@ import Swal from "sweetalert2";
 import { ClipLoader } from "react-spinners";
 import axios from "axios";
 
+// axios.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       // Redirect to login page if unauthorized
+//       window.location.href = "/user/login";
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 const UpdateReports = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -58,42 +68,51 @@ const UpdateReports = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!loggedInUserId) return;
-
+  
       try {
         setLoading(true);
         setError(null);
-
+  
         // Fetch the report details
         const reportResponse = await fetch(
           `http://localhost:5000/api/report/byId/${id}`,
-          {
-            credentials: "include",
-          }
+          { credentials: "include" }
         );
         const reportData = await reportResponse.json();
-
+  
         if (!reportResponse.ok) {
           throw new Error(reportData.message || "Failed to fetch report");
         }
-
-        // Check authorization and expiration
+  
+        // Check authorization
         if (reportData.user_id !== loggedInUserId) {
           throw new Error("You are not authorized to edit this report");
         }
-        if (new Date(reportData.expire_date) < new Date()) {
-          throw new Error("This report has expired and cannot be modified");
-        }
-
+  
         // Get the original category ID from the report
         const originalCategoryId = reportData.category_id;
-
+  
         // Fetch user's own categories
         const categoriesResponse = await fetch(
-          `http://localhost:5000/api/reportCategory?user_id=${loggedInUserId}`,
+          `http://localhost:5000/api/reportCategory/category?user_id=${loggedInUserId}`,
           { credentials: "include" }
         );
-        const userCategories = await categoriesResponse.json();
-
+        let userCategories = await categoriesResponse.json();
+  
+        // Ensure userCategories is an array
+        if (!Array.isArray(userCategories)) {
+          userCategories = [];
+        }
+  
+        // Check if any category has expired
+        const isExpired = userCategories.some(
+          (cat) => new Date(cat.expire_date) < new Date()
+        );
+  
+        if (isExpired || userCategories.length === 0) {
+          throw new Error("Your report category has expired or is invalid.");
+        }
+  
         // Fetch the original category details (even if not in user's categories)
         const originalCategoryResponse = await fetch(
           `http://localhost:5000/api/reportCategory/${originalCategoryId}`,
@@ -102,7 +121,7 @@ const UpdateReports = () => {
         const originalCategory = originalCategoryResponse.ok
           ? await originalCategoryResponse.json()
           : null;
-
+  
         // Combine categories: user's categories + original category (if different)
         const combinedCategories = [
           ...(originalCategory ? [originalCategory] : []),
@@ -110,14 +129,14 @@ const UpdateReports = () => {
         ].filter(
           (cat, index, self) => index === self.findIndex((t) => t.id === cat.id)
         );
-
+  
         // Set initial form data
         const initialFormData = {
           report_name: reportData.report_name,
           description: reportData.description,
           category_id: reportData.category_id,
         };
-
+  
         setFormData(initialFormData);
         setOriginalFormData(initialFormData);
         setDefaultFileName(reportData.report_file);
@@ -137,9 +156,10 @@ const UpdateReports = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id, loggedInUserId, navigate]);
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

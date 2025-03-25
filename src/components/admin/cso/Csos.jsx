@@ -7,7 +7,7 @@ import {
   FaUserAlt,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router";
-import { ClipLoader } from "react-spinners";
+import { BarLoader, ClipLoader } from "react-spinners";
 
 const Csos = () => {
   const navigate = useNavigate();
@@ -136,25 +136,12 @@ const Csos = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-transparent">
-        <ClipLoader color="#4F46E5" size={50} />
+        <BarLoader color="#4F46E5" size={50} />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <p className="text-red-500 text-lg mb-4">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="p-2 lg:p-8 md:p-6 mx-auto max-w-6xl bg-white rounded-xl shadow-lg">
       <h2 className="text-2xl md:text-4xl lg:text-4x1 p-2 lg:p-4 md:p-4 font-thin text-gray-600 mb-6 text-center">
@@ -283,8 +270,11 @@ const Csos = () => {
           ))
         ) : (
           <p className="text-center text-gray-500">
-            No organizations found matching your criteria.
+            No organizations found. please refresh again.
+            {error && <p className="error-text text-center text-red-400">{error}</p>}
+
           </p>
+          
         )}
       </div>
 

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {jwtDecode} from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaSearch } from "react-icons/fa";
@@ -13,47 +12,36 @@ const Notifications = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'read', 'unread'
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-
+  const [registration_id, setRegistrationId]= useState();
   const notificationsPerPage = 10;
-  const token = localStorage.getItem("token");
-  const decodedToken = token ? jwtDecode(token) : null;
-  const registrationId = decodedToken ? decodedToken.registrationId : null;
 
-  
-  // Check for token, decode it and fetch notifications
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/user/login");
-      return;
-    }
-
-    const decodedToken = jwtDecode(token);
-    const { registrationId } = decodedToken;
-
-    const fetchNotifications = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/notifications/`,
-          {
-            method: "GET",
-            // Uncomment below if you want to send the token in headers
-            // headers: {
-            //   Authorization: `Bearer ${token}`,
-            // },
-          }
-        );
+        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+          withCredentials: true,
+        });
+
+        if (!meResponse.data || !meResponse.data.success) {
+          navigate("/login");
+          return;
+        }
+
+        const { registrationId } = meResponse.data;
+        setRegistrationId(registrationId);
+        const response = await fetch(`http://localhost:5000/api/notifications/`, {
+          method: "GET",
+          withCredentials: true,
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch notifications");
         }
 
         const data = await response.json();
-
-        // Ensure the response data is an array
         if (!Array.isArray(data)) {
           throw new Error("Invalid data format: Expected an array");
         }
@@ -67,7 +55,7 @@ const Notifications = () => {
       }
     };
 
-    fetchNotifications();
+    fetchData();
   }, [navigate]);
 
   // Apply filters and search
@@ -122,6 +110,7 @@ const Notifications = () => {
       console.error("Error fetching report details:", error);
     }
   };
+
   // Mark notification as read
   const handleMarkAsRead = async (id) => {
     try {
@@ -129,9 +118,7 @@ const Notifications = () => {
         `http://localhost:5000/api/notifications/read/${id}`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          withCredentials: true,
         }
       );
       setNotifications((prev) =>
@@ -153,40 +140,26 @@ const Notifications = () => {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: 'Yes, delete it!',
     });
-  
+
     if (result.isConfirmed) {
       try {
         await axios.delete(`http://localhost:5000/api/notifications/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          withCredentials: true,
         });
-        
+
         setNotifications((prev) =>
           prev.filter((notification) => notification.id !== id)
         );
-        
-        Swal.fire(
-          'Deleted!',
-          'Your notification has been deleted.',
-          'success'
-        );
+
+        Swal.fire('Deleted!', 'Your notification has been deleted.', 'success');
       } catch (err) {
-        Swal.fire(
-          'Error!',
-          'Failed to delete notification.',
-          'error'
-        );
+        Swal.fire('Error!', 'Failed to delete notification.', 'error');
         setError(err.message);
       }
     }
   };
-  
-  // if (loading) return <div className="text-center py-4">Loading...</div>;
-  // if (error)
-  //   return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="min-h-screen p-4">
@@ -290,10 +263,9 @@ const Notifications = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap space-x-2">
-
-                <button
+                  <button
                     onClick={() => {
-                      if (notification.read === 0 && registrationId !== notification.author_id) {
+                      if (notification.read === 0 && registration_id !== notification.author_id) {
                         handleMarkAsRead(notification.id);
                       }
                       viewReportDetails(notification.report_id);
@@ -306,11 +278,11 @@ const Notifications = () => {
                     onClick={() => handleDeleteNotification(notification.id)}
                     disabled={
                       notification.read === 0 &&
-                      registrationId !== notification.registration_id
+                      registration_id !== notification.registration_id
                     }
                     className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                       notification.read === 0 &&
-                      registrationId !== notification.registration_id
+                      registration_id !== notification.registration_id
                         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                         : "bg-red-600 hover:bg-red-700 text-white"
                     }`}
@@ -326,22 +298,33 @@ const Notifications = () => {
 
       {/* Pagination */}
       <div className="mt-6 flex justify-center gap-2">
-        {Array.from({
-          length: Math.ceil(filteredNotifications.length / notificationsPerPage),
-        }).map((_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => paginate(index + 1)}
-            className={`px-3 py-1 rounded-md ${
-              currentPage === index + 1
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-            }`}
-          >
-            {index + 1}
-          </button>
-        ))}
+        {Array.from(
+          { length: Math.ceil(filteredNotifications.length / notificationsPerPage) },
+          (_, index) => (
+            <button
+              key={index}
+              onClick={() => paginate(index + 1)}
+              className={`px-4 py-2 text-sm font-medium ${
+                currentPage === index + 1
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-gray-600 hover:bg-blue-100"
+              } rounded-md`}
+            >
+              {index + 1}
+            </button>
+          )
+        )}
       </div>
+
+      {loading && (
+        <div className="flex justify-center items-center mt-6">
+          <div className="w-8 h-8 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+        </div>
+      )}
+
+      {error && (
+        <div className="text-red-600 text-center mt-6">{error}</div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,21 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router";
+import { BarLoader } from "react-spinners";
 import Swal from "sweetalert2";
+
+// Set up Axios interceptor to handle 401 errors globally
+// axios.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       // Redirect to login page if unauthorized
+//       window.location.href = "/login";
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 const Category = () => {
   const navigate = useNavigate();
@@ -14,26 +28,27 @@ const Category = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Token is missing");
-        return;
-      }
-
       try {
-        const response = await fetch("http://localhost:5000/api/reportCategory/cat", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        // Check if the user is authenticated
+        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+          withCredentials: true,
         });
-        if (!response.ok) {
-          throw new Error(`Error: ${response.statusText}`);
+
+        if (!meResponse.data || !meResponse.data.success) {
+          navigate("/login");
+          return;
         }
-        const result = await response.json();
-        setData(result); // Assuming result is an array
+
+        // Fetch report categories
+        const response = await axios.get("http://localhost:5000/api/reportCategory/cat", {
+          withCredentials: true,
+        });
+
+        if (response.data) {
+          setData(response.data); // Assuming response.data is an array
+        }
       } catch (error) {
-        console.error("Error fetching data:", error.message);
+        console.error("Error fetching data:", error);
         setError("Failed to fetch data. Please try again.");
       } finally {
         setLoading(false);
@@ -41,7 +56,7 @@ const Category = () => {
     };
 
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const handleEdit = (id) => {
     navigate(`/admin/report_category/edit_category/${id}`);
@@ -59,19 +74,20 @@ const Category = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
-            method: "DELETE",
-          });
-          if (!response.ok) {
-            throw new Error("Failed to delete category");
+          const response = await axios.delete(
+            `http://localhost:5000/api/reportCategory/${id}`,
+            { Credentials: "include" }
+          );
+
+          if (response.data) {
+            setData((prevData) => prevData.filter((item) => item.id !== id));
+            Swal.fire({
+              icon: "success",
+              title: "Deleted!",
+              text: "The report category has been deleted.",
+              confirmButtonColor: "#3085d6",
+            });
           }
-          setData((prevData) => prevData.filter((item) => item.id !== id));
-          Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: "The report category has been deleted.",
-            confirmButtonColor: "#3085d6",
-          });
         } catch (error) {
           console.error("Error deleting category:", error);
           Swal.fire({
@@ -117,11 +133,11 @@ const Category = () => {
   };
 
   if (loading) {
-    return <p className="text-center py-10">Loading...</p>;
-  }
-
-  if (error) {
-    return <p className="text-center text-red-500 py-10">{error}</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
+      </div>
+    );
   }
 
   return (

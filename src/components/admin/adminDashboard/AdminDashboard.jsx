@@ -22,48 +22,38 @@
 import React, { useEffect, useState } from "react";
 import CircleBar from "./CircleBar";
 import axios from "axios";
+import DashboardReport from "./DashboardReport";
+import { useNavigate } from "react-router";
 
 const Dashboard = () => {
-  const [data, setData] = useState({
-    usersPercentage: 0,
-    usersCount: 0,
-    csoPercentage: 0,
-    csoCount: 0,
-    // proposalsPercentage: 0,
-    // proposalsCount: 0,
-    reportsPercentage: 0,
-    reportsCount: 0,
-    projectsPercentage: 0,
-    projectsCount: 0,
-  });
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/users/res/dashboard");
-        setData(response.data);
-        console.log(response.data)
-      } catch (error) {
-        console.error("Error fetching data:", error);
+ const navigate = useNavigate()
+  const fetchUsers = async () => {
+    try {
+      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        withCredentials: true,
+      });
+
+      if (!meResponse.data || !meResponse.data.success) {
+        navigate("/login");
+        return;
       }
-    };
 
-    fetchData();
+      if (!meResponse.data || !meResponse.data.success || !meResponse.data?.success) {
+        navigate("/login");
+        return;
+      }
+
+    } catch (err) {
+      
+    }
+  };
+  useEffect(() => {
+    fetchUsers();
   }, []);
-
   return (
     <div>
-      <CircleBar
-        usersPercentage={data.usersPercentage}
-        usersCount={data.usersCount}
-        csoPercentage={data.csoPercentage}
-        csoCount={data.csoCount}
-        // proposalsPercentage={data.proposalsPercentage}
-        // proposalsCount={data.proposalsCount}
-        reportsPercentage={data.reportsPercentage}
-        reportsCount={data.reportsCount}
-        projectsPercentage={data.projectsPercentage}
-        projectsCount={data.projectsCount}
-      />
+      <CircleBar/>
+      <DashboardReport/>
     </div>
   );
 };

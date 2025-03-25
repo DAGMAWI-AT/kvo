@@ -14,11 +14,12 @@ const CSOProfile = () => {
     const fetchProfileData = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/cso/${id}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile data");
-        }
         const data = await response.json();
+
+        if (response.ok) {
+          // throw new Error("Failed to fetch profile data");       
         setProfileData(data);
+        }
       } catch (err) {
         setError(err.message);
       } finally {

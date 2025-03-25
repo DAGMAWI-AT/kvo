@@ -67,7 +67,17 @@ import Login from "../admin/auth/Login";
 import ForgotPasswordStaff from "../admin/auth/ForgotPassword";
 import ResetPasswordStaff from "../admin/auth/ResetPassword";
 import LetterManagement from "../letterManagement/LetterManagement";
-
+import SubmissionForm from "../user/form/SubmissionForm";
+import FormList from "../user/form/FormList";
+// import FormEditor from "../user/form/FormEditor";
+import ViewForm from "../admin/form/ViewForm";
+import CreateForm from "../admin/form/CreateForm";
+import EditForm from "../admin/form/EditForm";
+import Forms from "../admin/form/Forms";
+import Submitted from "../user/submission/Submitted";
+import ViewSubmission from "../user/submission/ViewSubmission";
+import AllSubmission from "../admin/cso/csoSubmission/AllSubmission";
+import ViewSubmitted from "../admin/cso/csoSubmission/ViewSubmitted";
 
 
 const Routers = createBrowserRouter([
@@ -155,6 +165,30 @@ const Routers = createBrowserRouter([
         path: "notifications",
         element: <Notifications />,
       },
+      {
+        path: "form",
+        element: <FormList />,
+    },
+    {
+        path: "form/:id",
+        element: <SubmissionForm />,
+    },
+    {
+        path: "form/edit/:id",
+        element: <EditForm />,
+    },
+    {
+      path: "form/view/:id",
+      element: <ViewForm />,
+  },
+  {
+    path: "submitted",
+    element: <Submitted />,
+},
+{
+  path: "view_submitted/:id",
+  element: <ViewSubmission />,
+},
 
     ],
   },
@@ -163,7 +197,7 @@ const Routers = createBrowserRouter([
     path: "/admin",
     // <PrivateRoute><AdminLayout /></PrivateRoute>
     // element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
-    element:<PrivateRoute roleRequired={["admin", "sup_admin"]} element={<AdminLayout />} />,
+    element: <PrivateRoute roleRequired={["admin", "sup_admin"]} element={<AdminLayout />} />,
     children: [
       {
         path: "dashboard",
@@ -328,6 +362,31 @@ const Routers = createBrowserRouter([
         path: "letter",
         element: <LetterManagement />,
       },
+      //form
+      {
+        path: "create_form",
+        element: <CreateForm />,
+    },
+    {
+      path: "edit_form/:id",
+      element: <EditForm />,
+    },
+    {
+    path: "view_form/:id",
+    element: <ViewForm />,
+   },
+    {
+      path: "forms",
+      element: <Forms />,
+   },
+   {
+    path: "all_submission",
+    element: <AllSubmission />,
+ },
+ {
+  path: "view_submission/:id",
+  element: <ViewSubmitted />,
+},
     ],
   },
   //login rout

@@ -1,85 +1,188 @@
-import { CarRentalRounded, GroupWorkRounded, PeopleAltOutlined, Report } from "@mui/icons-material";
-import React from "react";
-import { Circle } from "rc-progress";
+import React, { useEffect, useState } from "react";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import {
+  GroupWorkRounded,
+  PeopleAltOutlined,
+  Report,
+  Assignment,
+  Business,
+  Person
+} from "@mui/icons-material";
 import CountUp from "react-countup";
+import { CircularProgressbar } from "react-circular-progressbar";
+import 'react-circular-progressbar/dist/styles.css';
 
-function CircleBar({ usersPercentage, usersCount, csoPercentage, csoCount, reportsPercentage, reportsCount, projectsPercentage, projectsCount }) {
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const statusColors = {
+  approve: "#10B981",
+  pending: "#F59E0B",
+  inprogress: "#3B82F6",
+  new: "#8B5CF6",
+  reject: "#EF4444"
+};
+
+function CircleBar() {
+  const [dashboardData, setDashboardData] = useState({});
+  const [statusData, setStatusData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("http://localhost:5000/api/users/res/dashboard"),
+      fetch("http://localhost:5000/api/report/api/report-status")
+    ])
+    .then(([res1, res2]) => Promise.all([res1.json(), res2.json()]))
+    .then(([dashboard, status]) => {
+      setDashboardData(dashboard);
+      setStatusData(status);
+      setLoading(false);
+    })
+    .catch(error => {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    });
+  }, []);
+
+  const MetricCard = ({ icon, title, value, children }) => (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100">
+      <div className="flex items-center justify-between mb-4">
+        <div className="p-3 bg-indigo-50 rounded-lg">{icon}</div>
+        <span className="text-2xl font-bold text-gray-700">
+          {!loading ? <CountUp end={value} duration={1.5} /> : '--'}
+        </span>
+      </div>
+      <h3 className="text-gray-500 text-sm font-medium mb-4">{title}</h3>
+      {children}
+    </div>
+  );
+
+  const ProgressItem = ({ label, value, color }) => (
+    <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center space-x-2">
+        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+        <span className="text-sm text-gray-500">{label}</span>
+      </div>
+      <span className="text-sm font-medium text-gray-700">
+        {!loading ? <CountUp end={value} duration={1.5} /> : '--'}
+      </span>
+    </div>
+  );
+
   return (
-    <section>
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-5">
-        {/* Card Item for Total Users */}
-        <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-          <div className="flex justify-between items-center px-5 py-5">
-            <PeopleAltOutlined fontSize="large" className="text-black" />
-            <div className="text-center">
-              <Circle percent={usersPercentage} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-              <div>
-                <CountUp enableScrollSpy duration={2} end={usersPercentage} />%
-              </div>
-            </div>
-          </div>
-          <div className="px-5 pb-5">
-            <p className="text-blue-600 font-semibold text-left">Total Users</p>
-            <p className="text-2xl text-black font-semibold text-left">
-              <CountUp enableScrollSpy duration={2} end={usersCount} />
-            </p>
-          </div>
-        </div>
+    <section className="p-8 min-h-screen bg-gray-50">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <MetricCard
+          icon={<PeopleAltOutlined className="text-indigo-600" fontSize="large" />}
+          title="Total Users"
+          value={dashboardData.totalUsers}
+        >
+          <ProgressItem label="Active" value={dashboardData.activeUsers} color="#10B981" />
+          <ProgressItem label="Inactive" value={dashboardData.inactiveUsers} color="#EF4444" />
+        </MetricCard>
 
-        {/* Card Item for Proposals */}
-        <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-          <div className="flex justify-between items-center px-5 py-5">
-            <PeopleAltOutlined fontSize="large" className="text-black" />
-            <div className="text-center">
-              <Circle percent={csoPercentage} strokeWidth={10} strokeColor="green" trailWidth={8} trailColor="red" />
-              <div>
-                <CountUp enableScrollSpy duration={2} end={csoPercentage} />%
-              </div>
-            </div>
+        <MetricCard
+          icon={<Business className="text-green-600" fontSize="large" />}
+          title="CSOs"
+          value={dashboardData.totalCSO}
+        >
+          <div className="w-16 mx-auto mt-2">
+            <CircularProgressbar
+              value={dashboardData.csoPercentage || 0}
+              text={`${dashboardData.csoPercentage || 0}%`}
+              strokeWidth={12}
+              styles={{
+                path: { stroke: "#10B981" },
+                text: { fill: "#1F2937", fontSize: '24px' }
+              }}
+            />
           </div>
-          <div className="px-5 pb-5">
-            <p className="text-blue-600 font-semibold text-left">CSOs</p>
-            <p className="text-2xl text-black font-semibold text-left">
-              <CountUp enableScrollSpy duration={2} end={csoCount} />
-            </p>
-          </div>
-        </div>
+        </MetricCard>
 
-        {/* Card Item for Total Reports */}
-        <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-          <div className="flex justify-between items-center px-5 py-5">
-            <Report fontSize="large" className="text-black" />
-            <div className="text-center">
-              <Circle percent={reportsPercentage} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-              <div>
-                <CountUp enableScrollSpy duration={2} end={reportsPercentage} />%
-              </div>
-            </div>
+        <MetricCard
+          icon={<Person className="text-purple-600" fontSize="large" />}
+          title="Staff Members"
+          value={dashboardData.totalStaff}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <ProgressItem label="Active" value={dashboardData.activeStaff} color="#3B82F6" />
+            <ProgressItem label="Admins" value={dashboardData.adminStaff} color="#8B5CF6" />
+            <ProgressItem label="Inactive" value={dashboardData.inactiveStaff} color="#EF4444" />
+            <ProgressItem label="Super Admins" value={dashboardData.superAdminStaff} color="#10B981" />
           </div>
-          <div className="px-5 pb-5">
-            <p className="text-blue-600 font-semibold text-left">Total Reports</p>
-            <p className="text-2xl text-black font-semibold text-left">
-              <CountUp enableScrollSpy duration={2} end={reportsCount} />
-            </p>
-          </div>
-        </div>
+        </MetricCard>
 
-        {/* Card Item for Projects */}
-        <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-          <div className="flex justify-between items-center px-5 py-5">
-            <GroupWorkRounded fontSize="large" className="text-black" />
-            <div className="text-center">
-              <Circle percent={projectsPercentage} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-              <div>
-                <CountUp enableScrollSpy duration={2} end={projectsPercentage} />%
-              </div>
-            </div>
+        <MetricCard
+          icon={<Assignment className="text-red-600" fontSize="large" />}
+          title="Total Reports"
+          value={dashboardData.totalReports}
+        >
+          <div className="w-16 mx-auto mt-2">
+            <CircularProgressbar
+              value={dashboardData.reportsPercentage || 0}
+              text={`${dashboardData.reportsPercentage || 0}%`}
+              strokeWidth={12}
+              styles={{
+                path: { stroke: "#EF4444" },
+                text: { fill: "#1F2937", fontSize: '24px' }
+              }}
+            />
           </div>
-          <div className="px-5 pb-5">
-            <p className="text-blue-600 font-semibold text-left">Projects</p>
-            <p className="text-2xl text-black font-semibold text-left">
-              <CountUp enableScrollSpy duration={2} end={projectsCount} />
-            </p>
+        </MetricCard>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-500 mb-6">Report Status Distribution</h2>
+        <div className="flex flex-col lg:flex-row items-center justify-between">
+          <div className="w-full lg:w-1/2 xl:w-1/3 h-80">
+            {Object.keys(statusData).length > 0 ? (
+              <Pie 
+                data={{
+                  labels: Object.keys(statusData),
+                  datasets: [{
+                    data: Object.values(statusData),
+                    backgroundColor: Object.keys(statusData).map(s => statusColors[s]),
+                    borderWidth: 0
+                  }]
+                }}
+                options={{
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: { 
+                      backgroundColor: '#1F2937',
+                      titleFont: { size: 14 },
+                      bodyFont: { size: 14 },
+                      padding: 12
+                    }
+                  },
+                  maintainAspectRatio: false
+                }}
+              />
+            ) : (
+              <div className="text-center text-gray-400 h-full flex items-center justify-center">
+                {loading ? 'Loading data...' : 'No status data available'}
+              </div>
+            )}
+          </div>
+          
+          <div className="w-full lg:w-1/2 xl:w-1/3 mt-6 lg:mt-0">
+            <div className="grid grid-cols-2 gap-4">
+              {Object.entries(statusData).map(([status, count]) => (
+                <div key={status} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                  <div 
+                    className="w-3 h-3 rounded-full mr-3" 
+                    style={{ backgroundColor: statusColors[status] }}
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-700 capitalize">{status}</div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      {!loading ? <CountUp end={count} duration={1.5} /> : '--'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -88,112 +191,3 @@ function CircleBar({ usersPercentage, usersCount, csoPercentage, csoCount, repor
 }
 
 export default CircleBar;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { CarRentalRounded, GroupWorkRounded, PeopleAltOutlined, Report } from "@mui/icons-material";
-// import React from "react";
-// import { Circle } from "rc-progress";
-// import CountUp from "react-countup";
-
-// function CircleBar({ percentage }) {
-//   return (
-//     <section>
-//       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 px-5">
-//         {/* Card Item */}
-//         <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-//           <div className="flex justify-between items-center px-5 py-5">
-//             <PeopleAltOutlined fontSize="large" className="text-black" />
-//             <div className="text-center">
-//               <Circle percent={70} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-//               <div>
-//                 <CountUp enableScrollSpy duration={2} end={percentage} />%
-//               </div>
-//             </div>
-//           </div>
-//           <div className="px-5 pb-5">
-//             <p className="text-blue-600 font-semibold text-left">Total Users</p>
-//             <p className="text-2xl text-black font-semibold text-left">
-//               <CountUp enableScrollSpy duration={2} end={100} />
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* Repeat Card Item with Modified Content */}
-//         <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-//           <div className="flex justify-between items-center px-5 py-5">
-//             <PeopleAltOutlined fontSize="large" className="text-black" />
-//             <div className="text-center">
-//               <Circle percent={60} strokeWidth={10} strokeColor="green" trailWidth={8} trailColor="red" />
-//               <div>
-//                 <CountUp enableScrollSpy duration={2} end={percentage} />%
-//               </div>
-//             </div>
-//           </div>
-//           <div className="px-5 pb-5">
-//             <p className="text-blue-600 font-semibold text-left">Proposal</p>
-//             <p className="text-2xl text-black font-semibold text-left">
-//               <CountUp enableScrollSpy duration={2} end={100} />
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* Additional Cards */}
-//         <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-//           <div className="flex justify-between items-center px-5 py-5">
-//             <Report fontSize="large" className="text-black" />
-//             <div className="text-center">
-//               <Circle percent={60} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-//               <div>
-//                 <CountUp enableScrollSpy duration={2} end={60} />%
-//               </div>
-//             </div>
-//           </div>
-//           <div className="px-5 pb-5">
-//             <p className="text-blue-600 font-semibold text-left">Total Reports</p>
-//             <p className="text-2xl text-black font-semibold text-left">
-//               <CountUp enableScrollSpy duration={2} end={90} />
-//             </p>
-//           </div>
-//         </div>
-
-//         <div className="bg-white rounded-xl shadow-lg hover:scale-105 transition-transform duration-200">
-//           <div className="flex justify-between items-center px-5 py-5">
-//             <GroupWorkRounded fontSize="large" className="text-black" />
-//             <div className="text-center">
-//               <Circle percent={70} strokeWidth={10} strokeColor="blue" trailWidth={8} trailColor="gold" />
-//               <div>
-//                 <CountUp enableScrollSpy duration={2} end={percentage} />%
-//               </div>
-//             </div>
-//           </div>
-//           <div className="px-5 pb-5">
-//             <p className="text-blue-600 font-semibold text-left">Projects</p>
-//             <p className="text-2xl text-black font-semibold text-left">
-//               <CountUp enableScrollSpy duration={2} end={70} />
-//             </p>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
-// export default CircleBar;

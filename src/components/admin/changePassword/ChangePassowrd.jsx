@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
     currentPassword: '',
@@ -16,49 +15,53 @@ const ChangePassword = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     if (formData.newPassword !== formData.confirmPassword) {
-      return setError("New passwords don't match");
+        return setError("New passwords don't match");
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const decodedToken = jwtDecode(token);
-        const { id } = decodedToken;      
+        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+            withCredentials: true,
+        });
+
+        if (!meResponse.data || !meResponse.data.success) {
+            navigate("/login");
+            return;
+        }
+
+        // Now that we've confirmed the response, proceed with the password update
         const response = await axios.put(
-            `http://localhost:5000/api/users/update-password`, // Ensure the correct path
+            `http://localhost:5000/api/staff/updatePassword`,
             {
-              currentPassword: formData.currentPassword,
-              newPassword: formData.newPassword
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword,
             },
             {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              }
+                withCredentials: true,
             }
-          );          
+        );
 
-      if (response.data.success) {
-        setSuccess('Password updated successfully!');
-        setTimeout(() => navigate('/admin/dashboard'), 2000); // Redirect after 2 seconds
-        setFormData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-      }
+        if (response.data.success) {
+            setSuccess("Password updated successfully!");
+            setTimeout(() => navigate("/admin/dashboard"), 2000);
+            setFormData({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+        }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        'Failed to update password. Please try again.'
-      );
+        setError(
+            err.response?.data?.message || "Failed to update password. Please try again."
+        );
     }
-  };
+};
 
   return (
     <div className="max-w-md mx-auto mt-8 p-4 bg-white shadow-md rounded">

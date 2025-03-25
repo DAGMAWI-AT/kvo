@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { FaEdit, FaTrash, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 // Constants
 const ITEMS_PER_PAGE_OPTIONS = [10, 20, 30, 50];
@@ -35,6 +36,8 @@ const SortIndicator = ({ direction }) => (
 
 // Main Component
 const Users = () => {
+  const [errorMessage, setError] = useState("");
+
   const [state, setState] = useState({
     users: [],
     filteredUsers: [],
@@ -55,11 +58,10 @@ const Users = () => {
       password: '',
       role: 'cso',
       status: 'active'
-    }
+    },
   });
 
   const navigate = useNavigate();
-
   // Memoized derived values
   const { 
     users,
@@ -73,7 +75,7 @@ const Users = () => {
     sortConfig,
     showEditUserForm,
     selectedUser,
-    formData
+    formData,
   } = state;
 
   const paginatedUsers = useMemo(() => {
@@ -88,35 +90,25 @@ const Users = () => {
   );
 
   // Data fetching
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No token found");
+  const fetchUsers = async () => {
+    try {
+      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        withCredentials: true,
+      });
 
-        const decoded = jwtDecode(token);
-        if (decoded.role !== "admin") throw new Error("Admin access required");
-
-        const response = await fetch("http://localhost:5000/api/users/users", {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch users");
-        
-        const data = await response.json();
-        setState(prev => ({
-          ...prev,
-          users: data,
-          filteredUsers: data,
-          loading: false
-        }));
-
-      } catch (err) {
-        handleError(err.message);
-        setState(prev => ({ ...prev, loading: false }));
+      if (!meResponse.data || !meResponse.data.success) {
+        navigate("/login");
+        return;
       }
-    };
 
+      const response = await axios.get("http://localhost:5000/api/users/users", { withCredentials: true });
+      setState(prev => ({ ...prev, users: response.data, loading: false }));
+    } catch (err) {
+      handleError(err);
+      setState(prev => ({ ...prev, loading: false }));
+    }
+  };
+  useEffect(() => {
     fetchUsers();
   }, []);
 
@@ -208,10 +200,8 @@ const Users = () => {
     try {
       const response = await fetch(`http://localhost:5000/api/users/update/${selectedUser.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
+        headers: {"Content-Type": "application/json",},
+        credentials: "include", // Include cookies in the request
         body: JSON.stringify(formData)
       });
 
@@ -223,6 +213,7 @@ const Users = () => {
         users: prev.users.map(user => user.id === updatedUser.id ? updatedUser : user),
         showEditUserForm: false
       }));
+      await fetchUsers()
       showSuccess('User updated successfully.');
     } catch (err) {
       handleError(err.message);
@@ -259,9 +250,31 @@ const Users = () => {
   }, []);
 
   // Helper functions
-  const handleError = useCallback((message) => {
-    Swal.fire('Error', message, 'error');
-  }, []);
+  const handleError = (error) => {
+    console.error("Error:", error); // Logs error for debugging
+  
+    // If error is an Axios error and response exists
+    if (error?.response?.status === 401) {
+      navigate("/login");
+    } else {
+      const errorMessage =
+        error?.response?.data?.message || error?.message || "An unknown error occurred";
+  
+      Swal.fire({
+        title: "Error",
+        text: errorMessage,
+        icon: "error",
+        timer: 3000, // Auto-dismiss after 3 seconds
+      });
+  
+      if (typeof setError === "function") {
+        setError(errorMessage); // Store the error message in state
+      }
+    }
+  };
+  
+  
+  
 
   const showSuccess = useCallback((message) => {
     Swal.fire('Success!', message, 'success');
@@ -280,7 +293,7 @@ const Users = () => {
       {/* Header and Controls */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">User Management</h1>
-        
+
         <div className="flex flex-wrap gap-4">
           <input
             type="text"
@@ -324,7 +337,7 @@ const Users = () => {
           Export to PDF
         </button>
       </div>
-
+     
       {/* Users Table */}
       <div className="overflow-x-auto rounded-lg shadow">
         <table className="min-w-full bg-white">
@@ -340,7 +353,7 @@ const Users = () => {
               {TABLE_COLUMNS.map(({ key, label }) => (
                 <th
                   key={key}
-                  className="px-6 py-3 text-left text-sm font-medium uppercase whitespace-nowrap text-gray-500 tracking-wider cursor-pointer"
+                  className="px-6 py-3 text-left text-sm font-medium uppercase whitespace-nowrap text-gray-700 tracking-wider cursor-pointer"
                   onClick={() => requestSort(key)}
                 >
                   <div className="flex items-center">
@@ -351,7 +364,7 @@ const Users = () => {
                   </div>
                 </th>
               ))}
-              <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-800">
                 Actions
               </th>
             </tr>
@@ -367,7 +380,7 @@ const Users = () => {
                   />
                 </td>
                 {TABLE_COLUMNS.map(({ key }) => (
-                  <td key={key} className="px-4 py-3">
+                  <td key={key} className="px-4 py-3 text-gray-600">
                     {key === 'status' ? (
                       <StatusBadge status={user[key]} />
                     ) : (
@@ -398,6 +411,8 @@ const Users = () => {
             ))}
           </tbody>
         </table>
+        {errorMessage && <p className="error-text text-center text-red-400">{errorMessage}</p>}
+
       </div>
 
       {/* Pagination */}
@@ -416,7 +431,7 @@ const Users = () => {
               <option key={size} value={size}>{size}</option>
             ))}
           </select>
-          <span>entries per page</span>
+          <span>show</span>
         </div>
         
         <span>

@@ -128,7 +128,7 @@ const Notifications = () => {
 
   const viewReportDetails = async (report_id) => {
     try {
-      navigate(`/user/viewworkreport/${report_id}`);
+      navigate(`/user/view_submitted/${report_id}`);
     } catch (error) {
       console.error("Error fetching report details:", error);
     }
