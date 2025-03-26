@@ -13,7 +13,7 @@ const ViewBeneficiary = () => {
   useEffect(() => {
     const fetchBeneficiary = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/beneficiaries/${id}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/beneficiaries/${id}`);
         setBeneficiary(response.data.data);
       } catch (error) {
         Swal.fire('Error!', 'Failed to fetch beneficiary details', 'error');
@@ -93,7 +93,7 @@ const ViewBeneficiary = () => {
         </head>
         <body>
           <div class="id-card">
-            <img src="http://localhost:5000/photoFiles/${beneficiary.photo}" alt="${beneficiary.fullName}" />
+            <img src="${process.env.REACT_APP_API_URL}/photoFiles/${beneficiary.photo}" alt="${beneficiary.fullName}" />
             <h3>${beneficiary.fullName}</h3>
             <p><strong>ID:</strong> ${beneficiary.id}</p>
             <p><strong>Phone:</strong> ${beneficiary.phone}</p>
@@ -186,7 +186,7 @@ const ViewBeneficiary = () => {
           <div className="space-y-6">
             <div className="flex flex-col items-center text-center">
               <img
-                src={`http://localhost:5000/photoFiles/${beneficiary.photo}`}
+                src={`${process.env.REACT_APP_API_URL}/photoFiles/${beneficiary.photo}`}
                 alt={beneficiary.fullName}
                 className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-lg mb-4"
               />
@@ -241,7 +241,7 @@ const ViewBeneficiary = () => {
                 <h4 className="text-lg font-semibold text-gray-700 mb-4">
                   Identification Document
                 </h4>
-                <FilePreview url={`http://localhost:5000/idFiles/${beneficiary.idFile}`} />
+                <FilePreview url={`${process.env.REACT_APP_API_URL}/idFiles/${beneficiary.idFile}`} />
               </div>
             )}
           </div>

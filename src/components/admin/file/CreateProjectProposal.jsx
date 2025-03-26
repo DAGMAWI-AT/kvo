@@ -53,7 +53,7 @@ const CreateProjectProposal = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/projects/create", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/api/projects/create", {
         method: "POST",
         body: formDataToSend,
       });

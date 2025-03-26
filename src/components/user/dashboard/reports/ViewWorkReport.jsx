@@ -28,7 +28,7 @@ const ViewWorkReport = () => {
     const fetchReport = async () => {
       try {
         // First, check authentication and get user details
-        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
           withCredentials: true, // Include credentials for session-based authentication
         });
     
@@ -40,7 +40,7 @@ const ViewWorkReport = () => {
         const { id: userId } = meResponse.data; // Get userId from the response
     
         // Fetch the report details by id
-        const reportResponse = await fetch(`http://localhost:5000/api/report/byId/${id}`, {
+        const reportResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/report/byId/${id}`, {
           credentials: "include", // Include cookies in the request
         });
     
@@ -72,7 +72,7 @@ const ViewWorkReport = () => {
     const fetchCategory = async () => {
       if (!report?.category_id) return;
       try {
-        const response = await fetch(`http://localhost:5000/api/reportCategory/${report.category_id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reportCategory/${report.category_id}`, {
           credentials: "include", // Include cookies in the request
         });
         if (!response.ok) throw new Error("Failed to fetch category");
@@ -92,7 +92,7 @@ const ViewWorkReport = () => {
     const fetchComments = async () => {
       if (!report?.id) return;
       try {
-        const response = await fetch(`http://localhost:5000/api/comments/comment/${report.id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/comments/comment/${report.id}`, {
           credentials: "include", // Include cookies in the request
         });
         if (!response.ok) throw new Error("Failed to fetch comments");
@@ -106,7 +106,7 @@ const ViewWorkReport = () => {
   }, [report]);
 
   const handleDownload = () => {
-    const fileUrl = `http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`;
+    const fileUrl = `${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`;
     fetch(fileUrl)
       .then((response) => {
         if (!response.ok)
@@ -338,7 +338,7 @@ const ViewWorkReport = () => {
             <span>Download</span>
           </button>
           <a
-            href={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
+            href={`${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center space-x-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
@@ -352,7 +352,7 @@ const ViewWorkReport = () => {
         {showFile && (
           <div className="mt-6 border rounded-lg overflow-hidden shadow">
             <embed
-              src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
+              src={`${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`}
               type="application/pdf"
               width="100%"
               height="500px"

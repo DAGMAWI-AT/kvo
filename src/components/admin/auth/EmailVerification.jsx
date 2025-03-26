@@ -11,7 +11,7 @@ const EmailVerification = () => {
     const verifyEmail = async () => {
       try {
         // Send request to backend to verify email
-        const response = await fetch(`http://localhost:5000/api/staff/verify-email/${token}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/staff/verify-email/${token}`);
 
         if (!response.ok) {
           // If response is not OK, throw an error with the response status text

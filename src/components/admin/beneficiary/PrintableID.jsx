@@ -20,7 +20,7 @@ const PrintableID = React.forwardRef(({ beneficiary }, ref) => {
           {/* Photo and Basic Info */}
           <div className="flex items-center gap-4 mb-6">
             <img
-              src={`http://localhost:5000/photoFiles/${beneficiary.photo}`}
+              src={`${process.env.REACT_APP_API_URL}/photoFiles/${beneficiary.photo}`}
               alt={beneficiary.fullName}
               className="w-24 h-24 rounded-full border-4 border-blue-100"
             />

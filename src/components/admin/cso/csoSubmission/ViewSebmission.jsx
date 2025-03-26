@@ -24,7 +24,7 @@ const ViewSubmission = () => {
     const fetchData = async () => {
       try {
         // Fetch user role first
-        const roleResponse = await axios.get('http://localhost:5000/api/auth/role', {
+        const roleResponse = await axios.get('${process.env.REACT_APP_API_URL}/api/auth/role', {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -34,7 +34,7 @@ const ViewSubmission = () => {
 
         // Fetch submission details
         const submissionResponse = await axios.get(
-          `http://localhost:5000/api/form/application/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/form/application/${id}`,
           {
             withCredentials: true,
             headers: {
@@ -46,7 +46,7 @@ const ViewSubmission = () => {
 
         // Fetch comments
         const commentsResponse = await axios.get(
-          `http://localhost:5000/api/comments?report_id=${id}`,
+          `${process.env.REACT_APP_API_URL}/api/comments?report_id=${id}`,
           {
             withCredentials: true,
             headers: {
@@ -67,7 +67,7 @@ const ViewSubmission = () => {
   }, [id]);
 
   const handleDownload = () => {
-    window.open(`http://localhost:5000/uploads/${submission.application_file}`, '_blank');
+    window.open(`${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`, '_blank');
   };
 
   const handleAddComment = async (e) => {
@@ -81,7 +81,7 @@ const ViewSubmission = () => {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/api/comments',
+        '${process.env.REACT_APP_API_URL}/api/comments',
         formData,
         {
           withCredentials: true,
@@ -105,7 +105,7 @@ const ViewSubmission = () => {
     if (window.confirm('Are you sure you want to delete this comment?')) {
       try {
         await axios.delete(
-          `http://localhost:5000/api/comments/${commentId}`,
+          `${process.env.REACT_APP_API_URL}/api/comments/${commentId}`,
           {
             withCredentials: true,
             headers: {
@@ -380,7 +380,7 @@ const ViewSubmission = () => {
                         {comment.comment_file && (
                           <div className="mt-2">
                             <a
-                              href={`http://localhost:5000/uploads/${comment.comment_file}`}
+                              href={`${process.env.REACT_APP_API_URL}/uploads/${comment.comment_file}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:text-blue-800 text-sm"

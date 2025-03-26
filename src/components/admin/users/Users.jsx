@@ -92,7 +92,7 @@ const Users = () => {
   // Data fetching
   const fetchUsers = async () => {
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
         withCredentials: true,
       });
 
@@ -101,7 +101,7 @@ const Users = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/users/users", { withCredentials: true });
+      const response = await axios.get("${process.env.REACT_APP_API_URL}/api/users/users", { withCredentials: true });
       setState(prev => ({ ...prev, users: response.data, loading: false }));
     } catch (err) {
       handleError(err);
@@ -198,7 +198,7 @@ const Users = () => {
   const handleUpdateUser = useCallback(async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/api/users/update/${selectedUser.id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/update/${selectedUser.id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json",},
         credentials: "include", // Include cookies in the request
@@ -232,7 +232,7 @@ const Users = () => {
 
     if (isConfirmed) {
       try {
-        await fetch(`http://localhost:5000/api/users/remove/${id}`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/users/remove/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });

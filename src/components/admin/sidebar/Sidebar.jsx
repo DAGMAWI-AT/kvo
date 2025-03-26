@@ -35,7 +35,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
     // Fetch the user role from your backend API
     const fetchUserRole = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users/me", { withCredentials: true });
+        const response = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", { withCredentials: true });
         if (response.data.success) {
           setUserRole(response.data.role);  // Set the role of the user
         }

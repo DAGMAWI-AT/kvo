@@ -42,7 +42,7 @@ const ShowReport = () => {
   // useEffect(() => {
   //   if (report?.id) {
   //     const fetchComments = async () => {
-  //       const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+  //       const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
   //         withCredentials: true,
   //       });
     
@@ -56,7 +56,7 @@ const ShowReport = () => {
 
   //       try {
   //         const response = await fetch(
-  //           `http://localhost:5000/api/comments/comment/${report.id}`
+  //           `${process.env.REACT_APP_API_URL}/api/comments/comment/${report.id}`
   //         );
   //         if (!response.ok) throw new Error(`Error: ${response.status}`);
   //         const data = await response.json();
@@ -77,7 +77,7 @@ const ShowReport = () => {
     if (report?.id) {
       const fetchComments = async () => {
         try {
-          const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+          const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
             withCredentials: true,
           });
   
@@ -90,7 +90,7 @@ const ShowReport = () => {
           setRegistrationId(registrationId);
   
           const response = await fetch(
-            `http://localhost:5000/api/comments/comment/${report.id}`
+            `${process.env.REACT_APP_API_URL}/api/comments/comment/${report.id}`
           );
           if (!response.ok) throw new Error(`Error: ${response.status}`);
           const data = await response.json();
@@ -128,7 +128,7 @@ const ShowReport = () => {
     const fetchCategory = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/reportCategory/${report.category_id}`
+          `${process.env.REACT_APP_API_URL}/api/reportCategory/${report.category_id}`
         );
         if (!response.ok) throw new Error("Failed to fetch category");
         const data = await response.json();
@@ -146,7 +146,7 @@ const ShowReport = () => {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
       withCredentials: true,
     });
 
@@ -160,7 +160,7 @@ const ShowReport = () => {
     setRegistrationId(registrationId);
     try {
       const staffResponse = await fetch(
-        `http://localhost:5000/api/staff/staff/${id}`
+        `${process.env.REACT_APP_API_URL}/api/staff/staff/${id}`
       );
       if (!staffResponse.ok) throw new Error(`Error: ${staffResponse.status}`);
       const staffData = await staffResponse.json();
@@ -176,7 +176,7 @@ const ShowReport = () => {
       formData.append("author", name);
       formData.append("author_id", registrationId);
 
-      const response = await fetch(`http://localhost:5000/api/comments`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/comments`, {
         method: "POST",
         body: formData,
       });
@@ -190,7 +190,7 @@ const ShowReport = () => {
       }
 
       const newResponse = await fetch(
-        `http://localhost:5000/api/comments/comment/${report.id}`
+        `${process.env.REACT_APP_API_URL}/api/comments/comment/${report.id}`
       );
       const newData = await newResponse.json();
       setCommentData(newData.comments || []);
@@ -206,7 +206,7 @@ const ShowReport = () => {
   };
 
   const handleDownload = () => {
-    const fileUrl = `http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`;
+    const fileUrl = `${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`;
     fetch(fileUrl)
       .then((response) => response.blob())
       .then((blob) => {
@@ -224,7 +224,7 @@ const ShowReport = () => {
   };
   const handleSubmitStatus = async (e) => {
     e.preventDefault();
-    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
       withCredentials: true,
     });
 
@@ -242,7 +242,7 @@ const ShowReport = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/report/status/${report.id}`,
+        `${process.env.REACT_APP_API_URL}/api/report/status/${report.id}`,
         {
           method: "PUT",
           body: formDataToSend,
@@ -270,7 +270,7 @@ const ShowReport = () => {
   const handleSubmitExpireDate = async (e) => {
     e.preventDefault();
 
-    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
       withCredentials: true,
     });
 
@@ -282,7 +282,7 @@ const ShowReport = () => {
     const { registrationId } = meResponse.data;
     try {
       const response = await fetch(
-        `http://localhost:5000/api/report/expire_date/${report.id}`,
+        `${process.env.REACT_APP_API_URL}/api/report/expire_date/${report.id}`,
         {
           method: "PUT",
           headers: {
@@ -321,7 +321,7 @@ const ShowReport = () => {
   
     if (result.isConfirmed) {
       try {
-        const response = await axios.delete(`http://localhost:5000/api/comments/${id}`, {
+        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/api/comments/${id}`, {
           withCredentials: true,
         });
   
@@ -533,7 +533,7 @@ const ShowReport = () => {
               <span>Download File</span>
             </button>
             <a
-              href={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
+              href={`${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all shadow-lg"
@@ -547,7 +547,7 @@ const ShowReport = () => {
           {showFile && (
             <div className="mt-6">
               <embed
-                src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
+                src={`${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`}
                 type="application/pdf"
                 className="w-full min-h-[500px] rounded-lg shadow-md"
               />
@@ -615,7 +615,7 @@ const ShowReport = () => {
           </p>
           {comment.comment_file && comment.comment_file !== "null" && (
             <a
-              href={`http://localhost:5000/comments/${comment.comment_file}`}
+              href={`${process.env.REACT_APP_API_URL}/comments/${comment.comment_file}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline mt-2 inline-block"

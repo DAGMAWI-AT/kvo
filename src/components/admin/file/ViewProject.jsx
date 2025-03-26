@@ -13,7 +13,7 @@ const ViewProject = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/projects/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch project details");
         }
@@ -65,7 +65,7 @@ const ViewProject = () => {
             {project.files && project.files.split(",").map((file, index) => (
               <div key={index} className="bg-gray-50 p-4 rounded-lg shadow-sm">
                 <a
-                  href={`http://localhost:5000/${file}`} // Link to the file
+                  href={`${process.env.REACT_APP_API_URL}/${file}`} // Link to the file
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"

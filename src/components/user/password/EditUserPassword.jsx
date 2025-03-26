@@ -25,7 +25,7 @@ const EditUserPassword = () => {
     }
 
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
         withCredentials: true,
       });
 
@@ -34,7 +34,7 @@ const EditUserPassword = () => {
         return;
       }
       const response = await axios.put(
-        `http://localhost:5000/api/users/update-password`, // Ensure the correct path
+        `${process.env.REACT_APP_API_URL}/api/users/update-password`, // Ensure the correct path
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,

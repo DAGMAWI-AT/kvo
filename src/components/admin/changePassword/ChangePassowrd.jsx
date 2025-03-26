@@ -26,7 +26,7 @@ const ChangePassword = () => {
     }
 
     try {
-        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
             withCredentials: true,
         });
 
@@ -37,7 +37,7 @@ const ChangePassword = () => {
 
         // Now that we've confirmed the response, proceed with the password update
         const response = await axios.put(
-            `http://localhost:5000/api/staff/updatePassword`,
+            `${process.env.REACT_APP_API_URL}/api/staff/updatePassword`,
             {
                 currentPassword: formData.currentPassword,
                 newPassword: formData.newPassword,

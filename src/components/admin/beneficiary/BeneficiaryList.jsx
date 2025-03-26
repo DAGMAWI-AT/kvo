@@ -27,7 +27,7 @@ const BeneficiaryList = () => {
     const fetchBeneficiaries = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/beneficiaries"
+          "${process.env.REACT_APP_API_URL}/api/beneficiaries"
         );
         setBeneficiaries(response.data.data);
         setFilteredBeneficiaries(response.data.data);
@@ -73,7 +73,7 @@ const BeneficiaryList = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/beneficiaries/${id}`);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/beneficiaries/${id}`);
         setBeneficiaries(
           beneficiaries.filter((beneficiary) => beneficiary.id !== id)
         );
@@ -296,7 +296,7 @@ const BeneficiaryList = () => {
                   {" "}
                   {!imgError[beneficiary.id] && beneficiary.photo ? (
                     <img
-                      src={`http://localhost:5000/photoFiles/${beneficiary.photo}`}
+                      src={`${process.env.REACT_APP_API_URL}/photoFiles/${beneficiary.photo}`}
                       alt=""
                       onError={() =>
                         setImgError((prev) => ({

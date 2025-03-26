@@ -84,7 +84,7 @@ const ViewSubmission = () => {
     const fetchSubmission = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/form/application/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/form/application/${id}`,
           {
             withCredentials: true,
           }
@@ -98,7 +98,7 @@ const ViewSubmission = () => {
           .toLowerCase();
         setIsImage(["jpg", "jpeg", "png", "gif"].includes(fileExt));
         const commentsResponse = await axios.get(
-          `http://localhost:5000/api/comments/report/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/comments/report/${id}`,
           { withCredentials: true }
         );
         setComments(commentsResponse.data.data || []);
@@ -145,13 +145,13 @@ const ViewSubmission = () => {
   };
   const handleDownload = () => {
     window.open(
-      `http://localhost:5000/uploads/${submission.application_file}`,
+      `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`,
       "_blank"
     );
   };
   const handleDownloadComment = async (filePath) => {
     try {
-      const fileUrl = `http://localhost:5000/comment/${filePath}`;
+      const fileUrl = `${process.env.REACT_APP_API_URL}/comment/${filePath}`;
       const response = await fetch(fileUrl);
 
       if (!response.ok) {
@@ -285,7 +285,7 @@ const ViewSubmission = () => {
     );
   }
 
-  const fileUrl = `http://localhost:5000/uploads/${submission.application_file}`;
+  const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

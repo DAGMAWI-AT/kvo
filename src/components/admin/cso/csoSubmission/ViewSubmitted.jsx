@@ -96,10 +96,10 @@ const ViewSubmitted = () => {
 
       // Fetch all data in parallel where possible
       const [roleResponse, submissionResponse] = await Promise.all([
-        axios.get("http://localhost:5000/api/staff/me", {
+        axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
           withCredentials: true,
         }),
-        axios.get(`http://localhost:5000/api/form/application/${id}`, {
+        axios.get(`${process.env.REACT_APP_API_URL}/api/form/application/${id}`, {
           withCredentials: true,
         }),
       ]);
@@ -111,7 +111,7 @@ const ViewSubmitted = () => {
       const csoId = submissionResponse.data?.cso_id;
       if (csoId) {
         const csoRes = await axios.get(
-          `http://localhost:5000/api/cso/res/${csoId}`,
+          `${process.env.REACT_APP_API_URL}/api/cso/res/${csoId}`,
           { withCredentials: true }
         );
         setCso(csoRes.data);
@@ -128,7 +128,7 @@ const ViewSubmitted = () => {
 
       // Fetch comments
       const commentsResponse = await axios.get(
-        `http://localhost:5000/api/comments/report/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/comments/report/${id}`,
         { withCredentials: true }
       );
       setComments(commentsResponse.data.data || []);
@@ -145,11 +145,11 @@ const ViewSubmitted = () => {
   }, [id]);
 
   const handleNewTab = (filePath) => {
-    window.open(`http://localhost:5000/uploads/${filePath}`, "_blank");
+    window.open(`${process.env.REACT_APP_API_URL}/uploads/${filePath}`, "_blank");
   };
   const handleDownload = async (filePath) => {
     try {
-      const fileUrl = `http://localhost:5000/uploads/${filePath}`;
+      const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${filePath}`;
       const response = await fetch(fileUrl);
 
       if (!response.ok) {
@@ -197,7 +197,7 @@ const ViewSubmitted = () => {
   };
   const handleDownloadComment = async (filePath) => {
     try {
-      const fileUrl = `http://localhost:5000/comment/${filePath}`;
+      const fileUrl = `${process.env.REACT_APP_API_URL}/comment/${filePath}`;
       const response = await fetch(fileUrl);
 
       if (!response.ok) {
@@ -282,7 +282,7 @@ const ViewSubmitted = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/comments",
+        "${process.env.REACT_APP_API_URL}/api/comments",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -304,7 +304,7 @@ const ViewSubmitted = () => {
   const handleDeleteComment = async (commentId) => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/comments/${commentId}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/comments/${commentId}`, {
           withCredentials: true,
         });
         setComments(comments.filter((comment) => comment.id !== commentId));
@@ -317,7 +317,7 @@ const ViewSubmitted = () => {
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/form/application/${id}/status`,
+        `${process.env.REACT_APP_API_URL}/api/form/application/${id}/status`,
         { status: newStatus },
         {
           withCredentials: true,
@@ -332,7 +332,7 @@ const ViewSubmitted = () => {
   const handleUpdatePermission = async (id, newUpdatePermission) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/form/applications/${id}/update_permission`,
+        `${process.env.REACT_APP_API_URL}/api/form/applications/${id}/update_permission`,
         { update_permission: newUpdatePermission },
         {
           withCredentials: true,
@@ -403,7 +403,7 @@ const ViewSubmitted = () => {
     );
   }
 
-  const fileUrl = `http://localhost:5000/uploads/${submission.application_file}`;
+  const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -487,14 +487,14 @@ const ViewSubmitted = () => {
               } p-4`}
             >
               <iframe
-                src={`http://localhost:5000/comment/${previewFile}`}
+                src={`${process.env.REACT_APP_API_URL}/comment/${previewFile}`}
                 className="w-full h-full"
                 title="File Preview"
               />
             </div>
             <div className="bg-gray-100 px-4 py-2 border-t flex justify-end">
               <a
-                href={`http://localhost:5000/comment/${previewFile}`}
+                href={`${process.env.REACT_APP_API_URL}/comment/${previewFile}`}
                 download
                 target="_blank"
                 rel="noopener noreferrer"

@@ -12,7 +12,7 @@ const UploadCategory = () => {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
-    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
       withCredentials: true,
     });
 
@@ -22,7 +22,7 @@ const UploadCategory = () => {
     }
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/reportCategory/upload',
+        '${process.env.REACT_APP_API_URL}/api/reportCategory/upload',
         {
           category_name: categoryName,
           expire_date: expireDate,

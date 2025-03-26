@@ -21,7 +21,7 @@ const Notifications = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
           withCredentials: true,
         });
 
@@ -32,7 +32,7 @@ const Notifications = () => {
 
         const { registrationId } = meResponse.data;
         setRegistrationId(registrationId);
-        const response = await fetch(`http://localhost:5000/api/notifications/`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/`, {
           method: "GET",
           withCredentials: true,
         });
@@ -115,7 +115,7 @@ const Notifications = () => {
   const handleMarkAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/notifications/read/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/notifications/read/${id}`,
         {},
         {
           withCredentials: true,
@@ -145,7 +145,7 @@ const Notifications = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/notifications/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/notifications/${id}`, {
           withCredentials: true,
         });
 

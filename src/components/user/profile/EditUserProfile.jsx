@@ -34,7 +34,7 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/cso/update/${profileData.id}`,
+        `${process.env.REACT_APP_API_URL}/api/cso/update/${profileData.id}`,
         {
           method: "PATCH",
           body: updatedData,
@@ -64,7 +64,7 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
           src={
             imageFile instanceof File
               ? URL.createObjectURL(imageFile)
-              : `http://localhost:5000/${imageFile}`
+              : `${process.env.REACT_APP_API_URL}/${imageFile}`
           }
           alt="Profile"
           className="w-28 h-28 rounded-full border-2 border-gray-300 object-cover"

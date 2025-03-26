@@ -19,13 +19,13 @@ const Signin = () => {
 
     try {
       const loginResponse = await axios.post(
-        "http://localhost:5000/api/users/login",
+        "${process.env.REACT_APP_API_URL}/api/users/login",
         { registrationId, email, password },
         { withCredentials: true }
       );
 
       if (loginResponse.data.success) {
-        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
           withCredentials: true,
         });
 

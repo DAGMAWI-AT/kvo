@@ -44,7 +44,7 @@ const UpdateReports = () => {
     const fetchUser = async () => {
       try {
         const meResponse = await axios.get(
-          "http://localhost:5000/api/users/me",
+          "${process.env.REACT_APP_API_URL}/api/users/me",
           {
             withCredentials: true, // Include credentials for session-based authentication
           }
@@ -75,7 +75,7 @@ const UpdateReports = () => {
   
         // Fetch the report details
         const reportResponse = await fetch(
-          `http://localhost:5000/api/report/byId/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/report/byId/${id}`,
           { credentials: "include" }
         );
         const reportData = await reportResponse.json();
@@ -94,7 +94,7 @@ const UpdateReports = () => {
   
         // Fetch user's own categories
         const categoriesResponse = await fetch(
-          `http://localhost:5000/api/reportCategory/category?user_id=${loggedInUserId}`,
+          `${process.env.REACT_APP_API_URL}/api/reportCategory/category?user_id=${loggedInUserId}`,
           { credentials: "include" }
         );
         let userCategories = await categoriesResponse.json();
@@ -115,7 +115,7 @@ const UpdateReports = () => {
   
         // Fetch the original category details (even if not in user's categories)
         const originalCategoryResponse = await fetch(
-          `http://localhost:5000/api/reportCategory/${originalCategoryId}`,
+          `${process.env.REACT_APP_API_URL}/api/reportCategory/${originalCategoryId}`,
           { credentials: "include" }
         );
         const originalCategory = originalCategoryResponse.ok
@@ -180,7 +180,7 @@ const UpdateReports = () => {
     try {
       // Validate category expiration
       const categoryResponse = await fetch(
-        `http://localhost:5000/api/reportCategory/${formData.category_id}`,
+        `${process.env.REACT_APP_API_URL}/api/reportCategory/${formData.category_id}`,
         { credentials: "include" }
       );
 
@@ -202,7 +202,7 @@ const UpdateReports = () => {
         formDataToSend.append("report_file", formData.report_file);
       }
 
-      const response = await fetch(`http://localhost:5000/api/report/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/report/${id}`, {
         method: "PUT",
         body: formDataToSend,
         credentials: "include",

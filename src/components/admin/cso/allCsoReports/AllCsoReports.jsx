@@ -87,7 +87,7 @@ const AllCsoReports = () => {
     const fetchReports = async () => {
       try {
         // Fetch reports
-        const response = await fetch("http://localhost:5000/api/report");
+        const response = await fetch("${process.env.REACT_APP_API_URL}/api/report");
         if (!response.ok) throw new Error("Failed to fetch reports");
         const data = await response.json();
         const reportsArray = Array.isArray(data) ? data : data.reports || [];
@@ -99,7 +99,7 @@ const AllCsoReports = () => {
         await Promise.all(
           uniqueCategoryIds.map(async (catId) => {
             try {
-              const resultCat = await fetch(`http://localhost:5000/api/reportCategory/${catId}`);
+              const resultCat = await fetch(`${process.env.REACT_APP_API_URL}/api/reportCategory/${catId}`);
               if (resultCat.ok) {
                 const catData = await resultCat.json();
                 categoryData[catId] = catData.category_name || catData[0]?.category_name;
@@ -117,7 +117,7 @@ const AllCsoReports = () => {
         await Promise.all(
           uniqueRegIds.map(async (regId) => {
             try {
-              const csoResult = await fetch(`http://localhost:5000/api/cso/res/${regId}`);
+              const csoResult = await fetch(`${process.env.REACT_APP_API_URL}/api/cso/res/${regId}`);
               if (csoResult.ok) {
                 const csoDataResponse = await csoResult.json();
                 // Adjust based on API response structure:
@@ -175,7 +175,7 @@ const AllCsoReports = () => {
   
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:5000/api/report/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/report/${id}`, {
           method: "DELETE",
         });
   
@@ -326,7 +326,7 @@ const AllCsoReports = () => {
                             <span className="text-blue-600 font-medium text-sm">PDF</span>
                           ) : (
                             <img
-                              src={`http://localhost:5000/cso_files/${report.category_name}/${report.report_file}`}
+                              src={`${process.env.REACT_APP_API_URL}/cso_files/${report.category_name}/${report.report_file}`}
                               alt="Report preview"
                               className="w-full h-full object-cover"
                             />

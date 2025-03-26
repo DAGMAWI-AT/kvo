@@ -13,7 +13,7 @@ const CreateAccount = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
       withCredentials: true,
   });
 
@@ -33,7 +33,7 @@ const CreateAccount = () => {
       const response = await axios.post(
         // "http://localhost:8000/user/createAccount",
         // const response = await axios.get("https://finance-office.onrender.com/user/createAccount",
-        "http://localhost:5000/api/users/createAccount",
+        "${process.env.REACT_APP_API_URL}/api/users/createAccount",
 
 
         {

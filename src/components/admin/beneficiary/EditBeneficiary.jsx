@@ -46,7 +46,7 @@ const EditBeneficiary = () => {
 useEffect(() => {
   const fetchBeneficiary = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/beneficiaries/${id}`);
       const data = await response.json();
       // Set formData with fetched data (including existing file names)
       setFormData(data.data);
@@ -103,7 +103,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/beneficiaries/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/beneficiaries/${id}`, {
       method: 'PUT',
       body: data,
     });
@@ -332,7 +332,7 @@ const handleSubmit = async (e) => {
               </label>
               {formData.idFile && typeof formData.idFile === 'string' && (
                 <a
-                  href={`http://localhost:5000/idFiles/${formData.idFile}`}
+                  href={`${process.env.REACT_APP_API_URL}/idFiles/${formData.idFile}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline block mb-2"
@@ -357,7 +357,7 @@ const handleSubmit = async (e) => {
               </label>
               {formData.photo && typeof formData.photo === 'string' && (
                 <a
-                  href={`http://localhost:5000/photoFiles/${formData.photo}`}
+                  href={`${process.env.REACT_APP_API_URL}/photoFiles/${formData.photo}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline block mb-2"

@@ -23,7 +23,7 @@ const UploadReports = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const meResponse = await fetch("http://localhost:5000/api/users/me", {
+        const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
           credentials: "include",
         });
         if (meResponse.status === 401) {
@@ -43,7 +43,7 @@ const UploadReports = () => {
 
         // Fetch report categories
         const categoriesResponse = await fetch(
-          `http://localhost:5000/api/reportCategory/category?user_id=${id}`, // Pass user_id
+          `${process.env.REACT_APP_API_URL}/api/reportCategory/category?user_id=${id}`, // Pass user_id
           { credentials: "include" } // Include cookies if needed
         );
         const categoriesResult = await categoriesResponse.json();
@@ -52,7 +52,7 @@ const UploadReports = () => {
         setReportCategories(categoriesResult);
       }
         const reportsResponse = await fetch(
-          `http://localhost:5000/api/report/user/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/report/user/${id}`,
           {
             credentials: "include", // Include cookies in the request
           }
@@ -112,7 +112,7 @@ const UploadReports = () => {
     setLoading(true);
     setIsSubmitting(true);
 
-    const meResponse = await fetch("http://localhost:5000/api/users/me", {
+    const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
       credentials: "include", // Include cookies in the request
     });
     if (meResponse.status === 401) {
@@ -165,7 +165,7 @@ const UploadReports = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/report/upload", {
+      const response = await fetch("${process.env.REACT_APP_API_URL}/api/report/upload", {
         method: "POST",
         body: formDataObj,
       });

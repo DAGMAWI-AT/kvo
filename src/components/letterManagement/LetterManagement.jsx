@@ -43,7 +43,7 @@ const LetterManagement = () => {
 
       if (form.file) formData.append('file', form.file);
 
-      const response = await axios.post('http://localhost:5000/api/letter/letters', formData, {
+      const response = await axios.post('${process.env.REACT_APP_API_URL}/api/letter/letters', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,

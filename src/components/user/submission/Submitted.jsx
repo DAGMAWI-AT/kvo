@@ -50,7 +50,7 @@ const Submitted = () => {
   const fetchApplications = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/form/application/submitted",
+        "${process.env.REACT_APP_API_URL}/api/form/application/submitted",
         {
           withCredentials: true,
         }
@@ -137,7 +137,7 @@ const Submitted = () => {
 
     if (result.isConfirmed) {      
         try {
-        await axios.delete(`http://localhost:5000/api/form/application/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/form/application/${id}`, {
           withCredentials: true,
         });
         toast.success("Application deleted successfully");
@@ -364,7 +364,7 @@ const Submitted = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
                       <a
-                        href={`http://localhost:5000/uploads/${app.application_file}`}
+                        href={`${process.env.REACT_APP_API_URL}/uploads/${app.application_file}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-800"

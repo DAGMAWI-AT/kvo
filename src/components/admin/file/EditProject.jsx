@@ -14,7 +14,7 @@ const EditProject = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/projects/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/${id}`);
         if (!response.ok) throw new Error("Failed to fetch project");
         const result = await response.json();
         
@@ -61,7 +61,7 @@ const EditProject = () => {
     newFiles.forEach(file => formData.append("files", file));
 
     try {
-      const response = await fetch(`http://localhost:5000/api/projects/update/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/update/${id}`, {
         method: "PUT",
         body: formData,
       });
@@ -120,7 +120,7 @@ const EditProject = () => {
               {project.files.map((file, index) => (
                 <div key={index} className="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
                   <a
-                    href={`http://localhost:5000/uploads/${file}`}
+                    href={`${process.env.REACT_APP_API_URL}/uploads/${file}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:underline truncate"

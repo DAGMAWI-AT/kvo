@@ -44,7 +44,7 @@ const CSOLists = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/cso/get');
+        const response = await axios.get('${process.env.REACT_APP_API_URL}/api/cso/get');
         if(response.succuss){
         }
         setData(response.data);
@@ -138,7 +138,7 @@ const CSOLists = () => {
   
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/cso/remove/${row.id}`);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/cso/remove/${row.id}`);
         setData((prevData) => prevData.filter((item) => item.id !== row.id));
         Swal.fire('Deleted!', `${row.csoName} has been deleted.`, 'success');
       } catch (error) {

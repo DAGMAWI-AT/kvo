@@ -54,7 +54,7 @@ const Csos = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/cso/get");
+        const response = await fetch("${process.env.REACT_APP_API_URL}/api/cso/get");
         if (response.ok) {
           const data = await response.json();
           setCsos(data || []);
@@ -241,7 +241,7 @@ const Csos = () => {
               >
                 {!imgError[cso.registrationId] && cso.logo ? (
                   <img
-                    src={`http://localhost:5000/${cso.logo}`}
+                    src={`${process.env.REACT_APP_API_URL}/${cso.logo}`}
                     alt="CSO logo"
                     onError={() =>
                       setImgError((prev) => ({

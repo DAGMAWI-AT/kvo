@@ -46,7 +46,7 @@ const AllSubmission = () => {
   const fetchSubmissions = async () => {
     try {
       const response = await axios.get(
-        'http://localhost:5000/api/form/all/submission',
+        '${process.env.REACT_APP_API_URL}/api/form/all/submission',
         {
           withCredentials: true,
 
@@ -125,7 +125,7 @@ const AllSubmission = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this submission?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/form/application/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/form/application/${id}`, {
           withCredentials: true,
         });
         toast.success('Submission deleted successfully');
@@ -139,7 +139,7 @@ const AllSubmission = () => {
   const handleStatusUpdate = async (id, newStatus) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/form/application/${id}/status`,
+        `${process.env.REACT_APP_API_URL}/api/form/application/${id}/status`,
         { status: newStatus },
         {
           withCredentials: true,

@@ -32,7 +32,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Fetch notifications from the server
   const fetchNotifications = async () => {
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
         withCredentials: true,
       });
       if (!meResponse.data.success) {
@@ -46,7 +46,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
 
       // Fetch notifications
       const response = await fetch(
-        `http://localhost:5000/api/notifications/notification/${registrationId}`
+        `${process.env.REACT_APP_API_URL}/api/notifications/notification/${registrationId}`
       );
       const notificationsData = await response.json();
       // Default to an empty array if data is not an array
@@ -90,7 +90,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Mark a notification as read
   // const markAsRead = async (id) => {
   //   try {
-  //     await axios.put(`http://localhost:5000/api/notifications/read/${id}`);
+  //     await axios.put(`${process.env.REACT_APP_API_URL}/api/notifications/read/${id}`);
   //     fetchNotifications(); // Refresh the notification list
   //   } catch (error) {
   //     console.error("Error marking notification as read:", error);
@@ -99,7 +99,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/read/${id}`);
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/notifications/read/${id}`);
       setNotifications((prevNotifications) =>
         prevNotifications.map((notif) =>
           notif.id === id ? { ...notif, read: true } : notif
@@ -114,7 +114,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/users/logout");
+      await axios.post("${process.env.REACT_APP_API_URL}/api/users/logout");
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       window.location.href = "/user/login";

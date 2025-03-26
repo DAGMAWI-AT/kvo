@@ -24,7 +24,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
       try {
         // First, get user details from /api/users/me
-        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
           withCredentials: true,
         });
         if (!meResponse.data.success) {
@@ -34,7 +34,7 @@ const Notifications = () => {
 
         // Then, fetch notifications using registrationId from backend
         const response = await fetch(
-          `http://localhost:5000/api/notifications/notification/${registrationId}`,
+          `${process.env.REACT_APP_API_URL}/api/notifications/notification/${registrationId}`,
           { method: "GET", credentials: "include" }
         );
 
@@ -112,7 +112,7 @@ const Notifications = () => {
   const handleMarkAsRead = async (id) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/notifications/read/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/notifications/read/${id}`,
         {},
         { withCredentials: true } // No need for Authorization header since cookie is used
       );
@@ -148,7 +148,7 @@ const Notifications = () => {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:5000/api/notifications/${id}`, {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/notifications/${id}`, {
           withCredentials: true,
         });
         setNotifications((prev) =>

@@ -39,7 +39,7 @@ const Forms = () => {
     const fetchForms = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/form/all/Form",
+          "${process.env.REACT_APP_API_URL}/api/form/all/Form",
           {
             credentials: "include", // Include cookies for authentication
           }
@@ -103,7 +103,7 @@ const Forms = () => {
     if (result.isConfirmed) {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/form/${formId}`,
+          `${process.env.REACT_APP_API_URL}/api/form/${formId}`,
           {
             method: "DELETE",
             credentials: "include", // Include cookies for authentication

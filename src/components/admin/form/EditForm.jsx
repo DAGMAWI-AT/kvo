@@ -20,7 +20,7 @@ const EditForm = () => {
   useEffect(() => {
     const fetchForm = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/form/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/${id}`, {
           credentials: "include", // Include cookies for authentication
         });
 
@@ -53,7 +53,7 @@ const EditForm = () => {
   
     try {
       // Verify admin session
-      const meResponse = await fetch("http://localhost:5000/api/staff/me", {
+      const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/staff/me", {
         credentials: 'include'
       });
 
@@ -63,7 +63,7 @@ const EditForm = () => {
       }
 
       // Update form
-      const response = await fetch(`http://localhost:5000/api/form/edit/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/edit/${id}`, {
         method: "PUT",
         credentials: "include", // Include cookies for authentication
         headers: {

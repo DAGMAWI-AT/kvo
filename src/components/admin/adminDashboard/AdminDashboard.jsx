@@ -29,7 +29,7 @@ const Dashboard = () => {
  const navigate = useNavigate()
   const fetchUsers = async () => {
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
         withCredentials: true,
       });
 

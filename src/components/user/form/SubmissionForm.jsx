@@ -22,7 +22,7 @@ const SubmissionForm = () => {
         }
 
         // Verify user session
-        const meResponse = await fetch("http://localhost:5000/api/users/me", {
+        const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
           credentials: "include",
         });
 
@@ -33,7 +33,7 @@ const SubmissionForm = () => {
 
         // Get form data
         const formResponse = await fetch(
-          `http://localhost:5000/api/form/${id}`,
+          `${process.env.REACT_APP_API_URL}/api/form/${id}`,
           {
             credentials: "include",
           }
@@ -56,7 +56,7 @@ const SubmissionForm = () => {
 
         // Fetch user's submission for this form
         const submissionResponse = await fetch(
-          `http://localhost:5000/api/form/form/application?form_id=${id}`,
+          `${process.env.REACT_APP_API_URL}/api/form/form/application?form_id=${id}`,
           {
             credentials: "include",
           }
@@ -108,7 +108,7 @@ const SubmissionForm = () => {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/form/application",
+        "${process.env.REACT_APP_API_URL}/api/form/application",
         {
           method: "PUT",
           credentials: "include",

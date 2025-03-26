@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const EditUserProfile = ({ profileData, onUpdate }) => {
-  const [imageFile, setImageFile] = useState(`http://localhost:5000/staff/${profileData.photo}`);
+  const [imageFile, setImageFile] = useState(`${process.env.REACT_APP_API_URL}/staff/${profileData.photo}`);
   const [formData, setFormData] = useState(profileData);
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
@@ -32,7 +32,7 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
       }
 
       const response = await fetch(
-        `http://localhost:5000/api/staff/update/${formData.id}`,
+        `${process.env.REACT_APP_API_URL}/api/staff/update/${formData.id}`,
         {
           method: "PUT",
           body: updatedData,

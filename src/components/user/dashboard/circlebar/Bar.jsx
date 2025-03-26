@@ -17,7 +17,7 @@ const Bar = ({ darkMode }) => {
   useEffect(() => {
     const fetchStatusCounts = async () => {
       try {
-       const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+       const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
                withCredentials: true,
              });
              if (!meResponse.data.success) {
@@ -26,7 +26,7 @@ const Bar = ({ darkMode }) => {
              const { userId } = meResponse.data;
         if (!userId) throw new Error("Invalid token: ID not found");
 
-        const response = await axios.get(`http://localhost:5000/api/report/status-counts/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/report/status-counts/${userId}`);
 
         if (response.data) {
           setStatusCounts(response.data);

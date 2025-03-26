@@ -20,7 +20,7 @@ const DashboardReport = () => {
     const fetchStatusCounts = async () => {
       try {
         // Fetch logged-in user details
-        const meResponse = await axios.get("http://localhost:5000/api/users/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
           withCredentials: true,
         });
 
@@ -32,7 +32,7 @@ const DashboardReport = () => {
         console.log("User ID:", userId);
 
         // Fetch report data by category and status
-        const response = await axios.get(`http://localhost:5000/api/report/bycategory/status/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/report/bycategory/status/${userId}`);
         console.log("Reports API Response:", response.data);
 
         if (response.data.success) {

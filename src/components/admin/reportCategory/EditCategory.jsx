@@ -18,7 +18,7 @@ const EditCategory = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
           withCredentials: true,
         });
 
@@ -27,7 +27,7 @@ const EditCategory = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reportCategory/${id}`, {
           credentials: 'include',
         });
 
@@ -55,7 +55,7 @@ const EditCategory = () => {
     setUpdating(true);
 
     try {
-      const meResponse = await axios.get("http://localhost:5000/api/staff/me", {
+      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
         withCredentials: true,
       });
 
@@ -70,7 +70,7 @@ const EditCategory = () => {
         expire_date: formattedExpireDate,
       };
 
-      const response = await fetch(`http://localhost:5000/api/reportCategory/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reportCategory/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

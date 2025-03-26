@@ -29,7 +29,7 @@ const CSOProfile = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/cso/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/cso/${id}`, {
           credentials: 'include'
         });
         
@@ -120,7 +120,7 @@ const CSOProfile = () => {
             <div className="flex-shrink-0">
               {!imgError && profileData.logo ? (
                 <img
-                  src={`http://localhost:5000/${profileData.logo}`}
+                  src={`${process.env.REACT_APP_API_URL}/${profileData.logo}`}
                   alt="Organization logo"
                   onError={() => setImgError(true)}
                   className="w-32 h-32 rounded-lg object-cover border-4 border-white shadow-lg"
@@ -281,10 +281,10 @@ const CSOProfile = () => {
                         className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 pr-8 rounded-lg leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       >
                         <option value="">Choose a document...</option>
-                        <option value={`http://localhost:5000/${profileData.tin_certificate}`}>
+                        <option value={`${process.env.REACT_APP_API_URL}/${profileData.tin_certificate}`}>
                           Tax Identification Certificate
                         </option>
-                        <option value={`http://localhost:5000/${profileData.registration_certificate}`}>
+                        <option value={`${process.env.REACT_APP_API_URL}/${profileData.registration_certificate}`}>
                           Registration Certificate
                         </option>
                       </select>

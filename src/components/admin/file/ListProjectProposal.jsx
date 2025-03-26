@@ -20,7 +20,7 @@ const ListProjectProposal = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/projects/all");
+        const response = await fetch("${process.env.REACT_APP_API_URL}/api/projects/all");
         if (!response.ok) {
           throw new Error("Failed to fetch data");
         }
@@ -110,7 +110,7 @@ const ListProjectProposal = () => {
 
     if (result.isConfirmed) {
       try {
-        const response = await fetch(`http://localhost:5000/api/projects/delete/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/projects/delete/${id}`, {
           method: "DELETE",
         });
         if (!response.ok) {

@@ -9,7 +9,7 @@ import debounce from "lodash.debounce";
 import axios from "axios";
 
 // Environment Variables
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "${process.env.REACT_APP_API_URL}";
 
 // Styled Components for CSS-in-JS
 const TableContainer = styled.div`

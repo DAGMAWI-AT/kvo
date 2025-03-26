@@ -129,7 +129,7 @@ const Routers = createBrowserRouter([
       //   path: "/user/dashboard/work_report/viewworkreport/:id",
       //   element: <ViewWorkReport />,
       //   loader: async ({ params }) =>
-      //     fetch(`http://localhost:5000/api/report/byId/${params.id}`).then((res) =>
+      //     fetch(`${process.env.REACT_APP_API_URL}/api/report/byId/${params.id}`).then((res) =>
       //       res.json()
       //     ),
       // },
@@ -228,7 +228,7 @@ const Routers = createBrowserRouter([
         path: "show_report/:id",
         element: <ShowReport />,
         loader: async ({ params }) =>
-          fetch(`http://localhost:5000/api/report/view/byId/${params.id}`).then(
+          fetch(`${process.env.REACT_APP_API_URL}/api/report/view/byId/${params.id}`).then(
             (res) => res.json()
           ),
       },

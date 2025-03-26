@@ -38,7 +38,7 @@ const EachCso = () => {
   useEffect(() => {
     const fetchCsoData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/report/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/report/${id}`);
         if (!response.ok) {
           console.error("Failed to fetch CSO data:", response.status);
           return;
@@ -51,7 +51,7 @@ const EachCso = () => {
 
         const categoryPromises = uniqueCategoryIds.map(async (categoryId) => {
           const categoryResponse = await fetch(
-            `http://localhost:5000/api/reportCategory/${categoryId}`
+            `${process.env.REACT_APP_API_URL}/api/reportCategory/${categoryId}`
           );
           if (!categoryResponse.ok) {
             console.error("Failed to fetch category data:", categoryResponse.status);
@@ -87,7 +87,7 @@ const EachCso = () => {
   useEffect(() => {
     const fetchCsoProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/cso/res/${id}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/cso/res/${id}`);
         if (!response.ok) {
           console.error("Failed to fetch CSO profile:", response.status);
           return;
@@ -187,7 +187,7 @@ const EachCso = () => {
             <div className="relative">
               {!imgError && cso.logo ? (
                 <img
-                  src={`http://localhost:5000/${cso.logo}`}
+                  src={`${process.env.REACT_APP_API_URL}/${cso.logo}`}
                   onError={() => setImgError(true)}
                   alt="Profile logo"
                   className="w-16 h-16 rounded-xl border-2 border-gray-100 shadow-md object-cover"
@@ -334,7 +334,7 @@ const EachCso = () => {
                             <span className="text-blue-600 font-medium text-sm">PDF</span>
                           ) : (
                             <img
-                              src={`http://localhost:5000/cso_files/${item.category_name}/${item.report_file}`}
+                              src={`${process.env.REACT_APP_API_URL}/cso_files/${item.category_name}/${item.report_file}`}
                               alt="Report"
                               className="w-full h-full object-cover"
                             />
