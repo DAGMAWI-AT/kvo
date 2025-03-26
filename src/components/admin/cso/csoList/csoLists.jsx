@@ -148,13 +148,6 @@ const CSOLists = () => {
   };
   
   const handleEdit = (row) => {
-    Swal.fire({
-      title: 'Edit CSO',
-      text: `Redirecting to edit ${row.csoName}...`,
-      icon: 'info',
-      timer: 1500,
-      showConfirmButton: false,
-    });
     navigate(`/admin/cso_edit/${row.id}`);
   };
   

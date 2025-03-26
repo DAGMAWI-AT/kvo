@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { BarLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 const EditForm = () => {
   const { id } = useParams(); // Get the form ID from the URL
@@ -12,10 +13,8 @@ const EditForm = () => {
     expires_at: new Date(),
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  
 
   // Fetch form data from the backend API
   useEffect(() => {
@@ -32,7 +31,7 @@ const EditForm = () => {
         const data = await response.json();
         setForm({ ...data, expires_at: new Date(data.expires_at) }); // Convert expires_at to Date object
       } catch (error) {
-        setError(error.message);
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -51,8 +50,7 @@ const EditForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
+  
     try {
       // Verify admin session
       const meResponse = await fetch("http://localhost:5000/api/staff/me", {
@@ -60,7 +58,7 @@ const EditForm = () => {
       });
 
       if (!meResponse.ok) {
-        setError("Admin access required");
+        toast.error("Admin access required");
         return;
       }
 
@@ -82,14 +80,14 @@ const EditForm = () => {
         throw new Error("Failed to update form");
       }
       // navigate("/admin/forms")
+      toast.success('Form updated successfully!')
       setTimeout(() => {
-        navigate('/admin/forms', { state: { successMessage: 'Form updated successfully!' } });
+        navigate('/admin/forms');
       }, 100);
 
       // navigate("/admin/forms"); // Redirect to the forms list after successful update
     } catch (error) {
-      setError(error.message);
-      setErrorMessage(error.message || 'An error occurred while creating the form');
+      toast.error(error.message);
 
     }finally {
       setSubmitting(false);
@@ -104,21 +102,11 @@ const EditForm = () => {
         </div>
       );
     }
-  if (error) return <div className="text-center p-4 text-gray-400">{error} please refresh again</div>;
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-      {/* {successMessage && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {successMessage}
-        </div>
-      )} */}
-      {errorMessage && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {errorMessage}
-        </div>
-      )}
+  
         <h1 className="text-2xl font-bold">Edit Form</h1>
         <button
           onClick={() => navigate("/admin/forms")}

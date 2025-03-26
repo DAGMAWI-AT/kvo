@@ -19,6 +19,7 @@ import {
   FiMinimize,
   FiType,
   FiCopy,
+  FiXCircle,
 } from "react-icons/fi";
 import { useParams, useNavigate } from "react-router-dom";
 import { BarLoader } from "react-spinners";
@@ -28,7 +29,6 @@ import { FaBarsProgress } from "react-icons/fa6";
 const MAX_COMMENT_PREVIEW_LENGTH = 150;
 const INITIAL_COMMENTS_TO_SHOW = 3;
 const MAX_PREVIEW_LENGTH = 500; // Adjust as needed
-
 
 const StatusBadge = ({ status }) => {
   const statusStyles = {
@@ -82,27 +82,42 @@ const ViewSubmitted = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isImage, setIsImage] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-const needsToggle = submission?.description?.length > MAX_PREVIEW_LENGTH;
+  const needsToggle = submission?.description?.length > MAX_PREVIEW_LENGTH;
+  const [cso, setCso] = useState({});
 
-const displayText = isExpanded 
-  ? submission?.description 
-  : submission?.description?.substring(0, MAX_PREVIEW_LENGTH) + (needsToggle ? '...' : '');
+  const displayText = isExpanded
+    ? submission?.description
+    : submission?.description?.substring(0, MAX_PREVIEW_LENGTH) +
+      (needsToggle ? "..." : "");
 
   const fetchData = async () => {
     try {
-      setLoading(true);
-      const roleResponse = await axios.get(
-        "http://localhost:5000/api/staff/me",
-        { withCredentials: true }
-      );
-      setUserRole(roleResponse.data.role);
+      // setLoading(true);
 
-      const submissionResponse = await axios.get(
-        `http://localhost:5000/api/form/application/${id}`,
-        { withCredentials: true }
-      );
+      // Fetch all data in parallel where possible
+      const [roleResponse, submissionResponse] = await Promise.all([
+        axios.get("http://localhost:5000/api/staff/me", {
+          withCredentials: true,
+        }),
+        axios.get(`http://localhost:5000/api/form/application/${id}`, {
+          withCredentials: true,
+        }),
+      ]);
+
+      setUserRole(roleResponse.data.role);
       setSubmission(submissionResponse.data);
 
+      // Immediately extract CSO ID from submission response
+      const csoId = submissionResponse.data?.cso_id;
+      if (csoId) {
+        const csoRes = await axios.get(
+          `http://localhost:5000/api/cso/res/${csoId}`,
+          { withCredentials: true }
+        );
+        setCso(csoRes.data);
+      }
+
+      // Check file type
       if (submissionResponse.data?.application_file) {
         const fileExt = submissionResponse.data.application_file
           .split(".")
@@ -111,18 +126,20 @@ const displayText = isExpanded
         setIsImage(["jpg", "jpeg", "png", "gif"].includes(fileExt));
       }
 
+      // Fetch comments
       const commentsResponse = await axios.get(
         `http://localhost:5000/api/comments/report/${id}`,
         { withCredentials: true }
       );
       setComments(commentsResponse.data.data || []);
-      setLoading(false);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || err.message);
+      toast.error(err.response?.data?.message || err.message);
+    } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, [id]);
@@ -360,21 +377,21 @@ const displayText = isExpanded
     );
   }
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-blue-600 hover:text-blue-800"
-        >
-          <FiChevronLeft className="mr-1" /> Back to Submissions
-        </button>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="max-w-6xl mx-auto px-4 py-8">
+  //       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+  //         {error}
+  //       </div>
+  //       <button
+  //         onClick={() => navigate(-1)}
+  //         className="flex items-center text-blue-600 hover:text-blue-800"
+  //       >
+  //         <FiChevronLeft className="mr-1" /> Back to Submissions
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   if (!submission) {
     return (
@@ -437,48 +454,54 @@ const displayText = isExpanded
 
       {/* File Preview Modal */}
       {previewFile && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-medium">File Preview</h3>
-              <button
-                onClick={closePreview}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <FiMaximize />
-              </button>
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 ${
+            isFullScreen ? "p-0" : "p-4"
+          }`}
+        >
+          <div
+            className={`bg-white rounded-lg ${
+              isFullScreen ? "w-full h-full" : "max-w-4xl w-full max-h-screen"
+            }`}
+          >
+            <div className="flex justify-between items-center bg-gray-100 px-4 py-2 border-b">
+              <h3 className="font-medium">File Preview</h3>
+              <div className="flex space-x-2">
+                <button
+                  onClick={toggleFullScreen}
+                  className="p-1 text-gray-600 hover:text-gray-900"
+                >
+                  {isFullScreen ? <FiMinimize /> : <FiMaximize />}
+                </button>
+                <button
+                  onClick={closePreview}
+                  className="p-1 text-gray-600 hover:text-gray-900"
+                >
+                  <FiXCircle />
+                </button>
+              </div>
             </div>
-            <div className="flex-grow overflow-auto p-4">
-              {previewFile.match(/\.(jpe?g|png|gif)$/i) ? (
-                <img
-                  src={`http://localhost:5000/comment/${previewFile}`}
-                  alt="Preview"
-                  className="max-w-full h-auto mx-auto"
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <embed
-                    src={`http://localhost:5000/comment/${previewFile}`}
-                    type="application/pdf"
-                    className="w-full h-full"
-                  />
-                  <button
-                    onClick={() => handleDownload(previewFile)}
-                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4"
-                  >
-                    <FiDownload className="mr-2" />
-                    Download File
-                  </button>
-                </div>
-              )}
+            <div
+              className={`${
+                isFullScreen ? "h-[calc(100vh-40px)]" : "h-96"
+              } p-4`}
+            >
+              <iframe
+                src={`http://localhost:5000/comment/${previewFile}`}
+                className="w-full h-full"
+                title="File Preview"
+              />
             </div>
-            <div className="p-4 border-t flex justify-end">
-              <button
-                onClick={closePreview}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            <div className="bg-gray-100 px-4 py-2 border-t flex justify-end">
+              <a
+                href={`http://localhost:5000/comment/${previewFile}`}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 flex items-center"
               >
-                Close
-              </button>
+                <FiDownload className="mr-2" /> Download
+              </a>
             </div>
           </div>
         </div>
@@ -519,6 +542,7 @@ const displayText = isExpanded
               </h1>
               <p className="text-gray-600 mt-1">{submission.report_name}</p>
             </div>
+
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-4">
                 {/* Status Update Dropdown */}
@@ -589,44 +613,50 @@ const displayText = isExpanded
                       <FiFileText />
                     </div>
                     <div className="ml-3 flex-1">
-      <div className="flex justify-between items-start">
-        <p className={`font-medium text-gray-500 ${getTextSizeClass()}`}>
-          Description
-        </p>
-        {/* Optional: Add copy to clipboard button */}
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(submission.description || '');
-            toast.success('Description copied to clipboard');
-          }}
-          className="text-gray-400 hover:text-gray-600 ml-2"
-          title="Copy to clipboard"
-        >
-          <FiCopy className="w-4 h-4" />
-        </button>
-      </div>
+                      <div className="flex justify-between items-start">
+                        <p
+                          className={`font-medium text-gray-500 ${getTextSizeClass()}`}
+                        >
+                          Description
+                        </p>
+                        {/* Optional: Add copy to clipboard button */}
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(
+                              submission.description || ""
+                            );
+                            toast.success("Description copied to clipboard");
+                          }}
+                          className="text-gray-400 hover:text-gray-600 ml-2"
+                          title="Copy to clipboard"
+                        >
+                          <FiCopy className="w-4 h-4" />
+                        </button>
+                      </div>
                       {/* <p
                         className={`mt-1 ${getTextSizeClass()} text-gray-900 whitespace-pre-line`}
                       >
                         {submission.description || "No description provided"}
                       </p> */}
-                      <div  className={`mt-1 ${getTextSizeClass()} text-gray-900 whitespace-pre-line`}>
-                          {displayText || "No description provided"}
-                          {needsToggle && (
-                            <button
-                              onClick={() => setIsExpanded(!isExpanded)}
-                              className="text-blue-500 hover:text-blue-700 ml-1"
-                            >
-                              {isExpanded ? "Show less" : "Show more"}
-                            </button>
-                          )}
-                        </div>
+                      <div
+                        className={`mt-1 ${getTextSizeClass()} text-gray-900 whitespace-pre-line`}
+                      >
+                        {displayText || "No description provided"}
+                        {needsToggle && (
+                          <button
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="text-blue-500 hover:text-blue-700 ml-1"
+                          >
+                            {isExpanded ? "Show less" : "Show more"}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5">
-                      <FiCalendar />
+                      <FiCalendar className="text-blue-600"/>
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-500">
@@ -641,9 +671,9 @@ const displayText = isExpanded
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5">
                       {submission.update_permission === "open" ? (
-                        <FiUnlock />
+                        <FiUnlock className="text-green-500 mr-2" />
                       ) : (
-                        <FiLock />
+                        <FiLock className="text-red-500 mr-2"/>
                       )}
                     </div>
                     <div className="ml-3">
@@ -747,21 +777,21 @@ const displayText = isExpanded
                 <div className="space-y-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5">
-                      <FiUser />
+                      <FiUser className="text-blue-500" />
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-500">
                         Submitted By
                       </p>
                       <p className={`mt-1 ${getTextSizeClass()} text-gray-900`}>
-                        {submission.author || `User ID: ${submission.user_id}`}
+                        {cso.csoName || `User ID: ${submission.user_id}`}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5">
-                      <FiClock />
+                      <FiCalendar className="text-blue-600" />
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-500">
@@ -775,7 +805,7 @@ const displayText = isExpanded
 
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 text-gray-500 mt-0.5">
-                      <FiClock />
+                      <FiClock className="text-purple-600" />
                     </div>
                     <div className="ml-3">
                       <p className="text-sm font-medium text-gray-500">

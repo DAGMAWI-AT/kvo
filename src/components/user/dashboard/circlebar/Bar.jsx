@@ -23,10 +23,10 @@ const Bar = ({ darkMode }) => {
              if (!meResponse.data.success) {
                throw new Error("Failed to get user details");
              }
-             const { id } = meResponse.data;
-        if (!id) throw new Error("Invalid token: ID not found");
+             const { userId } = meResponse.data;
+        if (!userId) throw new Error("Invalid token: ID not found");
 
-        const response = await axios.get(`http://localhost:5000/api/report/status-counts/${id}`);
+        const response = await axios.get(`http://localhost:5000/api/report/status-counts/${userId}`);
 
         if (response.data) {
           setStatusCounts(response.data);

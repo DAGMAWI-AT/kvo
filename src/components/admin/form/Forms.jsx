@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaEdit, FaEye, FaTrash, FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import {
+  FaEdit,
+  FaEye,
+  FaTrash,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+} from "react-icons/fa";
 import { BarLoader } from "react-spinners";
+import Swal from "sweetalert2";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const Forms = () => {
   const [forms, setForms] = useState([]);
@@ -29,9 +38,12 @@ const Forms = () => {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/form/all/Form", {
-          credentials: "include", // Include cookies for authentication
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/form/all/Form",
+          {
+            credentials: "include", // Include cookies for authentication
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to load forms");
@@ -78,19 +90,34 @@ const Forms = () => {
 
   // Handle delete form
   const handleDelete = async (formId) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/form/${formId}`, {
-        method: "DELETE",
-        credentials: "include", // Include cookies for authentication
-      });
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to delete ${forms.formId}. This action cannot be undone!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete form");
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/form/${formId}`,
+          {
+            method: "DELETE",
+            credentials: "include", // Include cookies for authentication
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete form");
+        }
+
+        setForms(forms.filter((form) => form.id !== formId)); // Remove the deleted form from the state
+      } catch (error) {
+        setError(error.message);
       }
-
-      setForms(forms.filter((form) => form.id !== formId)); // Remove the deleted form from the state
-    } catch (error) {
-      setError(error.message);
     }
   };
 
@@ -122,8 +149,8 @@ const Forms = () => {
     setItemsPerPage(Number(e.target.value));
     setCurrentPage(1); // Reset to the first page
   };
+  const totalPages = Math.ceil(filteredForms.length / itemsPerPage);
 
-//   if (loading) return <div className="text-center p-4">Loading forms...</div>;
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-transparent">
@@ -131,11 +158,10 @@ const Forms = () => {
       </div>
     );
   }
-  // if (error) return <div className="text-center p-4 text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
-       {successMessage && (
+      {successMessage && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
           {successMessage}
         </div>
@@ -195,13 +221,12 @@ const Forms = () => {
               >
                 <div className="flex items-center">
                   Expires At
-                  {sortConfig.key === "expires_at" && (
-                    sortConfig.direction === "asc" ? (
+                  {sortConfig.key === "expires_at" &&
+                    (sortConfig.direction === "asc" ? (
                       <FaSortUp className="ml-2" />
                     ) : (
                       <FaSortDown className="ml-2" />
-                    )
-                 )}
+                    ))}
                 </div>
               </th>
               <th className="py-2 px-4 border-b">Actions</th>
@@ -209,8 +234,13 @@ const Forms = () => {
           </thead>
           <tbody>
             {currentForms.map((form, index) => (
-              <tr key={form.id} className="hover:bg-gray-50 text-left text-gray-700">
-                <td className="py-2 px-4 border-b">{indexOfFirstItem + index + 1}</td>
+              <tr
+                key={form.id}
+                className="hover:bg-gray-50 text-left text-gray-700"
+              >
+                <td className="py-2 px-4 border-b">
+                  {indexOfFirstItem + index + 1}
+                </td>
                 <td className="py-2 px-4 border-b">{form.form_name}</td>
                 <td className="py-2 px-4 border-b">
                   {new Date(form.expires_at).toLocaleString()}
@@ -257,24 +287,74 @@ const Forms = () => {
             <option value={20}>20</option>
           </select>
         </div>
-        <div className="flex items-center">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 rounded-md mr-2 disabled:opacity-50"
+
+        <div>
+          <nav
+            className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+            aria-label="Pagination"
           >
-            Previous
-          </button>
-          <span className="mx-2">
-            Page {currentPage} of {Math.ceil(filteredForms.length / itemsPerPage)}
-          </span>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === Math.ceil(filteredForms.length / itemsPerPage)}
-            className="px-4 py-2 bg-gray-300 rounded-md disabled:opacity-50"
-          >
-            Next
-          </button>
+            <button
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">First</span>
+              <FiChevronLeft className="h-5 w-5" />
+              <FiChevronLeft className="h-5 w-5 -ml-3" />
+            </button>
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">Previous</span>
+              <FiChevronLeft className="h-5 w-5" />
+            </button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                    currentPage === pageNum
+                      ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                      : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">Next</span>
+              <FiChevronRight className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
+              <span className="sr-only">Last</span>
+              <FiChevronRight className="h-5 w-5" />
+              <FiChevronRight className="h-5 w-5 -ml-3" />
+            </button>
+          </nav>
         </div>
       </div>
     </div>

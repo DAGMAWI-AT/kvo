@@ -79,10 +79,12 @@ const Csos = () => {
     }
   }, []);
 
+  // const handleClick = (id) => {
+  //   navigate(`/admin/each_cso/${id}`);
+  // };
   const handleClick = (id) => {
-    navigate(`/admin/each_cso/${id}`);
+    navigate(`/admin/cso_submission/${id}`);
   };
-
   const handleSortChange = (order) => {
     setFilter(order);
     setCsos((prev) =>
@@ -223,7 +225,7 @@ const Csos = () => {
               className={`relative bg-white border border-gray-300 rounded-lg shadow-md p-4 hover:shadow-lg transition transform hover:scale-105 ${
                 displayMode === "list" ? "flex items-center space-x-4" : ""
               }`}
-              onClick={() => handleClick(cso.registrationId)}
+              onClick={() => handleClick(cso.id)}
             >
               {cso.notifications > 0 && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">

@@ -78,6 +78,7 @@ import Submitted from "../user/submission/Submitted";
 import ViewSubmission from "../user/submission/ViewSubmission";
 import AllSubmission from "../admin/cso/csoSubmission/AllSubmission";
 import ViewSubmitted from "../admin/cso/csoSubmission/ViewSubmitted";
+import CsoSubmission from "../admin/cso/csoSubmission/CsoSubmission";
 
 
 const Routers = createBrowserRouter([
@@ -386,6 +387,10 @@ const Routers = createBrowserRouter([
  {
   path: "view_submission/:id",
   element: <ViewSubmitted />,
+},
+{
+  path: "cso_submission/:id",
+  element: <CsoSubmission />,
 },
     ],
   },
