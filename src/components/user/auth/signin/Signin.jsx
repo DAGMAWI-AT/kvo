@@ -28,7 +28,6 @@ const Signin = () => {
         const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true,
         });
-
         if (meResponse.data.success) {
           const { role } = meResponse.data;
           if (role === "admin") {
