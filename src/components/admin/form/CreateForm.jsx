@@ -19,7 +19,7 @@ const CreateForm = () => {
 
     try {
       // Verify admin session first
-      const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/staff/me", {
+      const meResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
         credentials: 'include'
       });
       
@@ -28,7 +28,7 @@ const CreateForm = () => {
       }
 
       // Submit form
-      const response = await fetch('${process.env.REACT_APP_API_URL}/api/form/create', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/create`, {
         method: 'POST',
         credentials: 'include',
         headers: {

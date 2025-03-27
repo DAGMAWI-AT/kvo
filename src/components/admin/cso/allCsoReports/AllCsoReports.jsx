@@ -87,7 +87,7 @@ const AllCsoReports = () => {
     const fetchReports = async () => {
       try {
         // Fetch reports
-        const response = await fetch("${process.env.REACT_APP_API_URL}/api/report");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/report`);
         if (!response.ok) throw new Error("Failed to fetch reports");
         const data = await response.json();
         const reportsArray = Array.isArray(data) ? data : data.reports || [];

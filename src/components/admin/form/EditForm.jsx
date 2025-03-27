@@ -53,7 +53,7 @@ const EditForm = () => {
   
     try {
       // Verify admin session
-      const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/staff/me", {
+      const meResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
         credentials: 'include'
       });
 

@@ -20,7 +20,7 @@ import axios from "axios";
 import { BarLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "${process.env.REACT_APP_API_URL}";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const ViewStaffProfile = () => {
   // const { id } = useParams();
@@ -34,7 +34,7 @@ const ViewStaffProfile = () => {
     try {
       setLoading(true);
       setError("");
-      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
         withCredentials: true,
       });
   

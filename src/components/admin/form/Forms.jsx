@@ -39,7 +39,7 @@ const Forms = () => {
     const fetchForms = async () => {
       try {
         const response = await fetch(
-          "${process.env.REACT_APP_API_URL}/api/form/all/Form",
+          `${process.env.REACT_APP_API_URL}/api/form/all/Form`,
           {
             credentials: "include", // Include cookies for authentication
           }

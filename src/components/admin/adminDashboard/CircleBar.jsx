@@ -30,8 +30,8 @@ function CircleBar() {
 
   useEffect(() => {
     Promise.all([
-      fetch("${process.env.REACT_APP_API_URL}/api/users/res/dashboard"),
-      fetch("${process.env.REACT_APP_API_URL}/api/report/api/report-status")
+      fetch(`${process.env.REACT_APP_API_URL}/api/users/res/dashboard`),
+      fetch(`${process.env.REACT_APP_API_URL}/api/report/api/report-status`)
     ])
     .then(([res1, res2]) => Promise.all([res1.json(), res2.json()]))
     .then(([dashboard, status]) => {

@@ -61,7 +61,7 @@ const StaffRegister = () => {
     });
 
     try {
-      const response = await fetch("${process.env.REACT_APP_API_URL}/api/staff/register", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/staff/register`, {
         method: "POST",
         body: formDataObj,
       });

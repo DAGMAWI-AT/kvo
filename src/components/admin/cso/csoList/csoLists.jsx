@@ -44,7 +44,7 @@ const CSOLists = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('${process.env.REACT_APP_API_URL}/api/cso/get');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/cso/get`);
         if(response.succuss){
         }
         setData(response.data);

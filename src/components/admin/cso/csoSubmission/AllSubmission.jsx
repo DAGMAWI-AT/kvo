@@ -46,7 +46,7 @@ const AllSubmission = () => {
   const fetchSubmissions = async () => {
     try {
       const response = await axios.get(
-        '${process.env.REACT_APP_API_URL}/api/form/all/submission',
+        `${process.env.REACT_APP_API_URL}/api/form/all/submission`,
         {
           withCredentials: true,
 

@@ -24,7 +24,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
       try {
         // First, get user details from /api/users/me
-        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true,
         });
         if (!meResponse.data.success) {

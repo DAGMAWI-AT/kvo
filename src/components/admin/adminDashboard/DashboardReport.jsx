@@ -18,7 +18,7 @@ const DashboardReport = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const { data } = await axios.get("${process.env.REACT_APP_API_URL}/api/report/bycategory/reports");
+        const { data } = await axios.get(`${process.env.REACT_APP_API_URL}/api/report/bycategory/reports`);
         if (data.success) {
           setReportData(Object.entries(data.reports));
         }

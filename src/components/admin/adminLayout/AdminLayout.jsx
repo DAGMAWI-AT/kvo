@@ -23,7 +23,7 @@ const AdminLayout = () => {
 
       const fetchUsers = async () => {
         try {
-          const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+          const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
             withCredentials: true,
           });
     

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ClipLoader } from "react-spinners";
 
 const FormList = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await axios.get("${process.env.REACT_APP_API_URL}/api/form", {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/form`, {
           withCredentials: true,
         });
 
@@ -24,7 +25,7 @@ const FormList = () => {
 
         setForms(processedForms);
       } catch (error) {
-        setError(error.response?.data?.error || "Failed to load forms");
+        toast.error(error.response?.data?.error || "Failed to load forms");
         if (error.response?.status === 401) navigate("/user/login");
       } finally {
         setLoading(false);
@@ -50,8 +51,13 @@ const FormList = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-4">Loading forms...</div>;
-  if (error) return <div className="text-center p-4 text-red-500">{error}</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <ClipLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">

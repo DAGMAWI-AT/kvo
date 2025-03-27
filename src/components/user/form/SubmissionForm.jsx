@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { BarLoader } from "react-spinners";
 
 const SubmissionForm = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ const SubmissionForm = () => {
         }
 
         // Verify user session
-        const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const meResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           credentials: "include",
         });
 
@@ -108,7 +109,7 @@ const SubmissionForm = () => {
       }
 
       const response = await fetch(
-        "${process.env.REACT_APP_API_URL}/api/form/application",
+        `${process.env.REACT_APP_API_URL}/api/form/application`,
         {
           method: "PUT",
           credentials: "include",
@@ -127,9 +128,12 @@ const SubmissionForm = () => {
       setError(error.message || "Submission failed. Please try again.");
     }
   };
-
   if (loading) {
-    return <div className="text-center p-8">Loading form...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
+      </div>
+    );
   }
 
   if (error) {

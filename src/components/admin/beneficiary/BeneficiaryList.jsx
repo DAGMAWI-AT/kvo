@@ -27,7 +27,7 @@ const BeneficiaryList = () => {
     const fetchBeneficiaries = async () => {
       try {
         const response = await axios.get(
-          "${process.env.REACT_APP_API_URL}/api/beneficiaries"
+          `${process.env.REACT_APP_API_URL}/api/beneficiaries`
         );
         setBeneficiaries(response.data.data);
         setFilteredBeneficiaries(response.data.data);

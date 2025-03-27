@@ -22,14 +22,14 @@ const Login = () => {
     try {
       // Attempt to log in
       const loginResponse = await axios.post(
-        '${process.env.REACT_APP_API_URL}/api/staff/login',
+        `${process.env.REACT_APP_API_URL}/api/staff/login`,
         { registrationId, email, password },
         { withCredentials: true }
       );
 
       if (loginResponse.data.success) {
         // Fetch user details after successful login
-        const meResponse = await axios.get('${process.env.REACT_APP_API_URL}/api/staff/me', {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
           withCredentials: true,
         });
 

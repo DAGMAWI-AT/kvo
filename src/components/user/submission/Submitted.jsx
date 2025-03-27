@@ -50,7 +50,7 @@ const Submitted = () => {
   const fetchApplications = async () => {
     try {
       const response = await axios.get(
-        "${process.env.REACT_APP_API_URL}/api/form/application/submitted",
+        `${process.env.REACT_APP_API_URL}/api/form/application/submitted`,
         {
           withCredentials: true,
         }

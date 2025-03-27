@@ -32,7 +32,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Fetch notifications from the server
   const fetchNotifications = async () => {
     try {
-      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
         withCredentials: true,
       });
       if (!meResponse.data.success) {
@@ -114,7 +114,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      await axios.post("${process.env.REACT_APP_API_URL}/api/users/logout");
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/users/logout`);
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       window.location.href = "/user/login";

@@ -24,7 +24,7 @@ const ViewSubmission = () => {
     const fetchData = async () => {
       try {
         // Fetch user role first
-        const roleResponse = await axios.get('${process.env.REACT_APP_API_URL}/api/auth/role', {
+        const roleResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/role`, {
           withCredentials: true,
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -81,7 +81,7 @@ const ViewSubmission = () => {
       }
 
       const response = await axios.post(
-        '${process.env.REACT_APP_API_URL}/api/comments',
+        `${process.env.REACT_APP_API_URL}/api/comments`,
         formData,
         {
           withCredentials: true,

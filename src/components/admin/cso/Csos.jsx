@@ -54,7 +54,7 @@ const Csos = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await fetch("${process.env.REACT_APP_API_URL}/api/cso/get");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/cso/get`);
         if (response.ok) {
           const data = await response.json();
           setCsos(data || []);

@@ -18,7 +18,7 @@ const EditCategory = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
           withCredentials: true,
         });
 
@@ -55,7 +55,7 @@ const EditCategory = () => {
     setUpdating(true);
 
     try {
-      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
         withCredentials: true,
       });
 

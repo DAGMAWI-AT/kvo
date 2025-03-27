@@ -23,7 +23,7 @@ const UploadReports = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const meResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           credentials: "include",
         });
         if (meResponse.status === 401) {
@@ -112,7 +112,7 @@ const UploadReports = () => {
     setLoading(true);
     setIsSubmitting(true);
 
-    const meResponse = await fetch("${process.env.REACT_APP_API_URL}/api/users/me", {
+    const meResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/users/me`, {
       credentials: "include", // Include cookies in the request
     });
     if (meResponse.status === 401) {
@@ -165,7 +165,7 @@ const UploadReports = () => {
     }
 
     try {
-      const response = await fetch("${process.env.REACT_APP_API_URL}/api/report/upload", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/report/upload`, {
         method: "POST",
         body: formDataObj,
       });

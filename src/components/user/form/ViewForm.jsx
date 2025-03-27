@@ -11,7 +11,7 @@ const ViewAllForms = () => {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await axios.get('${process.env.REACT_APP_API_URL}/api/form/application/app', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/application/app`, {
           withCredentials: true,
         });
 

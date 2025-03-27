@@ -133,7 +133,7 @@ const PrivateRoute = ({ element, roleRequired }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true,
         });
 

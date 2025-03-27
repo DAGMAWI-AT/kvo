@@ -44,7 +44,7 @@ const UpdateReports = () => {
     const fetchUser = async () => {
       try {
         const meResponse = await axios.get(
-          "${process.env.REACT_APP_API_URL}/api/users/me",
+          `${process.env.REACT_APP_API_URL}/api/users/me`,
           {
             withCredentials: true, // Include credentials for session-based authentication
           }

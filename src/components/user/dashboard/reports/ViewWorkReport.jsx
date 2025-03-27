@@ -28,7 +28,7 @@ const ViewWorkReport = () => {
     const fetchReport = async () => {
       try {
         // First, check authentication and get user details
-        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true, // Include credentials for session-based authentication
         });
     

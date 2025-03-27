@@ -77,7 +77,7 @@ const ShowReport = () => {
     if (report?.id) {
       const fetchComments = async () => {
         try {
-          const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+          const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
             withCredentials: true,
           });
   
@@ -146,7 +146,7 @@ const ShowReport = () => {
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
-    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+    const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
       withCredentials: true,
     });
 
@@ -224,7 +224,7 @@ const ShowReport = () => {
   };
   const handleSubmitStatus = async (e) => {
     e.preventDefault();
-    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+    const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
       withCredentials: true,
     });
 
@@ -270,7 +270,7 @@ const ShowReport = () => {
   const handleSubmitExpireDate = async (e) => {
     e.preventDefault();
 
-    const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+    const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
       withCredentials: true,
     });
 

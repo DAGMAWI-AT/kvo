@@ -96,7 +96,7 @@ const ViewSubmitted = () => {
 
       // Fetch all data in parallel where possible
       const [roleResponse, submissionResponse] = await Promise.all([
-        axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+        axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
           withCredentials: true,
         }),
         axios.get(`${process.env.REACT_APP_API_URL}/api/form/application/${id}`, {
@@ -282,7 +282,7 @@ const ViewSubmitted = () => {
       }
 
       const response = await axios.post(
-        "${process.env.REACT_APP_API_URL}/api/comments",
+        `${process.env.REACT_APP_API_URL}/api/comments`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

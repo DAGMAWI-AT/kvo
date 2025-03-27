@@ -22,7 +22,7 @@ import { FiExternalLink } from "react-icons/fi";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "${process.env.REACT_APP_API_URL}";
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const ViewUserProfile = () => {
   const { id } = useParams();

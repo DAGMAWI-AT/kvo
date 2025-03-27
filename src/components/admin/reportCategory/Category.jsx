@@ -30,7 +30,7 @@ const Category = () => {
     const fetchData = async () => {
       try {
         // Check if the user is authenticated
-        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
           withCredentials: true,
         });
 
@@ -40,7 +40,7 @@ const Category = () => {
         }
 
         // Fetch report categories
-        const response = await axios.get("${process.env.REACT_APP_API_URL}/api/reportCategory/cat", {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/reportCategory/cat`, {
           withCredentials: true,
         });
 

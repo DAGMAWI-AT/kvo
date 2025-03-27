@@ -58,7 +58,6 @@ const ViewSubmission = () => {
   const navigate = useNavigate();
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [textSize, setTextSize] = useState("medium");
   const [numPages, setNumPages] = useState(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -104,7 +103,7 @@ const ViewSubmission = () => {
         setComments(commentsResponse.data.data || []);
         setLoading(false);
       } catch (err) {
-        setError(err.response?.data?.message || err.message);
+        toast.error(err.response?.data?.message || err.message);
         setLoading(false);
       }
     };
@@ -296,10 +295,7 @@ const ViewSubmission = () => {
         >
           <FiChevronLeft className="mr-1" /> Back to Submissions
         </button>
-      </div>
-      <div className="w-fit bg-red-100 border text-red-700 px-3 py-2 rounded mb-4">
-          {error}
-       </div>      
+      </div>   
        <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4 border-b border-gray-200">

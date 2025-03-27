@@ -92,7 +92,7 @@ const Users = () => {
   // Data fetching
   const fetchUsers = async () => {
     try {
-      const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/staff/me", {
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
         withCredentials: true,
       });
 
@@ -101,7 +101,7 @@ const Users = () => {
         return;
       }
 
-      const response = await axios.get("${process.env.REACT_APP_API_URL}/api/users/users", { withCredentials: true });
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/users`, { withCredentials: true });
       setState(prev => ({ ...prev, users: response.data, loading: false }));
     } catch (err) {
       handleError(err);

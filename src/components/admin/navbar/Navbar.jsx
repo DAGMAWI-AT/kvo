@@ -44,7 +44,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
         //   console.error("Invalid token: registrationId not found");
         //   return;
         // }
-        const meResponse = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", {
+        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true,
         });
         if (!meResponse.data.success) {
@@ -58,7 +58,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
         }
   
         // Fetch notifications
-        const response = await fetch("${process.env.REACT_APP_API_URL}/api/notifications");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications`);
     
         // const response = await axios.get("https://finance-office.onrender.com/notifications");
         // await response.json();
