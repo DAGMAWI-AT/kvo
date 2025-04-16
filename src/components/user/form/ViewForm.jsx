@@ -17,6 +17,8 @@ const ViewAllForms = () => {
 
         setForms(response.data);
       } catch (error) {
+        if (error.response?.status === 401 || error.status === 401) navigate("/user/login");
+
         setError(error.response?.data?.error || 'Failed to load forms');
       } finally {
         setLoading(false);

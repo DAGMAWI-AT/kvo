@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 const EditUserPassword = () => {
   const [formData, setFormData] = useState({
     currentPassword: "",
@@ -54,10 +55,12 @@ const EditUserPassword = () => {
         });
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Failed to update password. Please try again."
-      );
+      if (err.response?.status === 401 || err.status === 401) navigate("/user/login");
+            toast.error(err.response?.data?.message || err.message);
+      // setError(
+      //   err.response?.data?.message ||
+      //     "Failed to update password. Please try again."
+      // );
     }
   };
 

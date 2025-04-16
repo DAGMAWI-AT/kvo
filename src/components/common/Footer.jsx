@@ -1,3 +1,159 @@
+// import { motion } from 'framer-motion';
+// import { Mail, Phone, MapPin } from 'react-feather';
+// // import Logo from './../../../logo3';
+
+// const Footer = () => {
+//   const links = [
+//     {
+//       title: "Company",
+//       items: [
+//         { name: "About Us", href: "/about" },
+//         { name: "Careers", href: "/careers" },
+//         { name: "News", href: "/news" },
+//         { name: "Contact", href: "/contact" }
+//       ]
+//     },
+//     {
+//       title: "Services",
+//       items: [
+//         { name: "Custom Software", href: "/services/software" },
+//         { name: "Cloud Solutions", href: "/services/cloud" },
+//         { name: "Data Analytics", href: "/services/analytics" },
+//         { name: "UX/UI Design", href: "/services/design" }
+//       ]
+//     },
+//     {
+//       title: "Resources",
+//       items: [
+//         { name: "Blog", href: "/blog" },
+//         { name: "Case Studies", href: "/case-studies" },
+//         { name: "Whitepapers", href: "/whitepapers" },
+//         { name: "Webinars", href: "/webinars" }
+//       ]
+//     }
+//   ];
+
+//   const contactInfo = [
+//     {
+//       icon: <Mail className="w-5 h-5 text-indigo-600" />,
+//       text: "info@brighthop.com"
+//     },
+//     {
+//       icon: <Phone className="w-5 h-5 text-indigo-600" />,
+//       text: "+1 (555) 123-4567"
+//     },
+//     {
+//       icon: <MapPin className="w-5 h-5 text-indigo-600" />,
+//       text: "123 Tech Avenue, San Francisco, CA 94107"
+//     }
+//   ];
+
+//   return (
+//     <footer className="bg-gray-900 text-white pt-16 pb-8">
+//       <div className="container mx-auto px-6">
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+//           {/* Logo & Description */}
+//           <div>
+//             <motion.div 
+//               initial={{ opacity: 0 }}
+//               whileInView={{ opacity: 1 }}
+//               transition={{ duration: 0.6 }}
+//               viewport={{ once: true }}
+//               className="flex items-center mb-6"
+//             >
+//               {/* <Logo className="w-10 h-10" /> */}
+//               <span className="ml-3 text-2xl font-bold">BrightHop</span>
+//             </motion.div>
+//             <p className="text-gray-400 mb-6">
+//               Innovating business solutions through technology, strategy, and design to drive digital transformation.
+//             </p>
+//             <div className="flex space-x-4">
+//               {['Facebook', 'Twitter', 'LinkedIn', 'Instagram'].map((social) => (
+//                 <a 
+//                   key={social} 
+//                   href="#" 
+//                   className="text-gray-400 hover:text-white transition-colors"
+//                   aria-label={social}
+//                 >
+//                   <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+//                     {social[0]}
+//                   </div>
+//                 </a>
+//               ))}
+//             </div>
+//           </div>
+
+//           {/* Links */}
+//           {links.map((group) => (
+//             <motion.div
+//               key={group.title}
+//               initial={{ opacity: 0, y: 20 }}
+//               whileInView={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.4 }}
+//               viewport={{ once: true }}
+//             >
+//               <h3 className="text-lg font-semibold mb-4">{group.title}</h3>
+//               <ul className="space-y-2">
+//                 {group.items.map((item) => (
+//                   <li key={item.name}>
+//                     <a 
+//                       href={item.href} 
+//                       className="text-gray-400 hover:text-white transition-colors"
+//                     >
+//                       {item.name}
+//                     </a>
+//                   </li>
+//                 ))}
+//               </ul>
+//             </motion.div>
+//           ))}
+
+//           {/* Contact Info */}
+//           <motion.div
+//             initial={{ opacity: 0, y: 20 }}
+//             whileInView={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.6 }}
+//             viewport={{ once: true }}
+//           >
+//             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+//             <ul className="space-y-3">
+//               {contactInfo.map((item, index) => (
+//                 <li key={index} className="flex items-start">
+//                   <span className="mt-0.5 mr-3">{item.icon}</span>
+//                   <span className="text-gray-400">{item.text}</span>
+//                 </li>
+//               ))}
+//             </ul>
+//           </motion.div>
+//         </div>
+
+//         {/* Copyright */}
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           whileInView={{ opacity: 1 }}
+//           transition={{ duration: 0.6, delay: 0.2 }}
+//           viewport={{ once: true }}
+//           className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center"
+//         >
+//           <p className="text-gray-500 text-sm mb-4 md:mb-0">
+//             © {new Date().getFullYear()} BrightHop Technologies. All rights reserved.
+//           </p>
+//           <div className="flex space-x-6">
+//             <a href="#" className="text-gray-500 hover:text-white text-sm">Privacy Policy</a>
+//             <a href="#" className="text-gray-500 hover:text-white text-sm">Terms of Service</a>
+//             <a href="#" className="text-gray-500 hover:text-white text-sm">Cookies</a>
+//           </div>
+//         </motion.div>
+//       </div>
+//     </footer>
+//   );
+// };
+
+// export default Footer;
+
+
+
+
 // Footer.js
 import React from "react";
 import { Link } from "react-router-dom";
@@ -18,7 +174,7 @@ const Footer = () => {
       items: [
         { name: "About Us", path: "/about" },
         { name: "Services", path: "/services" },
-        { name: "CSAs", path: "/csas" },
+        { name: "CSOs", path: "/#" },
         { name: "News", path: "/news" },
       ]
     },
@@ -121,7 +277,9 @@ const Footer = () => {
             <br />
             Developed by{" "}
             <a 
-              href="https://dagmawiamare.netlify.app" 
+              // href="https://dagmawiamare.netlify.app" 
+              href="#" 
+
               className="text-blue-600 dark:text-blue-400 hover:underline"
             >
               korean international organization (KVO)

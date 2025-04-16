@@ -1,43 +1,50 @@
 import React, { useEffect, useState } from "react";
 import {
   FaTachometerAlt,
-  FaBox,
   FaUsers,
   FaCog,
   FaClipboardList,
   FaTags,
-  FaExpeditedssl,
   FaHome,
   FaBell,
   FaLayerGroup,
   FaRegNewspaper,
-  FaAllergies,
   FaUserEdit,
   FaFill,
   FaListAlt,
 } from "react-icons/fa";
-import { MdKeyboardArrowDown, MdKeyboardArrowRight, MdListAlt, MdManageAccounts, MdOutlineAppRegistration } from "react-icons/md";
+import {
+  MdKeyboardArrowDown,
+  MdKeyboardArrowRight,
+  MdListAlt,
+  MdManageAccounts,
+  MdOutlineAppRegistration,
+} from "react-icons/md";
 
 import "./Admin_Sidebar.css";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-import axios from "axios";  // Add axios to fetch user role
+import axios from "axios"; // Add axios to fetch user role
+import { FaLetterboxd, FaSquareLetterboxd } from "react-icons/fa6";
 
 const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
   const [isReportsOpen, setIsReportsOpen] = useState(false);
   const [isCSOOpen, setIsCSOOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isStaffOpen, setIsStaffOpen] = useState(false);
 
   const [isWebContentOpen, setIsWebContentOpen] = useState(false);
   const [userRole, setUserRole] = useState(null); // Track user role
-  // Added state for Web Content submenu
   const location = useLocation();
   useEffect(() => {
-    // Fetch the user role from your backend API
     const fetchUserRole = async () => {
       try {
-        const response = await axios.get("${process.env.REACT_APP_API_URL}/api/users/me", { withCredentials: true });
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/staff/me`,
+          { withCredentials: true }
+        );
         if (response.data.success) {
-          setUserRole(response.data.role);  // Set the role of the user
+          setUserRole(response.data.role);
         }
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -48,6 +55,12 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
   }, []);
   const toggleReportsSubmenu = () => {
     setIsReportsOpen(!isReportsOpen);
+  };
+  const toggleStaffSubmenu = () => {
+    setIsStaffOpen(!isStaffOpen);
+  };
+  const toggleForm = () => {
+    setIsFormOpen(!isFormOpen);
   };
   const toggleCsoSubmenu = () => {
     setIsCSOOpen(!isCSOOpen);
@@ -67,6 +80,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
       <div className="logo">
         <h2>{collapsed ? "FO" : "Finance Office"}</h2>
       </div>
+
       <div className="scrollable-menu">
         <ul className="menu">
           <li
@@ -79,26 +93,48 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Dashboard"}</span>
             </Link>
           </li>
-          <li
-            className={`menu-item ${
-              isActive("/admin/create_form") ? "active" : ""
-            }`}
-          >
-            <Link to="/admin/create_form" className="flex items-center">
-              <FaFill />
-              <span>{!collapsed && "Create Form"}</span>
-            </Link>
-          </li>
-          <li
-            className={`menu-item ${
-              isActive("/admin/forms") ? "active" : ""
-            }`}
+
+          {/* <li
+            className={`menu-item ${isActive("/admin/forms") ? "active" : ""}`}
           >
             <Link to="/admin/forms" className="flex items-center">
               <FaListAlt />
               <span>{!collapsed && "Forms"}</span>
             </Link>
+          </li> */}
+           <li
+                className={`menu-item ${
+                  isActive("/admin/forms") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/forms" className="flex items-center">
+                  <FaListAlt />
+                  <span>{!collapsed && "Forms"}</span>
+                </Link>
+              </li>
+          {/* <li className="menu-item" onClick={toggleForm}>
+            <MdManageAccounts />
+            <span>{!collapsed && "Form"}</span>
+            {!collapsed &&
+              (isFormOpen ? <MdKeyboardArrowDown /> : <MdKeyboardArrowRight />)}
           </li>
+          {!collapsed && isFormOpen && (
+            <ul className="submenu">
+             
+
+              <li
+                className={`menu-item ${
+                  isActive("/admin/create_form") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/create_form" className="flex items-center">
+                  <FaFill />
+                  <span>{!collapsed && "Create Form"}</span>
+                </Link>
+              </li>
+            </ul>
+          )} */}
+
           <li
             className={`menu-item ${
               isActive("/admin/all_submission") ? "active" : ""
@@ -109,89 +145,71 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "ALL Submission"}</span>
             </Link>
           </li>
+
           <li className="menu-item" onClick={toggleCsoSubmenu}>
             <MdManageAccounts />
             <span>{!collapsed && "CSO Management"}</span>
             {!collapsed &&
-              (isCSOOpen ? (
-                <MdKeyboardArrowDown />
-              ) : (
-                <MdKeyboardArrowRight />
-              ))}
+              (isCSOOpen ? <MdKeyboardArrowDown /> : <MdKeyboardArrowRight />)}
           </li>
           {!collapsed && isCSOOpen && (
             <ul className="submenu">
               <li
-            className={`menu-item ${
-              isActive("/admin/all_cso") ? "active" : ""
-            }`}
-          >
-            <Link to="/admin/all_cso" className="flex items-center">
-              <MdListAlt />
-              <span>{!collapsed && "All CSOs"}</span>
-            </Link>
-          </li>
-          <li
-            className={`menu-item ${
-              isActive("/admin/cso_list") ? "active" : ""
-            }`}
-          >
-            <Link to="/admin/cso_list" className="flex items-center">
-              <MdOutlineAppRegistration/>
-              <span>{!collapsed && "Registered CSO"}</span>
-            </Link>
-          </li>
-          <li
-            className={`menu-item ${
-              isActive("/admin/user_register") ? "active" : ""
-            }`}
-          >
-            <Link to="/admin/user_register" className="flex items-center">
-              <FaUsers />
-              <span>{!collapsed && "Register CSOs"}</span>
-            </Link>
-          </li>
-            </ul>
-          )}
-          <li className="menu-item" onClick={toggleReportsSubmenu}>
-            <FaClipboardList />
-            <span>{!collapsed && "Reports"}</span>
-            {!collapsed &&
-              (isReportsOpen ? (
-                <MdKeyboardArrowDown />
-              ) : (
-                <MdKeyboardArrowRight />
-              ))}
-          </li>
-          {!collapsed && isReportsOpen && (
-            <ul className="submenu">
-              <li
-                className={`submenu-item ${
-                  isActive("/admin/report_category") ? "active" : ""
+                className={`menu-item ${
+                  isActive("/admin/all_cso") ? "active" : ""
                 }`}
               >
-                <Link to="/admin/report_category" className="flex items-center">
-                  <FaLayerGroup />
-                  <span>Category</span>
+                <Link to="/admin/all_cso" className="flex items-center">
+                  <MdListAlt />
+                  <span>{!collapsed && "All CSOs"}</span>
                 </Link>
-              </li>{" "}
+              </li>
               <li
-                className={`submenu-item ${
-                  isActive("/admin/report_category/all_cso_reports")
-                    ? "active"
-                    : ""
+                className={`menu-item ${
+                  isActive("/admin/cso_list") ? "active" : ""
                 }`}
               >
-                <Link
-                  to={"/admin/report_category/all_cso_reports"}
-                  className="flex items-center"
-                >
-                  <FaRegNewspaper />
-                  All Reports
+                <Link to="/admin/cso_list" className="flex items-center">
+                  <MdOutlineAppRegistration />
+                  <span>{!collapsed && "Registered CSO"}</span>
+                </Link>
+              </li>
+              <li
+                className={`menu-item ${
+                  isActive("/admin/user_register") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/user_register" className="flex items-center">
+                  <FaUsers />
+                  <span>{!collapsed && "Register CSOs"}</span>
                 </Link>
               </li>
             </ul>
           )}
+
+          <li
+            className={`menu-item ${
+              isActive("/admin/letter_list") ? "active" : ""
+            }`}
+          >
+            <Link to="/admin/letter_list" className="flex items-center">
+              <FaSquareLetterboxd />
+              <span>{!collapsed && "Letter"}</span>
+            </Link>
+          </li>
+          {userRole === "sup_admin" && (
+            <li
+              className={`menu-item ${
+                isActive("/admin/staffs") ? "active" : ""
+              }`}
+            >
+              <Link to="/admin/staffs" className="flex items-center">
+                <FaUsers />
+                <span>{!collapsed && "Staff"}</span>
+              </Link>
+            </li>
+          )}
+
           <li className="menu-item" onClick={toggleWebContentSubmenu}>
             <FaHome />
             <span>{!collapsed && "Web Content"}</span>
@@ -242,6 +260,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               </li>
             </ul>
           )}
+
           <li
             className={`menu-item ${isActive("/admin/users") ? "active" : ""}`}
           >
@@ -251,7 +270,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             </Link>
           </li>
 
-          <li
+          {/* <li
             className={`menu-item ${
               isActive("/admin/create_userAccount") ? "active" : ""
             }`}
@@ -260,15 +279,8 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <FaUserEdit />
               <span>{!collapsed && "Create Account"}</span>
             </Link>
-          </li>
-           {userRole === "sup_admin" && (
-            <li className={`menu-item ${isActive("/admin/staff_register") ? "active" : ""}`}>
-              <Link to="/admin/staff_register" className="flex items-center">
-                <FaUsers />
-                <span>{!collapsed && "Register Staff"}</span>
-              </Link>
-            </li>
-          )}
+          </li> */}
+
           <li
             className={`menu-item ${
               isActive("/admin/beneficiary_list") ? "active" : ""
@@ -279,6 +291,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span>{!collapsed && "Beneficiary"}</span>
             </Link>
           </li>
+
           <li
             className={`submenu-item ${
               isActive("/admin/notifications") ? "active" : ""
@@ -289,6 +302,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               <span className="ml-2">Notifications</span>
             </Link>
           </li>
+
           <li>
             <FaCog />
             <span>{!collapsed && "Settings"}</span>

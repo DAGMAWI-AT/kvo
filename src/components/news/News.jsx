@@ -85,13 +85,16 @@ const News = () => {
         <>
             <section className="news_hero relative h-[300px] flex items-center justify-center text-center text-white">
                 <div className='heros'></div>
-                <div className="hero-content mt-10 p-16">
-                    <h2 className="mt-20 text-2xl text-gray-400 font-semibold z-10">News of Finance Office</h2>
+                <div className="">
+                    {/* <h2 className="mt-20 text-2xl text-gray-400 font-semibold z-10">News of Finance Office</h2>
                     <p className="z-10 text-sm">Finance report for all Civic Society Associations</p>
                     <button className="cta-button rounded-lg px-3 py-4 mt-4 z-10 bg-yellow-500 text-white hover:bg-yellow-600">
                         Contact
-                    </button>
+                    </button> */}
+                    <h1 className="text-center text-2xl text-gray-500 "> Under Construction</h1>
+
                 </div>
+                
             </section>
 
             {/* <div className="container mx-auto px-16 py-16">
@@ -133,7 +136,7 @@ const News = () => {
                     ))}
                 </div>
             </div> */}
-            <Blog/>
+            {/* <Blog/> */}
         </>
     );
 };

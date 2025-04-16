@@ -15,3 +15,25 @@ const Home = () => {
 };
 
 export default Home;
+
+// pages/Home.jsx
+// import React from 'react';
+// import Hero from '../components/Hero';
+// import ServicesPreview from '../components/ServicesPreview';
+// import Stats from '../components/Stats';
+// import Testimonials from '../components/Testimonials';
+// import CTA from '../components/CTA';
+
+// const Home = () => {
+//   return (
+//     <div className="pt-20">
+//       <Hero />
+//       <ServicesPreview />
+//       <Stats />
+//       <Testimonials />
+//       <CTA />
+//     </div>
+//   );
+// };
+
+// export default Home;

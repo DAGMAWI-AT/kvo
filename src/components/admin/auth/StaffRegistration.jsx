@@ -1,5 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
+import {
+  FiUser,
+  FiMail,
+  FiLock,
+  FiSmartphone,
+  FiBriefcase,
+  FiUpload,
+  FiAlertCircle,
+  FiCheckCircle,
+} from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const StaffRegistration = () => {
   const [formData, setFormData] = useState({
@@ -8,53 +19,48 @@ const StaffRegistration = () => {
     phone: "",
     password: "",
     position: "",
-    role: "admin", // Default role
+    role: "admin",
     photo: null,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [preview, setPreview] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    if (error) setError("");
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, photo: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, photo: file });
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
     setSuccess("");
 
-    // Basic validation
-    if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.position) {
-      setError("All fields are required");
-      return;
-    }
-
-    // Prepare form data for file upload
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("email", formData.email);
-    data.append("phone", formData.phone);
-    data.append("password", formData.password);
-    data.append("role", formData.role);
-    data.append("position", formData.position);
-    if (formData.photo) {
-      data.append("photo", formData.photo);
-    }
-
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/staff/register`, data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null) data.append(key, value);
       });
 
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/staff/register`,
+        data,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
       if (response.data.success) {
-        setSuccess("Registration successful! Check your email for verification.");
+        setSuccess("Staff member registered successfully!");
         setFormData({
           name: "",
           email: "",
@@ -64,137 +70,196 @@ const StaffRegistration = () => {
           role: "admin",
           photo: null,
         });
-      } else {
-        setError(response.data.message || "Registration failed");
+        setPreview("");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred during registration");
+      setError(
+        err.response?.data?.message || "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600 p-6">
-      <div className="bg-white p-8 md:p-12 rounded-2xl shadow-2xl w-full max-w-6xl flex flex-col md:flex-row justify-between gap-8 transform transition-all hover:scale-105">
-        {/* Left Side: Form */}
-        <div className="flex-1">
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 text-center text-gray-800">Staff Registration</h2>
-          {error && <p className="text-sm text-red-600 mb-4 text-center">{error}</p>}
-          {success && <p className="text-sm text-green-600 mb-4 text-center">{success}</p>}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name and Email */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+    <div className="min-h-screen bg-gradient-to-r from-indigo-600 via-purple-700 to-pink-600 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Staff Registration
+          </h1>
+          <p className="text-gray-600">Create a new staff account</p>
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg flex items-center">
+            <FiAlertCircle className="mr-2 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 p-4 bg-green-50 text-green-600 rounded-lg flex items-center">
+            <FiCheckCircle className="mr-2 flex-shrink-0" />
+            <span>{success} Please verify email to access account</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
+              <div className="relative">
+                <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="name of staff"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Enter your name"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            </div>
+
+            {/* Email Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="@example.com"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Enter your email"
                 />
               </div>
             </div>
 
-            {/* Phone and Password */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+            {/* Phone Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              <div className="relative">
+                <FiSmartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="text"
+                  type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="+251 900 000 000"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Enter your phone number"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            </div>
+
+            {/* Password Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="••••••••"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Enter your password"
                 />
               </div>
             </div>
 
-            {/* Position and Role */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+            {/* Position Input */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Position
+              </label>
+              <div className="relative">
+                <FiBriefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   name="position"
                   value={formData.position}
                   onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Position Title"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  placeholder="Enter your position"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                <select
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
+            </div>
+
+            {/* Role Select */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="admin">Admin</option>
+                <option value="sup_admin">Super Admin</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Photo Upload */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Profile Photo
+            </label>
+            <div className="flex items-center gap-4">
+              <label className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                <FiUpload className="text-gray-400 mb-2" />
+                <span className="text-sm text-gray-500 text-center">
+                  Upload Photo
+                </span>
+                <input
+                  type="file"
+                  name="photo"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  accept="image/*"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="sup_admin">Super Admin</option>
-                </select>
-              </div>
+                />
+              </label>
+              {preview && (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-32 h-32 rounded-lg object-cover border border-gray-200"
+                />
+              )}
             </div>
-
-            {/* Photo Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Photo</label>
-              <input
-                type="file"
-                name="photo"
-                onChange={handleFileChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all"
-            >
-              Register
-            </button>
-          </form>
-        </div>
-
-        {/* Right Side: Illustration */}
-        <div className="flex-1 hidden md:block">
-          <img
-            src="https://via.placeholder.com/600" // Replace with your image
-            alt="Registration Illustration"
-            className="rounded-2xl w-full h-full object-cover"
-          />
-        </div>
+          </div>
+          <Link to="/login" className="text-sm text-indigo-600 hover:underline">
+           Already Have Account
+          </Link>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Registering..." : "Register Staff Member"}
+          </button>
+        </form>
       </div>
     </div>
   );

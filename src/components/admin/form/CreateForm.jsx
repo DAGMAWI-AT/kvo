@@ -54,7 +54,11 @@ const CreateForm = () => {
       }, 100);
 
     } catch (error) {
-      console.error('Error:', error);
+      if (error.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/login");
+        return;
+      }
       toast.error(error.message || 'An error occurred while creating the form');
     } finally {
       setSubmitting(false);

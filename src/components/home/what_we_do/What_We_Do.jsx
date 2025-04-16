@@ -8,19 +8,24 @@ const services = [
     icon: <FaBuilding className="w-12 h-12" />,
     title: 'CSO Governance',
     description: 'Strengthening institutional capacity through comprehensive financial frameworks and policy development',
-    link: '/services/cso-governance'
+    // link: '/services/cso-governance'
+    link: '#'
+
   },
   {
     icon: <FaChartLine className="w-12 h-12" />,
     title: 'Financial Advisory',
     description: 'Expert guidance on fiscal responsibility, budget optimization, and transparent reporting systems',
-    link: '/services/financial-advisory'
+    // link: '/services/financial-advisory'
+    link: '#'
   },
   {
     icon: <FaHandsHelping className="w-12 h-12" />,
     title: 'Community Development',
     description: 'Sustainable initiatives fostering economic growth and resource management in local communities',
-    link: '/services/community-development'
+    // link: '/services/community-development'
+    link: '#'
+
   }
 ];
 

@@ -17,9 +17,6 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const EditCSO = () => {
   const { id } = useParams();
@@ -39,6 +36,8 @@ const EditCSO = () => {
   });
   const [showCustomSector, setShowCustomSector] = useState(false);
   const [tinCertificateFile, setTinCertificateFile] = useState(null);
+  const [OfficialRepLetterFile, setOfficialRepLetterFile] = useState(null);
+
   const [registrationCertificateFile, setRegistrationCertificateFile] =
     useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,20 +59,45 @@ const EditCSO = () => {
     const fetchCSOData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_BASE_URL}/api/cso/${id}`, {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const meResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/staff/me`,
+          {
+            credentials: "include", // Include cookies in the request
+          }
+        );
+        if (meResponse.status === 401) {
+          navigate("/user/login");
+          return; // Stop execution after redirection
+        }
+        const meResult = await meResponse.json();
+        if (!meResponse.ok) {
+          throw new Error(
+            meResult.message,
+            `${meResult.statusText}` || "Failed to fetch user details."
+          );
+          // throw new Error(`${meResult.statusText}`);
+        }
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/cso/${id}`,
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (response.data.sector && !sectors.includes(response.data.sector)) {
           setShowCustomSector(true);
+          setFormData({
+            ...response.data, // include all other fetched data
+            customSector: response.data.sector, // set the custom value
+            sector: "Other", // set the dropdown value to "Other"
+          });
+        } else {
+          setFormData(response.data);
         }
-
-        setFormData(response.data);
       } catch (err) {
-        console.error("Error fetching CSO data:", err);
         if (err.response?.status === 401) {
           toast.error("Unauthorized access. Please login again.");
           navigate("/login");
@@ -145,7 +169,23 @@ const EditCSO = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
+    const meResponse = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/staff/me`,
+      {
+        credentials: "include", // Include cookies in the request
+      }
+    );
+    if (meResponse.status === 401) {
+      navigate("/user/login");
+      return; // Stop execution after redirection
+    }
+    const meResult = await meResponse.json();
+    if (!meResponse.ok) {
+      throw new Error(
+        meResult.message,
+        `${meResult.statusText}` || "Failed to fetch user details."
+      );
+    }
     if (!validateForm()) {
       setSubmitting(false);
       return;
@@ -175,10 +215,14 @@ const EditCSO = () => {
         "registration_certificate",
         registrationCertificateFile
       );
-
+      if (OfficialRepLetterFile)
+        formDataToSend.append(
+          "official_rep_letter",
+          OfficialRepLetterFile
+        );
     try {
       const response = await axios.patch(
-        `${API_BASE_URL}/api/cso/update/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/cso/update/${id}`,
         formDataToSend,
         {
           withCredentials: true,
@@ -469,7 +513,7 @@ const EditCSO = () => {
                 </label>
                 {formData.tin_certificate && (
                   <a
-                    href={`${API_BASE_URL}/${formData.tin_certificate}`}
+                    href={`${process.env.REACT_APP_API_URL}/${formData.tin_certificate}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mb-2"
@@ -513,7 +557,7 @@ const EditCSO = () => {
                 </label>
                 {formData.registration_certificate && (
                   <a
-                    href={`${API_BASE_URL}/${formData.registration_certificate}`}
+                    href={`${process.env.REACT_APP_API_URL}/${formData.registration_certificate}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mb-2"
@@ -536,6 +580,50 @@ const EditCSO = () => {
                         {registrationCertificateFile ? (
                           <span className="text-green-600 font-medium">
                             {registrationCertificateFile.name}
+                          </span>
+                        ) : (
+                          "Click to upload new file"
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        PDF, JPG, or PNG (Max 5MB)
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  <FaFileWord className="inline mr-2 text-blue-500" />
+                  Registration OfficialRepLetterFile
+                </label>
+                {formData.official_rep_letter && (
+                  <a
+                    href={`${process.env.REACT_APP_API_URL}/${formData.official_rep_letter}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mb-2"
+                  >
+                    View Current File
+                  </a>
+                )}
+                <div className="flex items-center">
+                  <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="file"
+                      accept="image/*, application/pdf"
+                      onChange={(e) =>
+                        handleFileChange(e, setOfficialRepLetterFile)
+                      }
+                      className="hidden"
+                    />
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600">
+                        {OfficialRepLetterFile ? (
+                          <span className="text-green-600 font-medium">
+                            {OfficialRepLetterFile.name}
                           </span>
                         ) : (
                           "Click to upload new file"

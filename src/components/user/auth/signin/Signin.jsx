@@ -1,20 +1,33 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BarLoader } from "react-spinners";
 
 const Signin = () => {
   const [registrationId, setRegistrationId] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false); // Track loading state
+  // Initially set loading to true so that the spinner is shown
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(true);
+
   const navigate = useNavigate();
 
   axios.defaults.withCredentials = true;
 
+  // Simulate a preload: After 2 seconds, stop the spinner and show the login form
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoaded(false);
+    }, 2000); // Adjust this delay as needed
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Start loading animation
+    setLoading(true); // Start loading during login process
     setMessage("");
 
     try {
@@ -25,9 +38,10 @@ const Signin = () => {
       );
 
       if (loginResponse.data.success) {
-        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
-          withCredentials: true,
-        });
+        const meResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/me`,
+          { withCredentials: true }
+        );
         if (meResponse.data.success) {
           const { role } = meResponse.data;
           if (role === "admin") {
@@ -47,9 +61,18 @@ const Signin = () => {
       console.error("Error during login:", error);
       setMessage(error.response?.data?.message || "An unexpected error occurred.");
     } finally {
-      setLoading(false); // Stop loading animation
+      setLoading(false); // Stop loading once login attempt is complete
     }
   };
+
+  // Show the loading spinner if loading state is true
+  if (loaded) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={50} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-800 via-blue-300 to-blue-500">

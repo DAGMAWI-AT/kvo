@@ -1,13 +1,16 @@
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Button } from "antd";
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { BarLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 const ViewForm = () => {
   const { id } = useParams(); // Get the form ID from the URL
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
 
   // Fetch form data from the backend API
   useEffect(() => {
@@ -24,7 +27,12 @@ const ViewForm = () => {
         const data = await response.json();
         setForm(data);
       } catch (error) {
-        setError(error.message);
+        if (error.response?.status === 401 || error.status === 401) {
+          navigate("/login");
+          return;
+        }
+        toast.error(error.message)
+        // setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -46,18 +54,27 @@ if (loading) {
       </div>
     );
   }
-  if (error) return <div className="text-center p-4 text-red-500">{error}</div>;
+  // if (error) return <div className="text-center p-4 text-red-500">{error}</div>;
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
+           <Button 
+                type="link" 
+                icon={<ArrowLeftOutlined />} 
+                onClick={() => navigate(-1)}
+                className="mb-4"
+              >
+                Back to List
+              </Button>
         <h1 className="text-2xl font-bold text-gray-500">Form Details</h1>
-        <button
+        {/* <button
           onClick={handleBack}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          className="bg-blue-400 text-white px-4 py-2 rounded hover:bg-gray-700"
         >
           Back to Forms
-        </button>
+        </button> */}
+             
       </div>
 
       {form && (

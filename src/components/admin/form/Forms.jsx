@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaEdit,
   FaEye,
@@ -10,30 +10,20 @@ import {
 } from "react-icons/fa";
 import { BarLoader } from "react-spinners";
 import Swal from "sweetalert2";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
+import { toast } from "react-toastify";
+import { PlusOutlined } from "@ant-design/icons";
 
 const Forms = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  // const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const navigate = useNavigate();
-  const location = useLocation();
-  const [successMessage, setSuccessMessage] = useState("");
 
-  useEffect(() => {
-    if (location.state?.successMessage) {
-      setSuccessMessage(location.state.successMessage);
-
-      // Clear the message after a few seconds
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 5000);
-    }
-  }, [location.state]);
   // Fetch forms from the backend API
   useEffect(() => {
     const fetchForms = async () => {
@@ -45,6 +35,12 @@ const Forms = () => {
           }
         );
 
+        if (response.status === 401) {
+          // If unauthorized, redirect to login
+          navigate("/login");
+          return;
+        }
+
         if (!response.ok) {
           throw new Error("Failed to load forms");
         }
@@ -52,7 +48,12 @@ const Forms = () => {
         const data = await response.json();
         setForms(data);
       } catch (error) {
-        setError(error.message);
+        if (error.response?.status === 401) {
+          navigate("/login");
+        } else {
+          toast.error(error.message);
+        }
+        // setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -115,8 +116,10 @@ const Forms = () => {
         }
 
         setForms(forms.filter((form) => form.id !== formId)); // Remove the deleted form from the state
+        toast.success("Form Deleted successfully!");
       } catch (error) {
-        setError(error.message);
+        toast.error(error.message);
+        // setError(error.message);
       }
     }
   };
@@ -142,7 +145,7 @@ const Forms = () => {
   const currentForms = sortedForms.slice(indexOfFirstItem, indexOfLastItem);
 
   // Change page
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  // const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Change items per page
   const handleItemsPerPageChange = (e) => {
@@ -161,37 +164,53 @@ const Forms = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {successMessage && (
+      {/* {successMessage && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
           {successMessage}
         </div>
-      )}
-      {error && (
+      )} */}
+      {/* {error && (
         <div className="bg-green-100 border border-red-400 text-gray-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
-      )}
+      )} */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Forms</h1>
+        <h1 className="text-2xl font-bold text-gray-500">Forms</h1>
         <button
           onClick={handleCreateForm}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          Create Form
+          <PlusOutlined /> Create Form
         </button>
       </div>
 
       {/* Search Bar */}
       <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search forms..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-48 p-2 border rounded-md text-lg"
-        />
+        <div className="relative flex-grow">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <FiSearch className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search forms..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-52 p-2 pl-10 pr-4 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+        </div>
       </div>
-
+      <div className="flex justify-end items-center m-2">
+        <span className="mr-2 text-gray-400">Show:</span>
+        <select
+          value={itemsPerPage}
+          onChange={handleItemsPerPageChange}
+          className="p-2 border rounded-md"
+        >
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+        </select>
+      </div>
       {/* Forms Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border text-left">
@@ -274,20 +293,7 @@ const Forms = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="mr-2">Show:</span>
-          <select
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-            className="p-2 border rounded-md"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
-        </div>
-
+      <div className="flex justify-end items-center mt-4">
         <div>
           <nav
             className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"

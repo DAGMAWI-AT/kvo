@@ -23,6 +23,7 @@ const Pages = () => {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/news" element={<News />} />
+            <Route path="/news/blogdetails" element={<BlogDetails />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </AnimatePresence>

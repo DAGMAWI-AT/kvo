@@ -1,519 +1,509 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { jwtDecode } from "jwt-decode";
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import Swal from 'sweetalert2';
-import { FaEdit, FaTrash, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import {
+  Table,
+  Space,
+  Button,
+  Input,
+  DatePicker,
+  Select,
+  Tag,
+  Tooltip,
+  Switch,
+  Popconfirm,
+  Modal,
+} from "antd";
+import {
+  DownloadOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  EditOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import moment from "moment";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router";
 
-// Constants
-const ITEMS_PER_PAGE_OPTIONS = [10, 20, 30, 50];
-const TABLE_COLUMNS = [
-  { key: 'registrationId', label: 'Registration ID' },
-  { key: 'name', label: 'Name' },
-  { key: 'userId', label: 'User ID' },
-  { key: 'email', label: 'Email' },
-  { key: 'role', label: 'Role' },
-  { key: 'status', label: 'Status' },
-];
+const { RangePicker } = DatePicker;
+const { Option } = Select;
+const { confirm } = Modal;
 
-// Helper Components
-const StatusBadge = ({ status }) => (
-  <span className={`px-2 py-1 rounded-full text-sm 
-    ${status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-    {status}
-  </span>
-);
-
-const SortIndicator = ({ direction }) => (
-  <span className="ml-2">
-    {direction === 'asc' ? <FaSortUp /> : <FaSortDown />}
-  </span>
-);
-
-// Main Component
 const Users = () => {
-  const [errorMessage, setError] = useState("");
-
-  const [state, setState] = useState({
-    users: [],
-    filteredUsers: [],
-    searchTerm: '',
-    selectedRows: [],
-    currentPage: 1,
-    itemsPerPage: 10,
-    loading: true,
-    statusFilter: "all",
-    sortConfig: { key: null, direction: 'asc' },
-    showEditUserForm: false,
-    selectedUser: null,
-    formData: {
-      registrationId: '',
-      name: '',
-      userId: '',
-      email: '',
-      password: '',
-      role: 'cso',
-      status: 'active'
-    },
-  });
-
+  const [usersData, setUsersData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [dateRange, setDateRange] = useState([]);
+  const searchInput = useRef(null);
   const navigate = useNavigate();
-  // Memoized derived values
-  const { 
-    users,
-    filteredUsers,
-    searchTerm,
-    selectedRows,
-    currentPage,
-    itemsPerPage,
-    loading,
-    statusFilter,
-    sortConfig,
-    showEditUserForm,
-    selectedUser,
-    formData,
-  } = state;
 
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return filteredUsers.slice(start, end);
-  }, [filteredUsers, currentPage, itemsPerPage]);
-
-  const totalPages = useMemo(
-    () => Math.ceil(filteredUsers.length / itemsPerPage),
-    [filteredUsers.length, itemsPerPage]
-  );
-
-  // Data fetching
   const fetchUsers = async () => {
+    setLoading(true);
     try {
-      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
-        withCredentials: true,
-      });
+      const meResponse = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/staff/me`,
+        { withCredentials: true }
+      );
 
-      if (!meResponse.data || !meResponse.data.success) {
+      if (!meResponse.data?.success) {
         navigate("/login");
         return;
       }
 
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/users`, { withCredentials: true });
-      setState(prev => ({ ...prev, users: response.data, loading: false }));
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/users/users`,
+        { withCredentials: true }
+      );
+      
+      setUsersData(
+        response.data.map((item, index) => ({
+          ...item,
+          displayId: index + 1,
+          created_at: item.created_at ? new Date(item.created_at) : new Date(),
+        }))
+      );
     } catch (err) {
       handleError(err);
-      setState(prev => ({ ...prev, loading: false }));
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // Filtering and sorting
   useEffect(() => {
-    const filtered = users.filter(user => {
-      const matchesSearch = Object.keys(user).some(key =>
-        String(user[key]).toLowerCase().includes(searchTerm.toLowerCase())
+    filterData();
+  }, [usersData, searchText, statusFilter, roleFilter, dateRange]);
+
+  const filterData = () => {
+    let result = [...usersData];
+
+    // Search filter
+    if (searchText) {
+      result = result.filter((item) =>
+        Object.keys(item).some((key) =>
+          item[key]?.toString().toLowerCase().includes(searchText.toLowerCase())
+        )
       );
-      const matchesStatus = statusFilter === "all" || user.status.toLowerCase() === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
+    }
 
-    const sorted = [...filtered].sort((a, b) => {
-      if (!sortConfig.key) return 0;
-      const aValue = a[sortConfig.key];
-      const bValue = b[sortConfig.key];
-      
-      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
+    // Status filter
+    if (statusFilter !== "all") {
+      result = result.filter((item) => item.status === statusFilter);
+    }
 
-    setState(prev => ({
-      ...prev,
-      filteredUsers: sorted,
-      currentPage: 1
-    }));
-  }, [users, searchTerm, statusFilter, sortConfig]);
+    // Role filter
+    if (roleFilter !== "all") {
+      result = result.filter((item) => item.role === roleFilter);
+    }
 
-  // Handlers
-  const requestSort = useCallback(key => {
-    setState(prev => ({
-      ...prev,
-      sortConfig: {
-        key,
-        direction: prev.sortConfig.key === key && prev.sortConfig.direction === 'asc' 
-          ? 'desc' 
-          : 'asc'
-      }
-    }));
-  }, []);
+    // Date range filter
+    if (dateRange?.length === 2) {
+      const [start, end] = dateRange;
+      result = result.filter((item) => {
+        const itemDate = moment(item.created_at);
+        return itemDate.isBetween(moment(start), moment(end), null, "[]");
+      });
+    }
 
-  const handleSelectionChange = useCallback((id) => {
-    setState(prev => ({
-      ...prev,
-      selectedRows: prev.selectedRows.includes(id)
-        ? prev.selectedRows.filter(selectedId => selectedId !== id)
-        : [...prev.selectedRows, id]
-    }));
-  }, []);
+    setFilteredData(result);
+    setCurrentPage(1);
+  };
 
-  const handleBulkSelection = useCallback((shouldSelect) => {
-    setState(prev => ({
-      ...prev,
-      selectedRows: shouldSelect 
-        ? [...new Set([...prev.selectedRows, ...paginatedUsers.map(u => u.id)])]
-        : prev.selectedRows.filter(id => !paginatedUsers.some(u => u.id === id))
-    }));
-  }, [paginatedUsers]);
+  const handleError = (error) => {
+    const message = error.response?.data?.message || "An error occurred";
+    toast.error(message);
+    if (error.response?.status === 401) navigate("/login");
+  };
 
-  // Export functionality
-  const exportData = useCallback((format) => {
-    const selectedData = filteredUsers.filter(user => selectedRows.includes(user.id));
-    
-    if (selectedData.length === 0) {
-      Swal.fire('No Selection', 'Please select users to export.', 'warning');
+  const toggleUserStatus = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/users/update/${id}`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+      toast.success(`User status updated to ${newStatus}`);
+      fetchUsers();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const deleteUser = async (id) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/users/remove/${id}`,
+        { withCredentials: true }
+      );
+      toast.success("User deleted successfully");
+      fetchUsers();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const exportToExcel = () => {
+    if (filteredData.length === 0) {
+      toast.warning("No data to export");
       return;
     }
 
-    if (format === 'excel') {
-      const worksheet = XLSX.utils.json_to_sheet(selectedData);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-      XLSX.writeFile(workbook, "users.xlsx");
-    } else {
-      const doc = new jsPDF();
-      doc.autoTable({
-        head: [TABLE_COLUMNS.map(col => col.label)],
-        body: selectedData.map(user => TABLE_COLUMNS.map(col => user[col.key]))
-      });
-      doc.save("users.pdf");
-    }
-  }, [filteredUsers, selectedRows]);
+    const exportData = filteredData.map((item) => ({
+      "#": item.displayId,
+      "Reg ID": item.registrationId,
+      Name: item.name,
+      Email: item.email,
+      Role: item.role.toUpperCase(),
+      Status: item.status.toUpperCase(),
+      "Registration Date": moment(item.created_at).format("YYYY-MM-DD HH:mm"),
+      "Last Login": item.last_login ? moment(item.last_login).format("YYYY-MM-DD HH:mm") : "N/A",
+    }));
 
-  // CRUD Operations
-  const handleUpdateUser = useCallback(async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/update/${selectedUser.id}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json",},
-        credentials: "include", // Include cookies in the request
-        body: JSON.stringify(formData)
-      });
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users Data");
+    XLSX.writeFile(workbook, "users_data.xlsx");
+  };
 
-      if (!response.ok) throw new Error("Failed to update user");
+  const exportToPDF = () => {
+    if (filteredData.length === 0) return;
 
-      const updatedUser = await response.json();
-      setState(prev => ({
-        ...prev,
-        users: prev.users.map(user => user.id === updatedUser.id ? updatedUser : user),
-        showEditUserForm: false
-      }));
-      await fetchUsers()
-      showSuccess('User updated successfully.');
-    } catch (err) {
-      handleError(err.message);
-    }
-  }, [selectedUser, formData]);
+    const doc = new jsPDF("landscape");
+    const title = "Users Report - " + moment().format("YYYY-MM-DD");
+    const headers = ["#", "Reg ID", "Name", "Email", "Role", "Status", "Registration Date"];
+    
+    const data = filteredData.map((item) => [
+      item.displayId,
+      item.registrationId,
+      item.name,
+      item.email,
+      item.role.toUpperCase(),
+      item.status.toUpperCase(),
+      moment(item.created_at).format("YYYY-MM-DD HH:mm"),
+    ]);
 
-  const handleDeleteUser = useCallback(async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33'
+    doc.setFontSize(16);
+    doc.text(title, 14, 16);
+    
+    doc.autoTable({
+      head: [headers],
+      body: data,
+      startY: 25,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
     });
 
-    if (isConfirmed) {
-      try {
-        await fetch(`${process.env.REACT_APP_API_URL}/api/users/remove/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-
-        setState(prev => ({
-          ...prev,
-          users: prev.users.filter(user => user.id !== id),
-          filteredUsers: prev.filteredUsers.filter(user => user.id !== id)
-        }));
-        showSuccess('User deleted successfully.');
-      } catch (err) {
-        handleError(err.message);
-      }
-    }
-  }, []);
-
-  // Helper functions
-  const handleError = (error) => {
-    console.error("Error:", error); // Logs error for debugging
-  
-    // If error is an Axios error and response exists
-    if (error?.response?.status === 401) {
-      navigate("/login");
-    } else {
-      const errorMessage =
-        error?.response?.data?.message || error?.message || "An unknown error occurred";
-  
-      Swal.fire({
-        title: "Error",
-        text: errorMessage,
-        icon: "error",
-        timer: 3000, // Auto-dismiss after 3 seconds
-      });
-  
-      if (typeof setError === "function") {
-        setError(errorMessage); // Store the error message in state
-      }
-    }
+    doc.save(`users_report_${moment().format("YYYYMMDD_HHmmss")}.pdf`);
   };
-  
-  
-  
 
-  const showSuccess = useCallback((message) => {
-    Swal.fire('Success!', message, 'success');
-  }, []);
+  const showDeleteConfirm = (id) => {
+    confirm({
+      title: "Delete this user?",
+      icon: <ExclamationCircleOutlined />,
+      content: "This action cannot be undone.",
+      okText: "Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: () => deleteUser(id),
+    });
+  };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const columns = [
+    {
+      title: <span className="text-blue-950 font-medium">#</span>,
+      dataIndex: "displayId",
+      key: "displayId",
+      width: 80,
+      fixed: "left",
+      sorter: (a, b) => a.displayId - b.displayId,
+    },
+    {
+      title: <span className="text-gray-700 font-medium">Reg ID</span>,
+      dataIndex: "registrationId",
+      key: "registrationId",
+      className: "text-blue-950",
+      sorter: (a, b) => a.registrationId.localeCompare(b.registrationId),
+    },
+    {
+      title: <span className="text-gray-700 font-medium">Name</span>,
+      dataIndex: "name",
+      key: "name",
+      className: "text-blue-950",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: <span className="text-gray-700 font-medium">Email</span>,
+      dataIndex: "email",
+      key: "email",
+      className: "text-blue-950",
+    },
+    {
+      title: <span className="text-gray-800 font-medium">Role</span>,
+      dataIndex: "role",
+      key: "role",
+      className: "text-blue-950",
+      filters: [
+        { text: "Cso", value: "cso" },
+      ],
+      onFilter: (value, record) => record.role === value,
+      render: (role) => (
+        <Tag color={role === "cso" ? "geekblue" : "green"}>
+          {role.toUpperCase()}
+        </Tag>
+      ),
+    },
+    {
+      title: <span className="text-gray-700 font-medium">Status</span>,
+      dataIndex: "status",
+      key: "status",
+      className: "text-blue-950",
+      filters: [
+        { text: "Active", value: "active" },
+        { text: "Inactive", value: "inactive" },
+      ],
+      onFilter: (value, record) => record.status === value,
+      render: (status, record) => (
+        <Switch
+          checked={status === "active"}
+          onChange={() => toggleUserStatus(record.id, status)}
+          checkedChildren="Active"
+          unCheckedChildren="Inactive"
+        />
+      ),
+    },
+    {
+      title: <span className="text-gray-700 font-medium">Action</span>,
+      key: "action",
+      width: 150,
+      render: (_, record) => (
+        <Space size="small">
+          <Tooltip title="View">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
+              className="text-blue-700"
+              onClick={() => navigate(`/admin/cso_profile/${record.userId}`)}
+            />
+          </Tooltip>
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              icon={<EditOutlined />}
+              className="text-blue-700"
+              onClick={() => navigate(`/admin/users/edit/${record.id}`)}
+            />
+          </Tooltip>
+          <Popconfirm
+            title="Are You Sure Delete this user?"
+            onConfirm={() => deleteUser(record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button
+              type="text"
+              icon={<DeleteOutlined />}
+              danger
+            />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentItems = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
-    <div className="container mx-auto p-4">
-      {/* Header and Controls */}
-      <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold">User Management</h1>
-
-        <div className="flex flex-wrap gap-4">
-          <input
-            type="text"
+    <div className="p-5 bg-gray-50 min-h-screen">
+      <div className="mb-5 flex flex-col md:flex-row justify-between gap-4">
+        <div className="flex flex-col md:flex-row gap-3 flex-wrap">
+          <Input
             placeholder="Search users..."
-            className="p-2 border rounded flex-grow"
-            value={searchTerm}
-            onChange={e => setState(prev => ({ ...prev, searchTerm: e.target.value }))}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-full md:w-48"
+            prefix={<SearchOutlined />}
+            allowClear
           />
-          
-          <select
+
+          <Select
+            placeholder="Status"
+            className="w-full md:w-40"
+            onChange={setStatusFilter}
             value={statusFilter}
-            onChange={e => setState(prev => ({ ...prev, statusFilter: e.target.value }))}
-            className="p-2 border rounded"
+            allowClear
           >
-            <option value="all">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+            <Option value="all">All Status</Option>
+            <Option value="active">Active</Option>
+            <Option value="inactive">Inactive</Option>
+          </Select>
 
-          <button
-            onClick={() => navigate("/admin/create_userAccount")}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 whitespace-nowrap"
+          <Select
+            placeholder="Role"
+            className="w-full md:w-40"
+            onChange={setRoleFilter}
+            value={roleFilter}
+            allowClear
           >
-            Add User
-          </button>
+            <Option value="all">All Roles</Option>
+            <Option value="cso">CSO</Option>
+          </Select>
+
+          <RangePicker
+            onChange={setDateRange}
+            className="w-full md:w-64"
+            placeholder={["Start Date", "End Date"]}
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            className="bg-blue-600"
+            onClick={() => navigate("/admin/users/create_account")}
+          >
+            Create Account
+          </Button>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={exportToExcel}
+            className="border-green-500 text-green-600 hover:bg-green-50"
+            disabled={filteredData.length === 0}
+          >
+            Excel
+          </Button>
+          <Button
+            icon={<DownloadOutlined />}
+            onClick={exportToPDF}
+            className="border-red-500 text-red-600 hover:bg-red-50"
+            disabled={filteredData.length === 0}
+          >
+            PDF
+          </Button>
         </div>
       </div>
 
-      {/* Export Controls */}
-      <div className="mb-4 flex gap-4">
-        <button
-          onClick={() => exportData('excel')}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Export to Excel
-        </button>
-        <button
-          onClick={() => exportData('pdf')}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Export to PDF
-        </button>
-      </div>
-     
-      {/* Users Table */}
-      <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full bg-white">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-left">
-                <input
-                  type="checkbox"
-                  checked={paginatedUsers.every(u => selectedRows.includes(u.id))}
-                  onChange={e => handleBulkSelection(e.target.checked)}
-                />
-              </th>
-              {TABLE_COLUMNS.map(({ key, label }) => (
-                <th
-                  key={key}
-                  className="px-6 py-3 text-left text-sm font-medium uppercase whitespace-nowrap text-gray-700 tracking-wider cursor-pointer"
-                  onClick={() => requestSort(key)}
-                >
-                  <div className="flex items-center">
-                    {label}
-                    {sortConfig.key === key && (
-                      <SortIndicator direction={sortConfig.direction} />
-                    )}
-                  </div>
-                </th>
-              ))}
-              <th className="px-6 py-3 text-left text-sm font-medium uppercase tracking-wider text-gray-800">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedUsers.map(user => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.includes(user.id)}
-                    onChange={() => handleSelectionChange(user.id)}
-                  />
-                </td>
-                {TABLE_COLUMNS.map(({ key }) => (
-                  <td key={key} className="px-4 py-3 text-gray-600">
-                    {key === 'status' ? (
-                      <StatusBadge status={user[key]} />
-                    ) : (
-                      user[key] || '-'
-                    )}
-                  </td>
-                ))}
-                <td className="px-4 py-3 flex gap-2">
-                  <button
-                    onClick={() => setState(prev => ({
-                      ...prev,
-                      selectedUser: user,
-                      formData: user,
-                      showEditUserForm: true
-                    }))}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteUser(user.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {errorMessage && <p className="error-text text-center text-red-400">{errorMessage}</p>}
+      <div className="bg-white p-4 rounded-lg shadow">
+        <Table
+          columns={columns}
+          dataSource={currentItems}
+          rowKey="id"
+          loading={loading}
+          pagination={false}
+          scroll={{ x: "max-content" }}
+          className="text-blue-950"
+        />
 
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4 flex-wrap gap-4">
-        <div className="flex items-center gap-4">
-          <select 
-            value={itemsPerPage}
-            onChange={e => setState(prev => ({
-              ...prev,
-              itemsPerPage: Number(e.target.value),
-              currentPage: 1
-            }))}
-            className="p-1 border rounded"
-          >
-            {ITEMS_PER_PAGE_OPTIONS.map(size => (
-              <option key={size} value={size}>{size}</option>
-            ))}
-          </select>
-          <span>show</span>
-        </div>
-        
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        
-        <div className="flex gap-2">
-          <button
-            onClick={() => setState(prev => ({ 
-              ...prev, 
-              currentPage: Math.max(1, prev.currentPage - 1) 
-            }))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => setState(prev => ({
-              ...prev,
-              currentPage: Math.min(totalPages, prev.currentPage + 1)
-            }))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 hover:bg-gray-300"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
-      {/* Edit User Modal */}
-      {showEditUserForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-xl font-bold mb-4">Edit User</h2>
-            <form onSubmit={handleUpdateUser}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-2">Status</label>
-                  <select
-                    className="w-full p-2 border rounded"
-                    value={formData.status}
-                    onChange={e => setState(prev => ({
-                      ...prev,
-                      formData: { ...prev.formData, status: e.target.value }
-                    }))}
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-                <div className="flex justify-end gap-2">
+        <div className="flex justify-between items-center mt-4 flex-col md:flex-row gap-4">
+          <div className="text-sm text-gray-700">
+            Show:
+            <Select
+              value={itemsPerPage}
+              onChange={(value) => setItemsPerPage(value)}
+              className="ml-2 w-20"
+            >
+              <Option value={10}>10</Option>
+              <Option value={20}>20</Option>
+              <Option value={50}>50</Option>
+              <Option value={100}>100</Option>
+            </Select>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-700">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
+              {filteredData.length} entries
+            </div>
+            <nav
+              className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+              aria-label="Pagination"
+            >
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <span className="sr-only">First</span>
+                <FiChevronLeft className="h-5 w-5" />
+                <FiChevronLeft className="h-5 w-5 -ml-3" />
+              </button>
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <span className="sr-only">Previous</span>
+                <FiChevronLeft className="h-5 w-5" />
+              </button>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                return (
                   <button
-                    type="button"
-                    onClick={() => setState(prev => ({ ...prev, showEditUserForm: false }))}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      currentPage === pageNum
+                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                    }`}
                   >
-                    Cancel
+                    {pageNum}
                   </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </form>
+                );
+              })}
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <span className="sr-only">Next</span>
+                <FiChevronRight className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              >
+                <span className="sr-only">Last</span>
+                <FiChevronRight className="h-5 w-5" />
+                <FiChevronRight className="h-5 w-5 -ml-3" />
+              </button>
+            </nav>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
-};
-
-// Prop Types
-StatusBadge.propTypes = {
-  status: PropTypes.oneOf(['active', 'inactive']).isRequired
-};
-
-SortIndicator.propTypes = {
-  direction: PropTypes.oneOf(['asc', 'desc']).isRequired
 };
 
 export default Users;

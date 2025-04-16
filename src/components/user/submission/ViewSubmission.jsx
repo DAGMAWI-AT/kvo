@@ -59,7 +59,7 @@ const ViewSubmission = () => {
   const [submission, setSubmission] = useState(null);
   const [loading, setLoading] = useState(true);
   const [textSize, setTextSize] = useState("medium");
-  const [numPages, setNumPages] = useState(null);
+  // const [numPages, setNumPages] = useState(null);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [isImage, setIsImage] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -103,6 +103,11 @@ const ViewSubmission = () => {
         setComments(commentsResponse.data.data || []);
         setLoading(false);
       } catch (err) {
+        if (err.status === 401) {
+          // If unauthorized, redirect to login
+          navigate("/user/login");
+          return;
+        }
         toast.error(err.response?.data?.message || err.message);
         setLoading(false);
       }
@@ -144,7 +149,7 @@ const ViewSubmission = () => {
   };
   const handleDownload = () => {
     window.open(
-      `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`,
+      `${process.env.REACT_APP_API_URL}/${submission.application_file}`,
       "_blank"
     );
   };
@@ -284,7 +289,7 @@ const ViewSubmission = () => {
     );
   }
 
-  const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`;
+  const fileUrl = `${process.env.REACT_APP_API_URL}/${submission.application_file}`;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -528,7 +533,9 @@ const ViewSubmission = () => {
             </h2>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
               <p className={`text-gray-500 mb-3 ${textSizes[textSize]}`}>
-                File: {submission.application_file}
+                {/* File: {submission.application_file} */}
+                File: {submission.application_file.split("\\").pop()}
+
               </p>
 
               <div className="flex justify-center mb-4">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import EditUserProfile from "./EditUserProfile";
 import {
   FaCalendarAlt,
@@ -20,9 +20,9 @@ import {
 } from "react-icons/fa";
 import { FiExternalLink } from "react-icons/fi";
 import axios from "axios";
-import { ClipLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const ViewUserProfile = () => {
   const { id } = useParams();
@@ -31,24 +31,26 @@ const ViewUserProfile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreviews, setFilePreviews] = useState({
     tin_certificate: null,
-    registration_certificate: null
+    registration_certificate: null,
+    official_rep_letter:null
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [imgError, setImgError] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-
+  const navigate = useNavigate();
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const meResponse = await axios.get(`${API_BASE_URL}/api/users/me`, {
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
         withCredentials: true,
       });
+      
       if (!meResponse.data.success) {
         throw new Error("Failed to get user details");
       }
+      
       const { userId } = meResponse.data;
-      const response = await axios.get(`${API_BASE_URL}/api/cso/${userId}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/cso/${userId}`, {
         withCredentials: true
       });
       
@@ -59,23 +61,29 @@ const ViewUserProfile = () => {
       if (data.tin_certificate) {
         setFilePreviews(prev => ({
           ...prev,
-          tin_certificate: `${API_BASE_URL}/${data.tin_certificate}`
+          tin_certificate: `${process.env.REACT_APP_API_URL}/api/cso/${data.tin_certificate}`
         }));
       }
       if (data.registration_certificate) {
         setFilePreviews(prev => ({
           ...prev,
-          registration_certificate: `${API_BASE_URL}/${data.registration_certificate}`
+          registration_certificate: `${process.env.REACT_APP_API_URL}/api/cso/${data.registration_certificate}`
+        }));
+      }
+      if (data.official_rep_letter) {
+        setFilePreviews(prev => ({
+          ...prev,
+          official_rep_letter: `${process.env.REACT_APP_API_URL}/api/cso/${data.official_rep_letter}`
         }));
       }
       
     } catch (err) {
-      setError(err.message);
+      if (err.response?.status === 401 || err.status === 401) navigate("/user/login");
+      toast.error(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchProfileData();
   }, [id]);
@@ -128,15 +136,7 @@ const ViewUserProfile = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-transparent">
-        <ClipLoader color="#4F46E5" size={50} />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center text-red-500 mt-4">
-        Error: {error}
+        <BarLoader color="#4F46E5" size={50} />
       </div>
     );
   }
@@ -158,7 +158,7 @@ const ViewUserProfile = () => {
             <div className="flex-shrink-0">
               {!imgError && profileData.logo ? (
                 <img
-                  src={`${API_BASE_URL}/${profileData.logo}`}
+                  src={`${process.env.REACT_APP_API_URL}/${profileData.logo}`}
                   alt="Organization logo"
                   onError={() => setImgError(true)}
                   className="w-32 h-32 rounded-lg object-cover border-4 border-white shadow-lg"
@@ -368,6 +368,11 @@ const ViewUserProfile = () => {
                         {filePreviews.registration_certificate && (
                           <option value={filePreviews.registration_certificate}>
                             Registration Certificate
+                          </option>
+                        )}
+                        {filePreviews.official_rep_letter && (
+                          <option value={filePreviews.official_rep_letter}>
+                            Representative letter
                           </option>
                         )}
                       </select>

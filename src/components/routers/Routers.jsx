@@ -5,7 +5,7 @@ import App from "../../App";
 import UserLayout from "../user/userLayout/UserLayout";
 import Dashboard from "../user/dashboard/Dashboard";
 import Signin from "../user/auth/signin/Signin";
-import SignUp from "../user/auth/signup/Signup";
+// import SignUp from "../user/auth/signup/Signup";
 import WorkReport from "../user/dashboard/reports/WorkReport";
 import ViewWorkReport from "../user/dashboard/reports/ViewWorkReport";
 import UploadReports from "../user/dashboard/reports/UploadReports";
@@ -37,7 +37,7 @@ import ViewMeeting from "../admin/webContent/meeting/ViewMeeting";
 import Contact from "../contact/Contact";
 import BlogDetails from "../news/BlogDetails";
 import Service from "../service/Service";
-import CsoRegister from "../admin/csoRegister/CsoRegister";
+import CsoRegister from "../admin/cso/csoList/CsoRegister";
 import CreateAccount from "../admin/createAccount/CreateAccount";
 import PrivateRoute from "../privateRoute/PrivateRoute ";
 import EditUserProfile from "../user/profile/EditUserProfile";
@@ -50,7 +50,7 @@ import ForgotPassword from "../user/auth/forgotPassword/ForgotPassword";
 import ResetPassword from "../user/auth/resetPassword/ResetPassword";
 import CSOLists from "../admin/cso/csoList/CSOLists";
 import EditCSO from "../admin/cso/csoList/EditCSO";
-import StaffRegister from "../admin/staffRegister/StaffRegister";
+import StaffRegister from "../admin/staff/StaffRegister";
 import BeneficiaryList from "../admin/beneficiary/BeneficiaryList";
 import ViewBeneficiary from "../admin/beneficiary/ViewBeneficiary";
 import EditBeneficiary from "../admin/beneficiary/EditBeneficiary";
@@ -79,6 +79,15 @@ import ViewSubmission from "../user/submission/ViewSubmission";
 import AllSubmission from "../admin/cso/csoSubmission/AllSubmission";
 import ViewSubmitted from "../admin/cso/csoSubmission/ViewSubmitted";
 import CsoSubmission from "../admin/cso/csoSubmission/CsoSubmission";
+import LetterForm from "../admin/letter/LetterForm";
+import CSOLettersView from "../user/letter/CSOLettersView";
+import LetterList from "../admin/letter/LetterList";
+import LetterView from "../admin/letter/LetterView";
+import LetterEdit from "../admin/letter/LetterEdit";
+import StaffList from "../admin/staff/StaffList";
+import StaffView from "../admin/staff/StaffView";
+import StaffEdit from "../admin/staff/StaffEdit";
+import LetterDetail from "../user/letter/LetterDetail";
 
 
 const Routers = createBrowserRouter([
@@ -95,11 +104,11 @@ const Routers = createBrowserRouter([
         element: <News />,
       },
       {
-        path: "/news/blogdetails/:id",
+        path: "/news/blogdetails",
         element: <BlogDetails />,
       },
       {
-        path: "/service",
+        path: "/services",
         element: <Service />,
       },
       {
@@ -190,7 +199,14 @@ const Routers = createBrowserRouter([
   path: "view_submitted/:id",
   element: <ViewSubmission />,
 },
-
+{
+  path: "letters_list",
+  element: <CSOLettersView />,
+},
+{
+  path: "letters_detail/:id",
+  element: <LetterDetail />,
+},
     ],
   },
   // admin dashboard
@@ -308,9 +324,20 @@ const Routers = createBrowserRouter([
         path: "staff_register",
         element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffRegister />} />,
       },
-      
       {
-        path: "create_userAccount",
+        path: "staffs",
+        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffList />} />,
+      }, 
+      {
+        path: "staffs/view/:id",
+        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffView />} />,
+      },
+      {
+        path: "staffs/edit/:id",
+        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffEdit />} />,
+      },
+      {
+        path: "users/create_account",
         element: <CreateAccount />,
       },
       {
@@ -391,6 +418,22 @@ const Routers = createBrowserRouter([
 {
   path: "cso_submission/:id",
   element: <CsoSubmission />,
+},
+{
+  path: "letter_form",
+  element: <LetterForm />,
+},
+{
+  path: "letter_list",
+  element: <LetterList />,
+},
+{
+  path: "letter_view/:id",
+  element: <LetterView />,
+},
+{
+  path: "letter_edit/:id",
+  element: <LetterEdit />,
 },
     ],
   },

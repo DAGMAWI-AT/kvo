@@ -1,6 +1,7 @@
+
+
 import React from "react";
 import "./Contact.css";
-// import imgs from "/public/contact-img.15a914b7.png";
 const Contact = () => {
   return (
     <>

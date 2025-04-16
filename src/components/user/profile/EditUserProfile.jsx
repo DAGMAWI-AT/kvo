@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 const EditUserProfile = ({ profileData, onUpdate }) => {
   const [imageFile, setImageFile] = useState(profileData.logo);
@@ -6,7 +8,7 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -50,8 +52,9 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
         setErrorMessage(result.message || "Failed to update profile.");
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      setErrorMessage("An error occurred while updating the profile.");
+      if (error.response?.status === 401 || error.status === 401) navigate("/user/login");
+            toast.error(error.response?.data?.message || error.message);
+          // setErrorMessage("An error occurred while updating the profile.");
     } finally {
       setIsSubmitting(false);
     }

@@ -71,10 +71,10 @@ const DashboardReport = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="mb-6 flex items-center justify-between">
-      <h1 className="text-xl font-bold text-gray-500 uppercase">Report Categories</h1>
+      <h1 className="text-xl font-bold text-gray-500 uppercase">Form</h1>
       <div className="flex items-center space-x-2 text-gray-500">
           <Assignment />
-          <span className="font-medium">{reportData.length} Categories</span>
+          <span className="font-medium">{reportData.length} Forms</span>
         </div>
       </div>
 

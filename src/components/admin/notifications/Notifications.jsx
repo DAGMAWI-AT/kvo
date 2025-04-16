@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaSearch } from "react-icons/fa";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
+import { Spin } from "antd";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -15,27 +16,38 @@ const Notifications = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-  const [registration_id, setRegistrationId]= useState();
+  const [registration_id, setRegistrationId] = useState();
+  const [authorId, setAuthorId] = useState();
+
+  const [roles, setRoles] = useState();
   const notificationsPerPage = 10;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
-          withCredentials: true,
-        });
+        const meResponse = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/staff/me`,
+          {
+            withCredentials: true,
+          }
+        );
 
         if (!meResponse.data || !meResponse.data.success) {
           navigate("/login");
           return;
         }
 
-        const { registrationId } = meResponse.data;
-        setRegistrationId(registrationId);
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/`, {
-          method: "GET",
-          withCredentials: true,
-        });
+        const { registrationId, id, role } = meResponse?.data;
+        setAuthorId(meResponse.data?.id);
+        setRoles(meResponse.data?.role);
+        console.log(authorId);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/notifications/`,
+          {
+            method: "GET",
+            withCredentials: true,
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch notifications");
@@ -49,6 +61,11 @@ const Notifications = () => {
         setNotifications(data);
         setFilteredNotifications(data);
       } catch (err) {
+        if (err.response.status === 401 || err.status === 401) {
+          // If unauthorized, redirect to login
+          navigate("/login");
+          return;
+        }
         setError(err.message);
       } finally {
         setLoading(false);
@@ -84,7 +101,9 @@ const Notifications = () => {
     // Filter by read/unread status
     if (statusFilter !== "all") {
       filtered = filtered.filter((notification) =>
-        statusFilter === "read" ? notification.read === 1 : notification.read !== 1
+        statusFilter === "read"
+          ? notification.read === 1
+          : notification.read !== 1
       );
     }
 
@@ -97,15 +116,19 @@ const Notifications = () => {
 
   // Pagination logic
   const indexOfLastNotification = currentPage * notificationsPerPage;
-  const indexOfFirstNotification = indexOfLastNotification - notificationsPerPage;
+  const indexOfFirstNotification =
+    indexOfLastNotification - notificationsPerPage;
   const currentNotifications = Array.isArray(filteredNotifications)
-    ? filteredNotifications.slice(indexOfFirstNotification, indexOfLastNotification)
+    ? filteredNotifications.slice(
+        indexOfFirstNotification,
+        indexOfLastNotification
+      )
     : [];
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const viewReportDetails = async (report_id) => {
     try {
-      navigate(`/admin/show_report/${report_id}`);
+      navigate(`/admin/view_submission/${report_id}`);
     } catch (error) {
       console.error("Error fetching report details:", error);
     }
@@ -134,28 +157,31 @@ const Notifications = () => {
   // Delete notification
   const handleDeleteNotification = async (id) => {
     const result = await Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
     });
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${process.env.REACT_APP_API_URL}/api/notifications/${id}`, {
-          withCredentials: true,
-        });
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/api/notifications/${id}`,
+          {
+            withCredentials: true,
+          }
+        );
 
         setNotifications((prev) =>
           prev.filter((notification) => notification.id !== id)
         );
 
-        Swal.fire('Deleted!', 'Your notification has been deleted.', 'success');
+        Swal.fire("Deleted!", "Your notification has been deleted.", "success");
       } catch (err) {
-        Swal.fire('Error!', 'Failed to delete notification.', 'error');
+        Swal.fire("Error!", "Failed to delete notification.", "error");
         setError(err.message);
       }
     }
@@ -169,14 +195,15 @@ const Notifications = () => {
       <div className="mb-6 space-y-4">
         <div className="flex flex-wrap gap-4">
           <div className="relative">
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+
             <input
               type="text"
               placeholder="Search notifications..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all"
+              className="w-60 px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all"
             />
-            <FaSearch className="absolute right-3 top-3 text-gray-400" />
           </div>
 
           <div className="flex items-center gap-2">
@@ -265,12 +292,31 @@ const Notifications = () => {
                 <td className="px-6 py-4 whitespace-nowrap space-x-2">
                   <button
                     onClick={() => {
-                      if (notification.read === 0 && registration_id !== notification.author_id) {
+                      // Mark as read only if:
+                      // - Notification is unread AND
+                      // - User is admin/super_admin AND
+                      // - User is not the author
+                      if (
+                        notification.read === 0 &&
+                        (roles === "admin" || roles === "sup_admin") &&
+                        authorId !== notification.author_id
+                      ) {
                         handleMarkAsRead(notification.id);
                       }
                       viewReportDetails(notification.report_id);
                     }}
-                    className="px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                    disabled={
+                      notification.read === 0 &&
+                      (roles === "admin" || roles === "sup_admin") &&
+                      authorId !== notification.author_id
+                    }
+                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                      notification.read === 0 &&
+                      (roles === "admin" || roles === `sup_admin`) &&
+                      authorId !== notification.author_id
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
                   >
                     <FaEye />
                   </button>
@@ -278,11 +324,11 @@ const Notifications = () => {
                     onClick={() => handleDeleteNotification(notification.id)}
                     disabled={
                       notification.read === 0 &&
-                      registration_id !== notification.registration_id
+                      authorId !== notification.registration_id
                     }
                     className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                       notification.read === 0 &&
-                      registration_id !== notification.registration_id
+                      authorId !== notification.registration_id
                         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                         : "bg-red-600 hover:bg-red-700 text-white"
                     }`}
@@ -299,7 +345,11 @@ const Notifications = () => {
       {/* Pagination */}
       <div className="mt-6 flex justify-center gap-2">
         {Array.from(
-          { length: Math.ceil(filteredNotifications.length / notificationsPerPage) },
+          {
+            length: Math.ceil(
+              filteredNotifications.length / notificationsPerPage
+            ),
+          },
           (_, index) => (
             <button
               key={index}
@@ -316,15 +366,17 @@ const Notifications = () => {
         )}
       </div>
 
-      {loading && (
+      {/* {loading && (
         <div className="flex justify-center items-center mt-6">
           <div className="w-8 h-8 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
         </div>
+      )} */}
+      {loading && (
+        <div className="flex justify-center items-center h-64 mt-6">
+          <Spin size="medium" />
+        </div>
       )}
-
-      {error && (
-        <div className="text-red-600 text-center mt-6">{error}</div>
-      )}
+      {error && <div className="text-red-600 text-center mt-6">{error}</div>}
     </div>
   );
 };

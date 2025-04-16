@@ -8,6 +8,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { BarLoader } from 'react-spinners';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 const ViewSubmission = () => {
   const { id } = useParams();
@@ -58,7 +59,8 @@ const ViewSubmission = () => {
 
         setLoading(false);
       } catch (err) {
-        setError(err.response?.data?.error || err.message);
+        toast.error(err.response?.data?.error || err.message)
+        // setError(err.response?.data?.error || err.message);
         setLoading(false);
       }
     };
@@ -86,7 +88,7 @@ const ViewSubmission = () => {
         {
           withCredentials: true,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            // Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -97,12 +99,27 @@ const ViewSubmission = () => {
       setCommentFile(null);
       toast.success('Comment added successfully');
     } catch (err) {
+      if (err.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/login");
+        return;
+      }
       toast.error(err.response?.data?.error || 'Failed to add comment');
     }
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (window.confirm('Are you sure you want to delete this comment?')) {
+       const result = await Swal.fire({
+         title: "Are you sure?",
+         text: `You are about to delete ${commentId}. This action cannot be undone!`,
+         icon: "warning",
+         showCancelButton: true,
+         confirmButtonColor: "#d33",
+         cancelButtonColor: "#3085d6",
+         confirmButtonText: "Yes, delete it!",
+       });
+   
+       if (result.isConfirmed) {
       try {
         await axios.delete(
           `${process.env.REACT_APP_API_URL}/api/comments/${commentId}`,

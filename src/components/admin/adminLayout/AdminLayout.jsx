@@ -33,7 +33,11 @@ const AdminLayout = () => {
           }
     
         } catch (err) {
-          
+          if (err.response?.status === 401 || err.status === 401) {
+            // If unauthorized, redirect to login
+            navigate("/login");
+            return;
+          }
         }
       };
       useEffect(() => {

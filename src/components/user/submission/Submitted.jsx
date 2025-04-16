@@ -58,11 +58,16 @@ const Submitted = () => {
       setApplications(response.data);
       setLoading(false);
     } catch (err) {
+      if (err.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/user/login");
+        return;
+      }
+      toast.error(err.message);
       setError(err.message);
       setLoading(false);
     }
   };
-
   // Filter applications based on search term and date range
   const filteredApplications = applications.filter((app) => {
     const matchesSearch =
@@ -404,6 +409,8 @@ const Submitted = () => {
                           onClick={() => handleDelete(app.id)}
                           className="text-red-600 hover:text-red-900"
                           title="Delete"
+                          disabled={new Date(app.expires_at) < new Date()}
+
                         >
                           <FiTrash2 />
                         </button>

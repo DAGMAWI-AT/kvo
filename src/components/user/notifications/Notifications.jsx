@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEye, FaSearch } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { ClipLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
+import { toast } from "react-toastify";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const [filteredNotifications, setFilteredNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -19,11 +20,9 @@ const Notifications = () => {
 
   const notificationsPerPage = 10;
 
-  // Fetch notifications from the backend using registrationId from /me endpoint
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        // First, get user details from /api/users/me
         const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
           withCredentials: true,
         });
@@ -54,7 +53,9 @@ const Notifications = () => {
         setNotifications(filteredData);
         setFilteredNotifications(filteredData);
       } catch (err) {
-        setError(err.message);
+        if (err.response?.status === 401 || err.status === 401) navigate("/user/login");
+            // toast.error(err.response?.data?.message || err.message);
+        // setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -122,7 +123,9 @@ const Notifications = () => {
         )
       );
     } catch (err) {
-      setError(err.message);
+      if (err.response?.status === 401 || err.status === 401) navigate("/user/login");
+        toast.error(err.response?.data?.message || err.message);
+      // setError(err.message);
     }
   };
 
@@ -154,10 +157,10 @@ const Notifications = () => {
         setNotifications((prev) =>
           prev.filter((notification) => notification.id !== id)
         );
-        Swal.fire("Deleted!", "Your notification has been deleted.", "success");
+        toast.success("Deleted!", "Your notification has been deleted.", "success");
       } catch (err) {
-        Swal.fire("Error!", "Failed to delete notification.", "error");
-        setError(err.message);
+        if (err.response?.status === 401 || err.status === 401) navigate("/user/login");
+            toast.error(err.response?.data?.message || err.message);
       }
     }
   };
@@ -165,7 +168,7 @@ const Notifications = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-transparent">
-        <ClipLoader color="#4F46E5" size={50} />
+        <BarLoader color="#4F46E5" size={50} />
       </div>
     );
   }

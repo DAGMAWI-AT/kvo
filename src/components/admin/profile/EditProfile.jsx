@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 
 const EditUserProfile = ({ profileData, onUpdate }) => {
   const [imageFile, setImageFile] = useState(`${process.env.REACT_APP_API_URL}/staff/${profileData.photo}`);
   const [formData, setFormData] = useState(profileData);
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const [errorMessage, setErrorMessage] = useState(""); // State for error message
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -48,8 +49,12 @@ const EditUserProfile = ({ profileData, onUpdate }) => {
         setErrorMessage("Error updating profile: " + result.message); // Show error message
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
-      setErrorMessage("An error occurred while updating the profile."); // Show error message
+      if (error.response?.status === 401 || error.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/login");
+        return;
+      }
+      setErrorMessage("An error occurred while updating the profile." + error); // Show error message
     }
   };
 

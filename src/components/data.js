@@ -216,7 +216,7 @@ export const newArticles = [
     { text: "Services", path: "/service" },
     { text: "News", path: "/news" },
   
-    { text: "All CSAs", path: "/csas" },
+    // { text: "All CSAs", path: "/csas" },
     { text: "Contact", path: "/contact" },
   
     { text: "Login", path: "/user/login" },

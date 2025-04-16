@@ -50,8 +50,10 @@ const Dashboard = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+  
   return (
     <div>
+      <p className="text-lg text-yellow-500 whitespace-nowrap">under Construction <i className="text-red-600">test</i> </p>
       <CircleBar/>
       <DashboardReport/>
     </div>

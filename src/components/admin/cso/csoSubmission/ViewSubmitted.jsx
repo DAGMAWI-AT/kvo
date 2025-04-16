@@ -25,6 +25,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { BarLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import { FaBarsProgress } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 const MAX_COMMENT_PREVIEW_LENGTH = 150;
 const INITIAL_COMMENTS_TO_SHOW = 3;
@@ -133,7 +134,12 @@ const ViewSubmitted = () => {
       );
       setComments(commentsResponse.data.data || []);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
+      if (err.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/login");
+        return;
+      }
       toast.error(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
@@ -145,11 +151,11 @@ const ViewSubmitted = () => {
   }, [id]);
 
   const handleNewTab = (filePath) => {
-    window.open(`${process.env.REACT_APP_API_URL}/uploads/${filePath}`, "_blank");
+    window.open(`${process.env.REACT_APP_API_URL}/${filePath}`, "_blank");
   };
   const handleDownload = async (filePath) => {
     try {
-      const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${filePath}`;
+      const fileUrl = `${process.env.REACT_APP_API_URL}/${filePath}`;
       const response = await fetch(fileUrl);
 
       if (!response.ok) {
@@ -302,7 +308,18 @@ const ViewSubmitted = () => {
   };
 
   const handleDeleteComment = async (commentId) => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
+    // if (window.confirm("Are you sure you want to delete this comment?")) 
+     const result = await Swal.fire({
+             title: "Are you sure?",
+             text: `You are about to delete this. This action cannot be undone!`,
+             icon: "warning",
+             showCancelButton: true,
+             confirmButtonColor: "#d33",
+             cancelButtonColor: "#3085d6",
+             confirmButtonText: "Yes, delete it!",
+           });
+       
+           if (result.isConfirmed) {
       try {
         await axios.delete(`${process.env.REACT_APP_API_URL}/api/comments/${commentId}`, {
           withCredentials: true,
@@ -403,7 +420,7 @@ const ViewSubmitted = () => {
     );
   }
 
-  const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${submission.application_file}`;
+  const fileUrl = `${process.env.REACT_APP_API_URL}/${submission.application_file}`;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -534,7 +551,7 @@ const ViewSubmitted = () => {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4 border-b border-gray-200">
+        <div className="md:flex-none bg-gradient-to-r from-blue-50 to-gray-50 px-6 py-4 border-b border-gray-200">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
@@ -719,7 +736,7 @@ const ViewSubmitted = () => {
 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   <p className={`text-gray-500 mb-3 ${getTextSizeClass()}`}>
-                    File: {submission.application_file}
+                    File: {submission.application_file.split("\\").pop()}
                   </p>
 
                   <div className="border border-gray-200 rounded-lg overflow-hidden bg-gray-100 h-96">
@@ -827,7 +844,7 @@ const ViewSubmitted = () => {
                 </h2>
 
                 {/* Comment Form (only for admin/super-admin) */}
-                {(userRole === "admin" || userRole === "super_admin") && (
+                {(userRole === "admin" || userRole === "sup_admin") && (
                   <form onSubmit={handleAddComment} className="mb-6">
                     <div className="mb-3">
                       <textarea
@@ -906,7 +923,7 @@ const ViewSubmitted = () => {
                                 </p>
                               </div>
                               {(userRole === "admin" ||
-                                userRole === "super_admin") && (
+                                userRole === "sup_admin") && (
                                 <button
                                   onClick={() =>
                                     handleDeleteComment(comment.id)

@@ -10,7 +10,6 @@ import {
 import "./Navbar.css";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
 const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
@@ -38,7 +37,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
       if (!meResponse.data.success) {
         throw new Error("Failed to get user details");
       }
-      const { registrationId } = meResponse.data;
+      const { registrationId, id } = meResponse.data;
       if (!registrationId) {
         console.error("Invalid : registrationId not found");
         return;
@@ -124,13 +123,18 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   };
 
   // View report details
-  const viewReportDetails = async (report_id) => {
-  try {
-      navigate(`/user/view_submitted/${report_id}`);
+  const viewReportDetails = async (notif) => {
+    try {
+      if (notif.application_id === 0) {
+        navigate(`/user/form`);
+      } else {
+        navigate(`/user/view_submitted/${notif.report_id}`);
+      }
     } catch (error) {
       console.error("Error fetching report details:", error);
     }
   };
+  
 
   return (
     <nav className={`navbar ${darkMode ? "dark" : "light"}`}>
@@ -139,6 +143,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
           <FaBars className="hamburger-icon" />
         </button>
       </div>
+      {/* <p className="text-lg text-yellow-500 whitespace-nowrap">under Construction <i className="text-red-600">test</i> </p> */}
 
       <div className="navbar-center">
         <div className="search-bar p-7 flex items-center border rounded-full px-1 py-1 w-full max-w-md border-gray-300 focus-within:border-blue-500">
@@ -176,11 +181,11 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
                         <p>{new Date(notif.timestamp).toLocaleString()}</p>
                         <button
                           onClick={() => {
-                            viewReportDetails(notif.report_id);
+                            viewReportDetails(notif);
                             markAsRead(notif.id);
-                            setShowNotifications(false); // Add this line to close dropdown
-
+                            setShowNotifications(false);
                           }}
+                          
                           className="px-2 py-0 bg-green-600 rounded text-white text-sm"
                         >
                           View

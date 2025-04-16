@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { 
   FaFileAlt, 
   FaDownload, 
@@ -25,7 +25,7 @@ const CSOProfile = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imgError, setImgError] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -41,6 +41,11 @@ const CSOProfile = () => {
         setProfileData(data);
         
       } catch (err) {
+        if (err.status === 401) {
+          // If unauthorized, redirect to login
+          navigate("/login");
+          return;
+        }
         setError(err.message);
       } finally {
         setLoading(false);
@@ -286,6 +291,9 @@ const CSOProfile = () => {
                         </option>
                         <option value={`${process.env.REACT_APP_API_URL}/${profileData.registration_certificate}`}>
                           Registration Certificate
+                        </option>
+                        <option value={`${process.env.REACT_APP_API_URL}/${profileData.official_rep_letter}`}>
+                           Representative Letter
                         </option>
                       </select>
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">

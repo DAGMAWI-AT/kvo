@@ -28,62 +28,62 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   };
 
   // Fetch notifications from the server
-    const fetchNotifications = async () => {
-      try {
-        // const token = localStorage.getItem("token");
-        // if (!token) {
-        //   console.error("No token found");
-        //   return;
-        // }
+  const fetchNotifications = async () => {
+    try {
+      // Fetch user details
+      const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/staff/me`, {
+        withCredentials: true,
+      });
   
-        // // Decode the token to extract user information
-        // const decodedToken = jwtDecode(token);
-        // const { registrationId } = decodedToken;
-  
-        // if (!registrationId) {
-        //   console.error("Invalid token: registrationId not found");
-        //   return;
-        // }
-        const meResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
-          withCredentials: true,
-        });
-        if (!meResponse.data.success) {
-          throw new Error("Failed to get user details");
-        }
-        const { registrationId } = meResponse.data;
-  
-        if (!registrationId) {
-          console.error("Invalid token: registrationId not found");
-          return;
-        }
-  
-        // Fetch notifications
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications`);
-    
-        // const response = await axios.get("https://finance-office.onrender.com/notifications");
-        // await response.json();
-        const notificationsData = await response.json(); // Assuming this is an array of notifications
-        // console.log("Notifications Data:", notificationsData);
-  
-        // Filter notifications where the author is not the logged-in user
-        const filteredNotifications = notificationsData.filter((notif) => {
-          return notif.author_id !== registrationId;
-        });
-        
-  
-        // console.log("Filtered Notifications:", filteredNotifications);
-  
-        // Update the state with filtered notifications
-        setNotifications(filteredNotifications);
-  
-        // Calculate the number of unread notifications
-        const unread = filteredNotifications.filter((notif) => !notif.read).length;
-        setUnreadCount(unread);
-  
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
+      if (!meResponse.data.success) {
+        throw new Error("Failed to get user details");
       }
-    };
+      
+      const { id } = meResponse.data;
+  
+      if (!id) {
+        console.error("Invalid token: id not found");
+        return;
+      }
+  
+      // Fetch notifications using Axios
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notifications`, {
+        withCredentials: true, // If your API requires credentials
+      });
+  
+      // Assuming the response data is an array of notifications
+      const notificationsData = response.data;
+  
+      // console.log("Notifications Data:", notificationsData);
+  
+      // if (!Array.isArray(notificationsData)) {
+      //   console.error("Notifications data is not an array", notificationsData);
+      //   return;
+      // }
+  
+      // Convert id to string for comparison with author_id
+      const normalizedId = String(id);
+  
+      // Filter notifications where the author is not the logged-in user
+      const filteredNotifications = notificationsData.filter((notif) => {
+        // Ensure author_id is treated as a string during comparison
+        return String(notif.author_id) !== normalizedId;
+      });
+  
+      // Log the filtered notifications for debugging
+      // console.log("Filtered Notifications:", filteredNotifications);
+  
+      // Update the state with filtered notifications
+      setNotifications(filteredNotifications);
+  
+      // Calculate the number of unread notifications
+      const unread = filteredNotifications.filter((notif) => !notif.read).length;
+      setUnreadCount(unread);
+  
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
   
 
   
@@ -133,7 +133,8 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
   
   const viewReportDetails = async (report_id) => {
     try {
-      navigate(`/admin/show_report/${report_id}`);
+      // navigate(`/admin/show_report/${report_id}`);
+      navigate(`/admin/view_submission/${report_id}`);
     } catch (error) {
       console.error("Error fetching report details:", error);
     }
@@ -147,6 +148,7 @@ const Navbar = ({ darkMode, toggleDarkMode, toggleSidebar }) => {
           <FaBars className="hamburger-icon" />
         </button>
       </div>
+
       <div className="navbar-center">
         <div className="search-bar p-7 flex items-center border rounded-full px-1 py-1 w-full max-w-md border-gray-300 focus-within:border-blue-500">
           <FaSearch className="text-gray-400 text-lg m-2" />

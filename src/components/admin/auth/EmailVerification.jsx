@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { BarLoader } from "react-spinners";
 
 const EmailVerification = () => {
   const { token } = useParams(); // Get the token from URL
@@ -11,7 +12,9 @@ const EmailVerification = () => {
     const verifyEmail = async () => {
       try {
         // Send request to backend to verify email
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/staff/verify-email/${token}`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/staff/verify-email/${token}`
+        );
 
         if (!response.ok) {
           // If response is not OK, throw an error with the response status text
@@ -34,12 +37,16 @@ const EmailVerification = () => {
         setLoading(false); // Stop loading after request is completed
       }
     };
- console.log(isVerified)
+    console.log(isVerified);
     verifyEmail(); // Call the verification function
   }, [token]); // Run the effect when the token changes
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading state
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-transparent">
+        <BarLoader color="#4F46E5" size={150} />
+      </div>
+    );
   }
 
   return (
@@ -48,11 +55,18 @@ const EmailVerification = () => {
         <div style={styles.successMessage}>
           <h2>Email Verified Successfully!</h2>
           <p>You can now log in and start using your account.</p>
+          <Link to="/login" className="text-sm text-indigo-600 hover:underline">
+            Login
+          </Link>
         </div>
       ) : (
         <div style={styles.errorMessage}>
           <h2>Email Verification Failed</h2>
-          {error ? <p>{error}</p> : <p>Please check your verification link or try again.</p>}
+          {error ? (
+            <p>{error}</p>
+          ) : (
+            <p>Please check your verification link or try again.</p>
+          )}
         </div>
       )}
     </div>
@@ -61,16 +75,16 @@ const EmailVerification = () => {
 
 const styles = {
   container: {
-    padding: '20px',
-    textAlign: 'center',
+    padding: "20px",
+    textAlign: "center",
   },
   successMessage: {
-    color: 'green',
-    fontSize: '18px',
+    color: "green",
+    fontSize: "18px",
   },
   errorMessage: {
-    color: 'red',
-    fontSize: '18px',
+    color: "red",
+    fontSize: "18px",
   },
 };
 

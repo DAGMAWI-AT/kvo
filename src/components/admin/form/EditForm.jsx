@@ -31,6 +31,11 @@ const EditForm = () => {
         const data = await response.json();
         setForm({ ...data, expires_at: new Date(data.expires_at) }); // Convert expires_at to Date object
       } catch (error) {
+        if (error.status === 401) {
+          // If unauthorized, redirect to login
+          navigate("/login");
+          return;
+        }
         toast.error(error.message);
       } finally {
         setLoading(false);
@@ -87,6 +92,11 @@ const EditForm = () => {
 
       // navigate("/admin/forms"); // Redirect to the forms list after successful update
     } catch (error) {
+      if (error.status === 401) {
+        // If unauthorized, redirect to login
+        navigate("/login");
+        return;
+      }
       toast.error(error.message);
 
     }finally {
@@ -94,7 +104,6 @@ const EditForm = () => {
     }
   };
 
-  // if (loading) return <div className="text-center p-4">Loading form...</div>;
     if (loading) {
       return (
         <div className="flex justify-center items-center min-h-screen bg-transparent">
@@ -110,7 +119,7 @@ const EditForm = () => {
         <h1 className="text-2xl font-bold">Edit Form</h1>
         <button
           onClick={() => navigate("/admin/forms")}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+          className="bg-blue-300 text-white px-4 py-2 rounded hover:bg-gray-700"
         >
           Back to Forms
         </button>
