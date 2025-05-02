@@ -3,13 +3,17 @@ import React from "react";
 import Hero from "./hero/Hero";
 import WhatWeDo from "./what_we_do/What_We_Do";
 import WhoWeAre from "./who_we_are/Who_we_are";
+import HomeNewsPreview from "../news/HomeNewsPreview"
+import ScrollToTop from '../scrollToTop/ScrollToTop';
 
 const Home = () => {
   return (
     <div className="overflow-hidden">
+      <ScrollToTop/>
       <Hero />
       <WhoWeAre />
-      <WhatWeDo />
+      {/* <WhatWeDo /> */}
+      <HomeNewsPreview />
     </div>
   );
 };

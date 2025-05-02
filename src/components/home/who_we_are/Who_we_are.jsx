@@ -1,14 +1,30 @@
 // WhoWeAre.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import YouTube from 'react-youtube';
+import axios from 'axios';
+import { useNavigate } from 'react-router';
 
 const WhoWeAre = () => {
   const [videoState, setVideoState] = useState({
     playing: false,
     played: 0,
   });
+  const [about, setAbout] = useState("");
+  const navigate = useNavigate();
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/about`);
+        const data = res.data.data;
+          setAbout(data);
+      } catch (err) {
+        console.error("Error fetching About info", err);
+      }
+    };
 
+    fetchAbout();
+  }, []);
   const opts = {
     height: '100%',
     width: '100%',
@@ -32,13 +48,14 @@ const WhoWeAre = () => {
             Empowering Communities Through Financial Excellence
           </h2>
           <p className="text-lg text-gray-300 leading-relaxed">
-            As Bishoftu's premier financial governance institution, we champion
+            {/* As Bishoftu's premier financial governance institution, we champion
             transparency and accountability in public finance management. Our
             innovative solutions and collaborative approach drive sustainable
-            community development.
+            community development. */}
+            {about.introduction || null}
           </p>
           <div className="flex gap-4">
-            <button className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all transform hover:scale-105">
+            <button onClick={()=> navigate("/about")} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all transform hover:scale-105">
               Learn More
             </button>
           </div>

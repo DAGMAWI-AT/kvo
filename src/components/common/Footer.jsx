@@ -170,7 +170,7 @@ import {
 const Footer = () => {
   const links = [
     {
-      title: "Company",
+      title: "Office",
       items: [
         { name: "About Us", path: "/about" },
         { name: "Services", path: "/services" },

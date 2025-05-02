@@ -1,74 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, ChevronDown } from "react-feather";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { ChevronDown } from "react-feather";
+import axios from "axios";
 
 const Hero = () => {
-  // Image carousel data
-  const slides = [
-    // {
-    //   id: 1,
-    //   image:
-    //     "https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    //   title: "Innovative Business Solutions",
-    //   subtitle: "Transform your operations with our cutting-edge technology",
-    //   cta: "Discover More",
-    // },
-    // {
-    //   id: 2,
-    //   image:
-    //     "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    //   title: "Digital Transformation Experts",
-    //   subtitle: "Leading your business into the future with proven strategies",
-    //   cta: "Start Journey",
-    // },
-    // {
-    //   id: 3,
-    //   image:
-    //     "https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80",
-    //   title: "Data-Driven Results",
-    //   subtitle: "Harness analytics to make smarter business decisions",
-    //   cta: "Learn How",
-    // },
-    {
-      id: 1,
-      image: "/oromia.webp",
-      title: "Bishoftu Finance Office",
-      subtitle: "Empowering Civil Society Associations",
-    },
-        {
-          id: 2,
-
-      image: "/Ethiopia.jpg",
-      title: "Community Development",
-      subtitle: "Driving Sustainable Change Through Collaboration",
-    },
-    {
-      id: 3,
-
-      image: "/bishoftu.jpg",
-      title: "Financial Innovation",
-      subtitle: "Building Transparent Financial Systems",
-    },
-  ];
-
+  const [slides, setSlides] = useState([]);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
 
-  // Auto-rotate slides
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDirection(1);
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [slides.length]);
-
-  const goToNext = () => {
+  const nextSlide = () => {
     setDirection(1);
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
 
-  const goToPrev = () => {
+  const prevSlide = () => {
     setDirection(-1);
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
@@ -78,150 +24,166 @@ const Hero = () => {
     setCurrentSlide(index);
   };
 
-  // Animation variants
-  const variants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-  };
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/api/hero`)
+      .then((res) => {
+        setSlides(res.data.data || []);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch slides:", err);
+      });
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(nextSlide, 8000);
+    return () => clearInterval(interval);
+  }, [slides]);
+
+  if (!slides.length) return null;
+
+  const overlayGradient = "bg-gradient-to-r from-black/70 via-black/50 to-black/70";
+  const videoUrl = "https://www.youtube.com/embed/AdDkHmuYWaY";
 
   return (
-    <section className="relative h-screen overflow-hidden">
-      {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/40 z-10" />
-
-      {/* Carousel */}
+    <section className="relative h-screen overflow-hidden bg-black">
+      {/* Background */}
       <div className="absolute inset-0">
         <AnimatePresence custom={direction} initial={false}>
           <motion.div
             key={slides[currentSlide].id}
             custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.4 },
-            }}
-            className="absolute inset-0 w-full h-full"
+            initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction < 0 ? 300 : -300, opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="absolute inset-0"
           >
             <img
-              src={slides[currentSlide].image}
-              alt=""
-              className="w-full h-full object-cover"
+              src={`${process.env.REACT_APP_API_URL}/hero/${slides[currentSlide].image_url}`}
+              alt={slides[currentSlide].title}
+              className="w-full h-full object-cover object-center"
+              loading="eager"
             />
+            <div className={`absolute inset-0 ${overlayGradient}`} />
           </motion.div>
         </AnimatePresence>
       </div>
 
       {/* Content */}
-      <div className="relative z-20 h-full flex items-center">
-        <div className="container mx-auto px-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={slides[currentSlide].id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -50 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="max-w-2xl"
-            >
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                {slides[currentSlide].title}
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-200 mb-8">
-                {slides[currentSlide].subtitle}
-              </p>
-              <button className="bg-white text-indigo-700 hover:bg-gray-100 px-8 py-3 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105">
-                {slides[currentSlide].cta}
-              </button>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+      <div className="relative z-10 flex flex-col justify-center h-full px-6 md:px-12">
+        <motion.div
+          key={slides[currentSlide].id}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-3xl text-white space-y-6"
+        >
+          <h1 className="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-lg">
+            {slides[currentSlide].title}
+          </h1>
+          <p className="text-lg md:text-2xl text-gray-200">{slides[currentSlide].subtitle}</p>
+        </motion.div>
       </div>
 
-      {/* Navigation arrows */}
-      <button
-        onClick={goToPrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/30 hover:bg-white/50 p-2 rounded-full text-white transition-all duration-300"
-      >
-        <ChevronLeft size={32} />
-      </button>
-      <button
-        onClick={goToNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/30 hover:bg-white/50 p-2 rounded-full text-white transition-all duration-300"
-      >
-        <ChevronRight size={32} />
-      </button>
+      {/* Arrows */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20">
+        <button
+          onClick={prevSlide}
+          className="bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full transition-all"
+        >
+          <FiChevronLeft className="text-white w-6 h-6" />
+        </button>
+      </div>
+      <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20">
+        <button
+          onClick={nextSlide}
+          className="bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full transition-all"
+        >
+          <FiChevronRight className="text-white w-6 h-6" />
+        </button>
+      </div>
 
       {/* Indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2">
-        {slides.map((slide, index) => (
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 p-1">
+        {slides.map((_, index) => (
           <button
-            key={slide.id}
+            key={index}
             onClick={() => goToSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              currentSlide === index ? "bg-white w-6" : "bg-white/50"
+              currentSlide === index ? "bg-white h-2 w-5" : "bg-white/40"
             }`}
-            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
 
-      {/* Scroll indicator */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.7 }}
         transition={{ delay: 2 }}
-        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30"
+        className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20"
       >
         <ChevronDown className="h-8 w-8 text-white animate-bounce" />
       </motion.div>
+
+      {/* Video Embed */}
+      {videoUrl && (
+        <div className="hidden lg:block absolute right-8 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="overflow-hidden rounded-xl shadow-lg hover:scale-105 transition-transform border-2 border-indigo-400/30">
+            <iframe
+              src={videoUrl}
+              title="About Us Video"
+              className="w-64 h-40"
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };
 
 export default Hero;
 
-// // Hero.js
+
 // import React, { useState, useEffect } from "react";
 // import { motion, AnimatePresence } from "framer-motion";
 // import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+// import { ChevronDown } from "react-feather";
+
+// // Slides array (static for now, but could be dynamic too)
+// const slides = [
+//   {
+//     id: 1,
+//     image: "/oromia.webp",
+//     title: "Bishoftu Finance Office",
+//     subtitle: "Empowering Civil Society Associations",
+//     buttonLabel: "Learn More",
+//   },
+//   {
+//     id: 2,
+//     image: "/Ethiopia.jpg",
+//     title: "Community Development",
+//     subtitle: "Driving Sustainable Change Through Collaboration",
+//     buttonLabel: "Get Involved",
+//   },
+//   {
+//     id: 3,
+//     image: "/bishoftu.jpg",
+//     title: "Financial Innovation",
+//     subtitle: "Building Transparent Financial Systems",
+//     buttonLabel: "Explore Now",
+//   },
+// ];
+
+// // 🧠 Dynamic video URL — (can be fetched from API or database later)
+// const videoUrl = "https://www.youtube.com/embed/AdDkHmuYWaY"; 
+// // 👆🏼 If no video, set to null, example: const videoUrl = null;
 
 // const Hero = () => {
-//   const slides = [
-//     {
-//       image: "/oromia.webp",
-//       title: "Bishoftu Finance Office",
-//       description: "Empowering Civil Society Associations",
-//     },
-//     {
-//       image: "/Ethiopia.jpg",
-//       title: "Community Development",
-//       description: "Driving Sustainable Change Through Collaboration",
-//     },
-//     {
-//       image: "/bishoftu.jpg",
-//       title: "Financial Innovation",
-//       description: "Building Transparent Financial Systems",
-//     },
-//   ];
-
-//   // Unified gradient styling
-//   const overlayGradient = "bg-gradient-to-r from-gray-900/90 via-blue-900/50 to-black/90";
-//   const textGradient = "bg-gradient-to-r from-blue-400 to-purple-300";
-//   const navHover = "hover:bg-white/20 hover:backdrop-blur-sm";
-
 //   const [currentSlide, setCurrentSlide] = useState(0);
 //   const [direction, setDirection] = useState(1);
 
@@ -235,96 +197,124 @@ export default Hero;
 //     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 //   };
 
+//   const goToSlide = (index) => {
+//     setDirection(index > currentSlide ? 1 : -1);
+//     setCurrentSlide(index);
+//   };
+
 //   useEffect(() => {
 //     const interval = setInterval(nextSlide, 8000);
 //     return () => clearInterval(interval);
 //   }, []);
 
+//   const overlayGradient = "bg-gradient-to-r from-black/80 via-black/50 to-black/80";
+
 //   return (
-//     <section className="relative h-screen overflow-hidden">
+//     <section className="relative h-screen overflow-hidden bg-black">
+//       {/* Background */}
 //       <div className="absolute inset-0">
-//         <AnimatePresence initial={false} custom={direction}>
+//         <AnimatePresence custom={direction} initial={false}>
 //           <motion.div
-//             key={currentSlide}
-//             initial={{ opacity: 0, x: direction * 100 }}
-//             animate={{ opacity: 1, x: 0 }}
-//             exit={{ opacity: 0, x: -direction * 100 }}
-//             transition={{ duration: 1.2, ease: "easeInOut" }}
+//             key={slides[currentSlide].id}
+//             custom={direction}
+//             initial={{ x: direction > 0 ? 300 : -300, opacity: 0 }}
+//             animate={{ x: 0, opacity: 1 }}
+//             exit={{ x: direction < 0 ? 300 : -300, opacity: 0 }}
+//             transition={{ duration: 1, ease: "easeInOut" }}
 //             className="absolute inset-0"
 //           >
-//             <div className={`absolute inset-0 ${overlayGradient}`} />
 //             <img
 //               src={slides[currentSlide].image}
-//               alt=""
+//               alt={slides[currentSlide].title}
 //               className="w-full h-full object-cover object-center"
 //               loading="eager"
 //             />
+//             <div className={`absolute inset-0 ${overlayGradient}`} />
 //           </motion.div>
 //         </AnimatePresence>
 //       </div>
 
-//       <div className="relative h-full flex flex-col justify-end pb-12 md:pb-20 px-4 md:px-8">
+//       {/* Content */}
+//       <div className="relative z-10 flex flex-col justify-center h-full px-6 md:px-12">
 //         <motion.div
-//           initial={{ opacity: 0, y: 50 }}
+//           key={slides[currentSlide].id}
+//           initial={{ opacity: 0, y: 30 }}
 //           animate={{ opacity: 1, y: 0 }}
-//           transition={{ delay: 0.5 }}
-//           className="max-w-4xl space-y-4 md:space-y-6"
+//           exit={{ opacity: 0, y: -30 }}
+//           transition={{ duration: 0.8 }}
+//           className="max-w-3xl text-white space-y-6"
 //         >
-//           <h1 className={`text-4xl md:text-6xl font-bold leading-tight ${textGradient} bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}>
+//           <h1 className="text-4xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 drop-shadow-lg">
 //             {slides[currentSlide].title}
 //           </h1>
-//           <p className="text-lg md:text-xl text-gray-100 max-w-2xl opacity-95 font-medium">
-//             {slides[currentSlide].description}
-//           </p>
+//           <p className="text-lg md:text-2xl text-gray-200">{slides[currentSlide].subtitle}</p>
+//           {slides[currentSlide].buttonLabel && (
+//             <button type="button" className="bg-white text-blue-950 hover:bg-gray-200 px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105">
+//               {slides[currentSlide].buttonLabel}
+//             </button>
+//           )}
 //         </motion.div>
+//       </div>
 
-//         {/* Navigation Controls */}
-//         <div className="flex items-center gap-4 mt-8 md:mt-12">
+//       {/* Navigation Arrows */}
+//       <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-20">
+//         <button
+//           onClick={prevSlide}
+//           className="bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full transition-all"
+//           aria-label="Previous Slide"
+//         >
+//           <FiChevronLeft className="text-white w-6 h-6" />
+//         </button>
+//       </div>
+//       <div className="absolute top-1/2 right-4 transform -translate-y-1/2 z-20">
+//         <button
+//           onClick={nextSlide}
+//           className="bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full transition-all"
+//           aria-label="Next Slide"
+//         >
+//           <FiChevronRight className="text-white w-6 h-6" />
+//         </button>
+//       </div>
+
+//       {/* Slide Indicators */}
+//       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2 z-20 p-1">
+//         {slides.map((slide, index) => (
 //           <button
-//             onClick={prevSlide}
-//             className={`p-2 md:p-3 rounded-full bg-white/10 transition-all ${navHover}`}
-//             aria-label="Previous slide"
-//           >
-//             <FiChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
-//           </button>
+//             key={slide.id}
+//             onClick={() => goToSlide(index)}
+//             className={`w-3 h-3 rounded-full transition-all duration-300 ${
+//               currentSlide === index ? "bg-white h-2 w-5" : "bg-white/40"
+//             }`}
+//             aria-label={`Go to slide ${index + 1}`}
+//           />
+//         ))}
+//       </div>
 
-//           <div className="flex gap-2">
-//             {slides.map((_, index) => (
-//               <button
-//                 key={index}
-//                 onClick={() => setCurrentSlide(index)}
-//                 className={`h-1.5 md:h-2 w-6 md:w-8 rounded-full transition-all ${
-//                   index === currentSlide
-//                     ? "bg-white shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]"
-//                     : "bg-white/50 hover:bg-white/70"
-//                 }`}
-//                 aria-label={`Go to slide ${index + 1}`}
-//               />
-//             ))}
-//           </div>
+//       {/* Scroll Indicator */}
+//       <motion.div
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 0.7 }}
+//         transition={{ delay: 2 }}
+//         className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20"
+//       >
+//         <ChevronDown className="h-8 w-8 text-white animate-bounce" />
+//       </motion.div>
 
-//           <button
-//             onClick={nextSlide}
-//             className={`p-2 md:p-3 rounded-full bg-white/10 transition-all ${navHover}`}
-//             aria-label="Next slide"
-//           >
-//             <FiChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white" />
-//           </button>
-//         </div>
-
-//         {/* Video Embed */}
-//         <div className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 hidden lg:block">
-//           <div className="bg-black/50 backdrop-blur-sm rounded-xl md:rounded-2xl overflow-hidden transform hover:scale-105 transition-all duration-300 border-2 border-blue-400/30">
+//       {/* Optional Video Embed (only if videoUrl exists) */}
+//       {videoUrl && (
+//         <div className="hidden lg:block absolute right-8 top-1/2 transform -translate-y-1/2 z-10">
+//           <div className="overflow-hidden rounded-xl shadow-lg hover:scale-105 transition-transform border-2 border-indigo-400/30">
 //             <iframe
-//               className="w-56 h-32 md:w-72 md:h-40"
-//               src="https://www.youtube.com/embed/AdDkHmuYWaY"
-//               title="About Us"
+//               src={videoUrl}
+//               title="About Us Video"
+//               className="w-64 h-40"
+//               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 //               allowFullScreen
 //               loading="lazy"
 //             />
 //           </div>
 //         </div>
-//       </div>
+//       )}
 //     </section>
 //   );
 // };

@@ -12,6 +12,9 @@ import {
   FaUserEdit,
   FaFill,
   FaListAlt,
+  FaInfo,
+  FaBlog,
+  FaBlogger,
 } from "react-icons/fa";
 import {
   MdKeyboardArrowDown,
@@ -250,12 +253,43 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
               </li>
               <li
                 className={`submenu-item ${
-                  isActive("/admin/web_content/seo") ? "active" : ""
+                  isActive("/admin/create_contact_info") ? "active" : ""
                 }`}
               >
-                <Link to="/admin/web_content/seo" className="flex items-center">
-                  <FaTags />
-                  SEO Settings
+                <Link to="/admin/create_contact_info" className="flex items-center">
+                  <FaInfo />
+                  Contact
+                </Link>
+              </li>
+
+              <li
+                className={`submenu-item ${
+                  isActive("/admin/news_list") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/news_list" className="flex items-center">
+                  <FaBlogger />
+                  News
+                </Link>
+              </li>
+              <li
+                className={`submenu-item ${
+                  isActive("/admin/about_content") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/about_content" className="flex items-center">
+                  <FaBlogger />
+                  About Us
+                </Link>
+              </li>
+              <li
+                className={`submenu-item ${
+                  isActive("/admin/hero") ? "active" : ""
+                }`}
+              >
+                <Link to="/admin/hero" className="flex items-center">
+                  <FaBlogger />
+                  Hero
                 </Link>
               </li>
             </ul>

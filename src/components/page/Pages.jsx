@@ -8,8 +8,8 @@ import Header from '../common/Header';
 import News from '../news/News';
 import About from '../about/Abouts';
 import Contact from '../contact/Contact';
-import BlogDetails from '../news/BlogDetails';
 import Services from '../service/Service';
+import NewsDetails from '../news/NewsDetails';
 
 const Pages = () => {
   return (
@@ -23,7 +23,8 @@ const Pages = () => {
             <Route path="/about" element={<About />} />
             <Route path="/services" element={<Services />} />
             <Route path="/news" element={<News />} />
-            <Route path="/news/blogdetails" element={<BlogDetails />} />
+            <Route path="/news/details/:id" element={<NewsDetails />} />
+
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </AnimatePresence>

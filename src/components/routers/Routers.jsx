@@ -35,7 +35,6 @@ import AddMeeting from "../admin/webContent/meeting/AddMeeting";
 import EditMeeting from "../admin/webContent/meeting/EditMeeting";
 import ViewMeeting from "../admin/webContent/meeting/ViewMeeting";
 import Contact from "../contact/Contact";
-import BlogDetails from "../news/BlogDetails";
 import Service from "../service/Service";
 import CsoRegister from "../admin/cso/csoList/CsoRegister";
 import CreateAccount from "../admin/createAccount/CreateAccount";
@@ -88,6 +87,18 @@ import StaffList from "../admin/staff/StaffList";
 import StaffView from "../admin/staff/StaffView";
 import StaffEdit from "../admin/staff/StaffEdit";
 import LetterDetail from "../user/letter/LetterDetail";
+import CreateContact from "../admin/webContent/contact/CreateContact";
+import Backup from "../admin/backup/Backup";
+import NewsDetails from "../news/NewsDetails";
+import CreateNews from "../admin/webContent/news/CreateNews";
+import NewsList from "../admin/webContent/news/NewsList";
+import EditNews from "../admin/webContent/news/EditNews";
+import ViewNews from "../admin/webContent/news/ViewNews";
+import UpdateAbout from "../admin/webContent/aboutContent/UpdateAbout";
+import HeroSlideList from "../admin/webContent/hero/HeroSlideList";
+import CreateHeroSlide from "../admin/webContent/hero/CreateHeroSlide";
+import ViewHeroSlide from "../admin/webContent/hero/ViewHeroSlide";
+import UpdateHeroSlide from "../admin/webContent/hero/UpdateHeroSlide";
 
 
 const Routers = createBrowserRouter([
@@ -103,9 +114,10 @@ const Routers = createBrowserRouter([
         path: "/news",
         element: <News />,
       },
+      
       {
-        path: "/news/blogdetails",
-        element: <BlogDetails />,
+        path: "/news/details/:id",
+        element: <NewsDetails />,
       },
       {
         path: "/services",
@@ -146,7 +158,7 @@ const Routers = createBrowserRouter([
         path: "viewworkreport/:id",
         element: <ViewWorkReport />,
       },
-      
+
       {
         path: "unauthorized",
         element: <Unauthorized />,
@@ -178,35 +190,35 @@ const Routers = createBrowserRouter([
       {
         path: "form",
         element: <FormList />,
-    },
-    {
+      },
+      {
         path: "form/:id",
         element: <SubmissionForm />,
-    },
-    {
+      },
+      {
         path: "form/edit/:id",
         element: <EditForm />,
-    },
-    {
-      path: "form/view/:id",
-      element: <ViewForm />,
-  },
-  {
-    path: "submitted",
-    element: <Submitted />,
-},
-{
-  path: "view_submitted/:id",
-  element: <ViewSubmission />,
-},
-{
-  path: "letters_list",
-  element: <CSOLettersView />,
-},
-{
-  path: "letters_detail/:id",
-  element: <LetterDetail />,
-},
+      },
+      {
+        path: "form/view/:id",
+        element: <ViewForm />,
+      },
+      {
+        path: "submitted",
+        element: <Submitted />,
+      },
+      {
+        path: "view_submitted/:id",
+        element: <ViewSubmission />,
+      },
+      {
+        path: "letters_list",
+        element: <CSOLettersView />,
+      },
+      {
+        path: "letters_detail/:id",
+        element: <LetterDetail />,
+      },
     ],
   },
   // admin dashboard
@@ -214,7 +226,12 @@ const Routers = createBrowserRouter([
     path: "/admin",
     // <PrivateRoute><AdminLayout /></PrivateRoute>
     // element: <PrivateRoute roleRequired="admin" element={<AdminLayout />} />,
-    element: <PrivateRoute roleRequired={["admin", "sup_admin"]} element={<AdminLayout />} />,
+    element: (
+      <PrivateRoute
+        roleRequired={["admin", "sup_admin"]}
+        element={<AdminLayout />}
+      />
+    ),
     children: [
       {
         path: "dashboard",
@@ -244,9 +261,9 @@ const Routers = createBrowserRouter([
         path: "show_report/:id",
         element: <ShowReport />,
         loader: async ({ params }) =>
-          fetch(`${process.env.REACT_APP_API_URL}/api/report/view/byId/${params.id}`).then(
-            (res) => res.json()
-          ),
+          fetch(
+            `${process.env.REACT_APP_API_URL}/api/report/view/byId/${params.id}`
+          ).then((res) => res.json()),
       },
       {
         path: "users",
@@ -322,19 +339,30 @@ const Routers = createBrowserRouter([
       },
       {
         path: "staff_register",
-        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffRegister />} />,
+        element: (
+          <PrivateRoute
+            roleRequired={["sup_admin"]}
+            element={<StaffRegister />}
+          />
+        ),
       },
       {
         path: "staffs",
-        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffList />} />,
-      }, 
+        element: (
+          <PrivateRoute roleRequired={["sup_admin"]} element={<StaffList />} />
+        ),
+      },
       {
         path: "staffs/view/:id",
-        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffView />} />,
+        element: (
+          <PrivateRoute roleRequired={["sup_admin"]} element={<StaffView />} />
+        ),
       },
       {
         path: "staffs/edit/:id",
-        element: <PrivateRoute roleRequired={["sup_admin"]} element={<StaffEdit />} />,
+        element: (
+          <PrivateRoute roleRequired={["sup_admin"]} element={<StaffEdit />} />
+        ),
       },
       {
         path: "users/create_account",
@@ -394,47 +422,93 @@ const Routers = createBrowserRouter([
       {
         path: "create_form",
         element: <CreateForm />,
-    },
-    {
-      path: "edit_form/:id",
-      element: <EditForm />,
-    },
-    {
-    path: "view_form/:id",
-    element: <ViewForm />,
-   },
-    {
-      path: "forms",
-      element: <Forms />,
-   },
-   {
-    path: "all_submission",
-    element: <AllSubmission />,
- },
- {
-  path: "view_submission/:id",
-  element: <ViewSubmitted />,
-},
-{
-  path: "cso_submission/:id",
-  element: <CsoSubmission />,
-},
-{
-  path: "letter_form",
-  element: <LetterForm />,
-},
-{
-  path: "letter_list",
-  element: <LetterList />,
-},
-{
-  path: "letter_view/:id",
-  element: <LetterView />,
-},
-{
-  path: "letter_edit/:id",
-  element: <LetterEdit />,
-},
+      },
+      {
+        path: "edit_form/:id",
+        element: <EditForm />,
+      },
+      {
+        path: "view_form/:id",
+        element: <ViewForm />,
+      },
+      {
+        path: "forms",
+        element: <Forms />,
+      },
+      {
+        path: "all_submission",
+        element: <AllSubmission />,
+      },
+      {
+        path: "view_submission/:id",
+        element: <ViewSubmitted />,
+      },
+      {
+        path: "cso_submission/:id",
+        element: <CsoSubmission />,
+      },
+      {
+        path: "letter_form",
+        element: <LetterForm />,
+      },
+      {
+        path: "letter_list",
+        element: <LetterList />,
+      },
+      {
+        path: "letter_view/:id",
+        element: <LetterView />,
+      },
+      {
+        path: "letter_edit/:id",
+        element: <LetterEdit />,
+      },
+      {
+        path: "backup",
+        element: <Backup />,
+      },
+      // web content 
+
+      {
+        path: "create_contact_info",
+        element: <CreateContact />,
+      },
+      {
+        path: "news",
+        element: <CreateNews />,
+      },
+      {
+        path: "news_list",
+        element: <NewsList />,
+      },
+      {
+        path: "edit_news/:id",
+        element: <EditNews />,
+      },
+      {
+        path: "view_news/:id",
+        element: <ViewNews />,
+      },
+      {
+        path: "about_content",
+        element: <UpdateAbout />,
+      },
+      {
+        path: "hero",
+        element: <HeroSlideList />,
+      },
+      {
+        path: "create_hero",
+        element: <CreateHeroSlide />,
+      },
+      {
+        path: "view_hero/:id",
+        element: <ViewHeroSlide />,
+      },
+      {
+        path: "edit_hero/:id",
+        element: <UpdateHeroSlide />,
+      },
     ],
   },
   //login rout
@@ -453,28 +527,28 @@ const Routers = createBrowserRouter([
   },
   // //register rout
   {
-      path: "/staff/register",
-      element: <StaffRegistration />,
+    path: "/staff/register",
+    element: <StaffRegistration />,
   },
   {
     path: "/verify/:token",
     element: <EmailVerification />,
-},
-{
-  path: "/login",
-  element: <Login />,
-},
-{
-  path: "/forgetPassword",
-  element: <ForgotPasswordStaff />,
-},
-{
-  path: "/resetPassword/:token",
-  element: <ResetPasswordStaff />,
-},
-{
-  path: "create_userAccount",
-  element: <CreateAccount />,
-},
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/forgetPassword",
+    element: <ForgotPasswordStaff />,
+  },
+  {
+    path: "/resetPassword/:token",
+    element: <ResetPasswordStaff />,
+  },
+  {
+    path: "create_userAccount",
+    element: <CreateAccount />,
+  },
 ]);
 export default Routers;

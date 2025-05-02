@@ -166,6 +166,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, ChevronDown } from 'react-feather';
 import { useNavigate } from 'react-router';
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -208,10 +209,16 @@ const Header = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center"
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-3 ${isScrolled ? 'bg-indigo-600' : 'bg-white'}`}>
-              <span className={`text-xl font-bold ${isScrolled ? 'text-white' : 'text-indigo-600'}`}>BFO</span>
+            <Link to="/" className="flex items-center">
+
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mr-3 ${isScrolled ? 'bg-gray-200' : 'bg-white'}`}>
+              <span className={`text-xl font-bold ${isScrolled ? 'text-white' : 'text-gray-400'}`}>
+           <img src="/logo3.png" alt="Company Logo" className="h-12" />
+        </span>
             </div>
-            <span className={`text-2xl font-bold ${isScrolled ? 'text-indigo-600' : 'text-white'}`}>Beshoftu Finance Office</span>
+
+            <span className={`text-lg font-bold ${isScrolled ? 'text-indigo-600' : 'text-gray-500'}`}>Bishoftu Finance Office</span>
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -220,7 +227,7 @@ const Header = () => {
               <div key={item.name} className="relative group">
                 <a 
                   href={item.href}
-                  className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isScrolled ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-indigo-200'}`}
+                  className={`flex items-center px-3 py-2 rounded-lg transition-colors ${isScrolled ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-400 hover:text-indigo-200'}`}
                   onMouseEnter={() => item.submenu && setActiveSubmenu(item.name)}
                   onMouseLeave={() => item.submenu && setActiveSubmenu(null)}
                 >
