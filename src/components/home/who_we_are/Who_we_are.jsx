@@ -45,13 +45,10 @@ const WhoWeAre = () => {
           className="space-y-8"
         >
           <h2 className="text-4xl font-bold text-white mb-6">
-            Empowering Communities Through Financial Excellence
+            About Bishoftu Finance office
           </h2>
           <p className="text-lg text-gray-300 leading-relaxed">
-            {/* As Bishoftu's premier financial governance institution, we champion
-            transparency and accountability in public finance management. Our
-            innovative solutions and collaborative approach drive sustainable
-            community development. */}
+         
             {about.introduction || null}
           </p>
           <div className="flex gap-4">

@@ -227,15 +227,15 @@ const Sidebar = ({ darkMode, toggleDarkMode, collapsed }) => {
             <ul className="submenu">
               <li
                 className={`submenu-item ${
-                  isActive("/admin/web_content/hero_content") ? "active" : ""
+                  isActive("/admin/service") ? "active" : ""
                 }`}
               >
                 <Link
-                  to="/admin/web_content/hero_content"
+                  to="/admin/service"
                   className="flex items-center"
                 >
                   <FaClipboardList />
-                  Hero Content
+                  Services
                 </Link>
               </li>
               <li

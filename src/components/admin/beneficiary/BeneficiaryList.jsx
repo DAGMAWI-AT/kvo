@@ -500,7 +500,8 @@ const BeneficiaryList = () => {
                   onClick={() => handleSort("beneficiary_id")}
                 >
                   <div className="flex items-center">
-                    BenFi ID
+                    {/* BenFi ID */}
+                    Lakkoofsa Abdii
                     {sortConfig.key === "beneficiary_id" && (
                       <span className="ml-1">
                         {sortConfig.direction === "asc" ? "↑" : "↓"}

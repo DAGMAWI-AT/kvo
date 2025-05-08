@@ -99,6 +99,8 @@ import HeroSlideList from "../admin/webContent/hero/HeroSlideList";
 import CreateHeroSlide from "../admin/webContent/hero/CreateHeroSlide";
 import ViewHeroSlide from "../admin/webContent/hero/ViewHeroSlide";
 import UpdateHeroSlide from "../admin/webContent/hero/UpdateHeroSlide";
+import ServiceManager from "../admin/webContent/serviceContent/ServiceManager";
+import LettersPortal from "../portal/LettersPortal";
 
 
 const Routers = createBrowserRouter([
@@ -130,6 +132,10 @@ const Routers = createBrowserRouter([
       {
         path: "/contact",
         element: <Contact />,
+      },
+      {
+        path: "/portal",
+        element: <LettersPortal />,
       },
     ],
   },
@@ -508,6 +514,11 @@ const Routers = createBrowserRouter([
       {
         path: "edit_hero/:id",
         element: <UpdateHeroSlide />,
+      },
+
+      {
+        path: "service",
+        element: <ServiceManager />,
       },
     ],
   },

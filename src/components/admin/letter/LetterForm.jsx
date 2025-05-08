@@ -31,6 +31,7 @@ const LetterForm = () => {
     title: "",
     summary: "",
     type: "Announcement",
+    date: "",
     attachmentPath: "",
     attachmentName: "",
     sendToAll: false,
@@ -206,8 +207,8 @@ const LetterForm = () => {
 
     if (!formData.summary.trim()) {
       newErrors.summary = "Summary is required";
-    } else if (formData.summary.length > 1000) {
-      newErrors.summary = "Summary must be less than 1000 characters";
+    } else if (formData.summary.length > 250) {
+      newErrors.summary = "Summary must be less than 250 characters";
     }
 
     if (!formData.type) {
@@ -238,6 +239,7 @@ const LetterForm = () => {
       formDataToSend.append("title", formData.title);
       formDataToSend.append("summary", formData.summary);
       formDataToSend.append("type", formData.type);
+      formDataToSend.append("date", formData.date);
       formDataToSend.append("sendToAll", formData.sendToAll);
       formDataToSend.append(
         "selectedCsos",
@@ -296,7 +298,7 @@ const LetterForm = () => {
           <span className="font-medium">Back to Letters</span>
         </Link>
         <h1 className="text-2xl font-bold text-gray-800">
-          Create New Communication
+          Create New Letter
         </h1>
         <div className="w-8"></div> {/* Spacer for alignment */}
       </div>
@@ -365,13 +367,32 @@ const LetterForm = () => {
                   errors.summary ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter letter summary"
-                maxLength={1000}
+                maxLength={250}
               />
               {errors.summary && (
                 <p className="text-red-500 text-xs mt-1">{errors.summary}</p>
               )}
               <div className="text-xs text-gray-500 mt-1 text-right">
-                {formData.summary.length}/1000 characters
+                {formData.summary.length}/250 characters
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Summary <span className="text-red-500">*</span>
+              </label>
+              <input
+              type="datetime-local"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className={`w-full p-2 border rounded-md ${
+                  errors.date ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.date && (
+                <p className="text-red-500 text-xs mt-1">{errors.date}</p>
+              )}
+              <div className="text-xs text-gray-500 mt-1 text-right">
               </div>
             </div>
           </div>
